@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doações - Igreja Verbo da Vida Zona Leste</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary-color: #1a5276;
@@ -398,6 +399,12 @@
             margin: 3rem auto;
         }
         
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary-color);
+        }
+        
         footer {
             background: var(--dark-color);
             color: white;
@@ -501,7 +508,7 @@
     <section id="produtos" class="container">
         <h2 class="section-title">Produtos para Doação</h2>
         <div class="products-grid" id="productsGrid">
-            <!-- Produtos serão carregados dinamicamente aqui -->
+            <div class="loading">Carregando produtos...</div>
         </div>
     </section>
     
@@ -517,6 +524,11 @@
                 <div class="form-group">
                     <label for="email">E-mail *</label>
                     <input type="email" id="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="tel" id="telefone" class="form-control">
                 </div>
                 
                 <div class="form-group">
@@ -550,7 +562,6 @@
                     <div class="pix-code" id="pixCode">
                         <p>Escaneie o código PIX abaixo ou copie a chave:</p>
                         <div style="background:white; padding:10px; display:inline-block;">
-                            <!-- Aqui viria o QR Code real do PIX -->
                             <div style="width:200px; height:200px; background:#eee; display:flex; align-items:center; justify-content:center;">
                                 QR Code PIX
                             </div>
@@ -637,7 +648,7 @@
         
         <h3 class="section-title">Produtos Cadastrados</h3>
         <div class="admin-products-grid" id="adminProductsGrid">
-            <!-- Produtos cadastrados serão exibidos aqui -->
+            <div class="loading">Carregando produtos...</div>
         </div>
     </section>
     
@@ -661,10 +672,16 @@
     </footer>
     
     <script>
-        // Senha de administração (em um ambiente real, isso seria mais seguro)
+        // Configuração do Supabase
+        const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Senha de administração
         const ADMIN_PASSWORD = "admin123";
         
-        // Array para armazenar os produtos
+        // Array para armazenar os produtos em cache
         let products = [];
         
         // Selecionar produto
@@ -700,25 +717,51 @@
             });
         });
         
-        // Confirmar pagamento (simulação)
-        function confirmPayment() {
+        // Confirmar pagamento (salvar no Supabase)
+        async function confirmPayment() {
             const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
             const produto = document.getElementById('produto').value;
-            const valor = document.getElementById('valor').value;
+            const valor = parseFloat(document.getElementById('valor').value);
             const mensagem = document.getElementById('mensagem').value;
+            const metodoPagamento = document.querySelector('.payment-option.active').getAttribute('data-method');
             
-            if (!nome || !valor) {
+            if (!nome || !email || !valor) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
             
-            // Aqui seria feita a integração com o Supabase para salvar os dados
-            // Por enquanto, apenas uma simulação
-            alert(`Obrigado, ${nome}! Sua doação de R$ ${valor} para o produto "${produto}" foi confirmada. Sua mensagem: "${mensagem}"`);
-            
-            // Limpar formulário
-            document.getElementById('donationForm').reset();
-            document.getElementById('produto').value = '';
+            try {
+                const { data, error } = await supabase
+                    .from('doacoes')
+                    .insert([
+                        {
+                            nome_doador: nome,
+                            email_doador: email,
+                            telefone_doador: telefone,
+                            produto: produto,
+                            valor: valor,
+                            mensagem: mensagem,
+                            metodo_pagamento: metodoPagamento,
+                            status: 'pendente',
+                            data_criacao: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) throw error;
+                
+                alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para o produto "${produto}" foi registrada com sucesso.`);
+                
+                // Limpar formulário
+                document.getElementById('donationForm').reset();
+                document.getElementById('produto').value = '';
+                
+            } catch (error) {
+                console.error('Erro ao salvar doação:', error);
+                alert('Erro ao processar doação. Tente novamente.');
+            }
         }
         
         // Login de administração
@@ -742,90 +785,150 @@
         }
         
         // Carregar produtos para a administração
-        function loadAdminProducts() {
+        async function loadAdminProducts() {
             const adminGrid = document.getElementById('adminProductsGrid');
-            adminGrid.innerHTML = '';
+            adminGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
             
-            if (products.length === 0) {
-                adminGrid.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
-                return;
-            }
-            
-            products.forEach((product, index) => {
-                const productCard = document.createElement('div');
-                productCard.className = 'admin-product-card';
+            try {
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*')
+                    .order('id', { ascending: false });
                 
-                productCard.innerHTML = `
-                    <div class="admin-product-image">
-                        <img src="${product.image || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" alt="${product.name}">
-                    </div>
-                    <div class="admin-product-info">
-                        <h3 class="admin-product-title">${product.name}</h3>
-                        <p class="admin-product-description">${product.description}</p>
-                        <div class="admin-product-price">R$ ${product.price.toFixed(2)}</div>
-                        <div class="admin-product-actions">
-                            <button class="btn btn-small btn-danger" onclick="deleteProduct(${index})">Excluir</button>
+                if (error) throw error;
+                
+                adminGrid.innerHTML = '';
+                
+                if (!data || data.length === 0) {
+                    adminGrid.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
+                    return;
+                }
+                
+                data.forEach((product) => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'admin-product-card';
+                    
+                    productCard.innerHTML = `
+                        <div class="admin-product-image">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" alt="${product.nome}">
                         </div>
-                    </div>
-                `;
+                        <div class="admin-product-info">
+                            <h3 class="admin-product-title">${product.nome}</h3>
+                            <p class="admin-product-description">${product.descricao}</p>
+                            <div class="admin-product-price">R$ ${product.preco.toFixed(2)}</div>
+                            <div class="admin-product-actions">
+                                <button class="btn btn-small btn-danger" onclick="deleteProduct(${product.id})">Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    adminGrid.appendChild(productCard);
+                });
                 
-                adminGrid.appendChild(productCard);
-            });
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                adminGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
+            }
         }
         
         // Excluir produto
-        function deleteProduct(index) {
+        async function deleteProduct(productId) {
             if (confirm('Tem certeza que deseja excluir este produto?')) {
-                products.splice(index, 1);
-                saveProducts();
-                loadAdminProducts();
-                loadProducts();
+                try {
+                    const { error } = await supabase
+                        .from('produtos')
+                        .delete()
+                        .eq('id', productId);
+                    
+                    if (error) throw error;
+                    
+                    alert('Produto excluído com sucesso!');
+                    loadAdminProducts();
+                    loadProducts();
+                    
+                } catch (error) {
+                    console.error('Erro ao excluir produto:', error);
+                    alert('Erro ao excluir produto.');
+                }
             }
         }
         
-        // Salvar produtos no localStorage
-        function saveProducts() {
-            localStorage.setItem('donationProducts', JSON.stringify(products));
-        }
-        
-        // Carregar produtos do localStorage
-        function loadProducts() {
-            const savedProducts = localStorage.getItem('donationProducts');
-            if (savedProducts) {
-                products = JSON.parse(savedProducts);
-            }
-            
-            // Exibir produtos na página principal
+        // Carregar produtos do Supabase
+        async function loadProducts() {
             const productsGrid = document.getElementById('productsGrid');
-            productsGrid.innerHTML = '';
+            productsGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
             
-            if (products.length === 0) {
-                productsGrid.innerHTML = '<p>Nenhum produto disponível para doação no momento.</p>';
-                return;
+            try {
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*')
+                    .order('id', { ascending: false });
+                
+                if (error) throw error;
+                
+                productsGrid.innerHTML = '';
+                
+                if (!data || data.length === 0) {
+                    productsGrid.innerHTML = '<p>Nenhum produto disponível para doação no momento.</p>';
+                    return;
+                }
+                
+                // Atualizar cache local
+                products = data;
+                
+                data.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    
+                    productCard.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" alt="${product.nome}">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">${product.nome}</h3>
+                            <p class="product-description">${product.descricao}</p>
+                            <div class="product-price">R$ ${product.preco.toFixed(2)}</div>
+                            <button class="btn" onclick="selectProduct('${product.nome}', ${product.preco})">Selecionar</button>
+                        </div>
+                    `;
+                    
+                    productsGrid.appendChild(productCard);
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                productsGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
             }
-            
-            products.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card';
+        }
+        
+        // Upload de imagem para o Supabase Storage
+        async function uploadImage(file) {
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `produtos/${fileName}`;
                 
-                productCard.innerHTML = `
-                    <div class="product-image">
-                        <img src="${product.image || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" alt="${product.name}">
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
-                        <div class="product-price">R$ ${product.price.toFixed(2)}</div>
-                        <button class="btn" onclick="selectProduct('${product.name}', ${product.price})">Selecionar</button>
-                    </div>
-                `;
+                const { data, error } = await supabase.storage
+                    .from('images')
+                    .upload(filePath, file);
                 
-                productsGrid.appendChild(productCard);
-            });
+                if (error) throw error;
+                
+                // Obter URL pública da imagem
+                const { data: { publicUrl } } = supabase.storage
+                    .from('images')
+                    .getPublicUrl(filePath);
+                
+                return publicUrl;
+                
+            } catch (error) {
+                console.error('Erro ao fazer upload da imagem:', error);
+                throw error;
+            }
         }
         
         // Processar formulário de produto
-        document.getElementById('productForm').addEventListener('submit', function(e) {
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const name = document.getElementById('productName').value;
@@ -839,43 +942,43 @@
                 return;
             }
             
-            // Processar imagem
-            if (imageFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const product = {
-                        name,
-                        description,
-                        price,
-                        image: e.target.result
-                    };
-                    
-                    products.push(product);
-                    saveProducts();
-                    loadAdminProducts();
-                    loadProducts();
-                    
-                    // Limpar formulário
-                    document.getElementById('productForm').reset();
-                    alert('Produto cadastrado com sucesso!');
-                };
-                reader.readAsDataURL(imageFile);
-            } else {
-                // Sem imagem
-                const product = {
-                    name,
-                    description,
-                    price
-                };
+            try {
+                let imageUrl = null;
                 
-                products.push(product);
-                saveProducts();
-                loadAdminProducts();
-                loadProducts();
+                // Processar imagem se fornecida
+                if (imageFile) {
+                    imageUrl = await uploadImage(imageFile);
+                }
+                
+                // Salvar produto no Supabase
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .insert([
+                        {
+                            nome: name,
+                            descricao: description,
+                            preco: price,
+                            imagem_url: imageUrl,
+                            ativo: true,
+                            data_criacao: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) throw error;
+                
+                alert('Produto cadastrado com sucesso!');
                 
                 // Limpar formulário
                 document.getElementById('productForm').reset();
-                alert('Produto cadastrado com sucesso!');
+                
+                // Recarregar listas
+                loadAdminProducts();
+                loadProducts();
+                
+            } catch (error) {
+                console.error('Erro ao salvar produto:', error);
+                alert('Erro ao cadastrar produto. Tente novamente.');
             }
         });
         
