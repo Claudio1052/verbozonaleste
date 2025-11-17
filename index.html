@@ -748,9 +748,9 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="productImage">Imagem do Produto</label>
-                    <input type="file" id="productImage" class="form-control" accept="image/*">
-                    <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão</small>
+                    <label for="productImage">Imagem do Produto (JPG)</label>
+                    <input type="file" id="productImage" class="form-control" accept=".jpg,.jpeg" required>
+                    <small style="color: #666; font-size: 0.9rem;">Apenas arquivos JPG são aceitos</small>
                 </div>
                 
                 <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
@@ -783,27 +783,50 @@
     </footer>
 
     <script>
-        // Configuração do Supabase
+        // CONFIGURAÇÃO SUPABASE
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzM5NTkwMiwiZXhwIjoyMDc4OTcxOTAyfQ.9M3NrDz0q1mY2L3v9x4q4w4Q4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const ADMIN_PASSWORD = "admin123";
         
         // Testar conexão com Supabase
         async function testSupabaseConnection() {
             try {
-                console.log('🧪 Testando conexão com Supabase...');
+                console.log('🔍 Testando conexão com Supabase...');
                 const { data, error } = await supabase
                     .from('produtos')
-                    .select('*')
+                    .select('count')
                     .limit(1);
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Erro na conexão:', error);
+                    return false;
+                }
+                
                 console.log('✅ Conexão com Supabase estabelecida com sucesso!');
                 return true;
             } catch (error) {
-                console.error('❌ Erro na conexão com Supabase:', error);
+                console.error('❌ Erro na conexão:', error);
+                return false;
+            }
+        }
+        
+        // Verificar se o bucket imagens2 existe
+        async function checkBucketExists() {
+            try {
+                console.log('🔍 Verificando bucket imagens2...');
+                const { data, error } = await supabase.storage.getBucket('imagens2');
+                
+                if (error) {
+                    console.error('❌ Bucket imagens2 não encontrado:', error);
+                    return false;
+                }
+                
+                console.log('✅ Bucket imagens2 encontrado!');
+                return true;
+            } catch (error) {
+                console.error('❌ Erro ao verificar bucket:', error);
                 return false;
             }
         }
@@ -820,6 +843,7 @@
             document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
         }
         
+        // Configurar pagamentos
         document.querySelectorAll('.payment-option').forEach(option => {
             option.addEventListener('click', function() {
                 document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
@@ -968,25 +992,37 @@
             }
         }
         
+        // Upload de imagem para o bucket imagens2 em JPG
         async function uploadImage(file) {
             try {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                // Verificar se o arquivo é JPG
+                if (!file.type.includes('jpeg') && !file.type.includes('jpg')) {
+                    throw new Error('Apenas arquivos JPG são permitidos');
+                }
+                
+                // Gerar nome do arquivo com timestamp e extensão .jpg
+                const fileName = `produto-${Date.now()}.jpg`;
                 const filePath = `produtos/${fileName}`;
                 
-                console.log('📤 Fazendo upload da imagem:', file.name);
+                console.log('📤 Fazendo upload para imagens2...', file.name);
                 
+                // Fazer upload para o bucket imagens2
                 const { data, error } = await supabase.storage
-                    .from('images')
+                    .from('imagens2')
                     .upload(filePath, file, {
                         cacheControl: '3600',
-                        upsert: false
+                        upsert: false,
+                        contentType: 'image/jpeg'
                     });
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Erro no upload:', error);
+                    throw error;
+                }
                 
+                // Obter URL pública da imagem
                 const { data: { publicUrl } } = supabase.storage
-                    .from('images')
+                    .from('imagens2')
                     .getPublicUrl(filePath);
                 
                 console.log('✅ Upload realizado com sucesso:', publicUrl);
@@ -998,6 +1034,7 @@
             }
         }
         
+        // FORMULÁRIO DE PRODUTO
         document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -1011,17 +1048,25 @@
                 return;
             }
             
+            if (!imageFile) {
+                showAlert('productAlert', 'Por favor, selecione uma imagem JPG.', 'error');
+                return;
+            }
+            
             try {
-                let imageUrl = null;
-                
-                // Processar imagem se fornecida
-                if (imageFile) {
-                    showAlert('productAlert', 'Fazendo upload da imagem...', 'success');
-                    imageUrl = await uploadImage(imageFile);
+                // Verificar se o bucket existe
+                const bucketExists = await checkBucketExists();
+                if (!bucketExists) {
+                    throw new Error('Bucket imagens2 não encontrado. Crie o bucket no Supabase Storage.');
                 }
                 
-                // SALVAR PRODUTO NO SUPABASE (MÉTODO CORRETO)
-                console.log('💾 Salvando produto no banco...');
+                showAlert('productAlert', 'Fazendo upload da imagem JPG...', 'success');
+                
+                // Fazer upload da imagem
+                const imageUrl = await uploadImage(imageFile);
+                
+                // Salvar produto no banco
+                console.log('💾 Salvando produto...');
                 const { data, error } = await supabase
                     .from('produtos')
                     .insert([
@@ -1041,30 +1086,34 @@
                     throw error;
                 }
                 
-                console.log('✅ Produto salvo com sucesso:', data);
-                showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
+                console.log('✅ Produto salvo:', data);
+                showAlert('productAlert', '✅ Produto cadastrado com sucesso!', 'success');
                 
-                // Limpar formulário
+                // Limpar e recarregar
                 document.getElementById('productForm').reset();
-                
-                // Recarregar listas
                 loadAdminProducts();
                 loadProducts();
                 
             } catch (error) {
-                console.error('❌ Erro completo ao salvar produto:', error);
-                showAlert('productAlert', 'Erro ao cadastrar produto: ' + error.message, 'error');
+                console.error('❌ Erro completo:', error);
+                showAlert('productAlert', `❌ Erro: ${error.message}`, 'error');
             }
         });
         
-        // Inicializar página
+        // INICIALIZAÇÃO
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 Inicializando aplicação...');
+            console.log('🚀 Iniciando aplicação...');
             
             // Testar conexão
             const connected = await testSupabaseConnection();
             if (!connected) {
-                alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
+                alert('⚠️ Problema na conexão com o banco. Verifique o console.');
+            }
+            
+            // Verificar bucket
+            const bucketExists = await checkBucketExists();
+            if (!bucketExists) {
+                console.warn('⚠️ Bucket imagens2 não encontrado. Crie o bucket no Supabase Storage.');
             }
             
             document.getElementById('pixCode').style.display = 'block';
@@ -1074,8 +1123,6 @@
                 e.preventDefault();
                 document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
             });
-            
-            console.log('✅ Aplicação inicializada com sucesso!');
         });
     </script>
 </body>
