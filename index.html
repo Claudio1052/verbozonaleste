@@ -6,7 +6,6 @@
     <title>Doações - Igreja Verbo da Vida Zona Leste</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* (MANTENHA TODOS OS ESTILOS ANTERIORES) */
         :root {
             --primary-color: #1a5276;
             --secondary-color: #2e86c1;
@@ -14,6 +13,7 @@
             --light-color: #f8f9fa;
             --dark-color: #333;
             --success-color: #28a745;
+            --error-color: #e74c3c;
         }
         
         * {
@@ -29,12 +29,597 @@
             line-height: 1.6;
         }
         
-        /* ... (todo o CSS anterior permanece igual) ... */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
         
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 2rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            margin-top: 80px;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+        
+        .btn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: #2471a3;
+            box-shadow: 0 6px 20px rgba(46, 134, 193, 0.4);
+        }
+        
+        .btn-small {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background: var(--error-color);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+        
+        section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            position: relative;
+            font-size: 2.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--accent-color);
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            height: 220px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+        
+        .product-info {
+            padding: 2rem;
+        }
+        
+        .product-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .donation-form, .admin-form, .login-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .admin-form {
+            max-width: 800px;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-option {
+            flex: 1;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.05);
+        }
+        
+        .payment-option.active {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.1);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
+        }
+        
+        .payment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .pix-code {
+            display: none;
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 1.5rem;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .pix-code img {
+            max-width: 200px;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+        
+        .card-form {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        
+        .card-form.active {
+            display: block;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .admin-section {
+            display: none;
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .admin-products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .admin-product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .admin-product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        
+        .admin-product-image {
+            height: 180px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            overflow: hidden;
+        }
+        
+        .admin-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .admin-product-info {
+            padding: 1.5rem;
+        }
+        
+        .admin-product-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .admin-product-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .admin-product-price {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .admin-product-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+        
+        .alert {
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .footer-logo span {
+            color: var(--accent-color);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #444;
+            padding-top: 1.5rem;
+            width: 100%;
+        }
+        
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .product-card, .donation-form, .admin-form {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            nav ul li {
+                margin: 0.5rem;
+            }
+            
+            .hero {
+                height: 50vh;
+                margin-top: 120px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .payment-methods {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+            
+            .products-grid, .admin-products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .donation-form, .admin-form, .login-form {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- (MANTENHA TODO O HTML ANTERIOR) -->
     <header>
         <div class="container">
             <div class="header-content">
@@ -115,13 +700,13 @@
                     
                     <div class="pix-code" id="pixCode">
                         <p>Escaneie o código PIX abaixo ou copie a chave:</p>
-                        <div style="background:white; padding:10px; display:inline-block;">
-                            <div style="width:200px; height:200px; background:#eee; display:flex; align-items:center; justify-content:center;">
+                        <div style="background:white; padding:15px; display:inline-block; border-radius:10px;">
+                            <div style="width:200px; height:200px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:5px;">
                                 QR Code PIX
                             </div>
                         </div>
                         <p>Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
-                        <button type="button" class="btn" style="margin-top:10px;" onclick="confirmPayment()">Confirmar Pagamento</button>
+                        <button type="button" class="btn" style="margin-top:15px;" onclick="confirmPayment()">Confirmar Pagamento</button>
                     </div>
                     
                     <div class="card-form" id="cardForm">
@@ -174,7 +759,7 @@
         </div>
         
         <div class="admin-form">
-            <h3>Cadastrar Novo Produto</h3>
+            <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Cadastrar Novo Produto</h3>
             <div id="productAlert"></div>
             <form id="productForm">
                 <div class="form-group">
@@ -195,10 +780,10 @@
                 <div class="form-group">
                     <label for="productImage">Imagem do Produto</label>
                     <input type="file" id="productImage" class="form-control" accept="image/*">
-                    <small>Se não selecionar uma imagem, será usada uma imagem padrão</small>
+                    <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão</small>
                 </div>
                 
-                <button type="submit" class="btn">Salvar Produto</button>
+                <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
             </form>
         </div>
         
@@ -211,7 +796,7 @@
     <footer id="contato">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-logo">Igreja Verbo da Vida Zona Leste</div>
+                <div class="footer-logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
                 <div class="footer-links">
                     <a href="#">Sobre Nós</a>
                     <a href="#">Localização</a>
@@ -226,61 +811,42 @@
             </div>
         </div>
     </footer>
-    
+
     <script>
         // Configuração do Supabase
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
         
-        // Inicializar Supabase
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // Senha de administração
         const ADMIN_PASSWORD = "admin123";
         
-        // Função para mostrar alertas
         function showAlert(elementId, message, type = 'success') {
             const alertDiv = document.getElementById(elementId);
-            alertDiv.innerHTML = `
-                <div class="alert alert-${type}">
-                    ${message}
-                </div>
-            `;
-            setTimeout(() => {
-                alertDiv.innerHTML = '';
-            }, 5000);
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertDiv.innerHTML = '', 5000);
         }
         
-        // Selecionar produto
         function selectProduct(nome, valor) {
             document.getElementById('produto').value = nome;
             document.getElementById('valor').value = valor;
-            
             document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
         }
         
-        // Alternar entre métodos de pagamento
         document.querySelectorAll('.payment-option').forEach(option => {
             option.addEventListener('click', function() {
-                document.querySelectorAll('.payment-option').forEach(opt => {
-                    opt.classList.remove('active');
-                });
-                
+                document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
                 this.classList.add('active');
-                
                 const method = this.getAttribute('data-method');
-                
                 if (method === 'pix') {
                     document.getElementById('pixCode').style.display = 'block';
                     document.getElementById('cardForm').classList.remove('active');
-                } else if (method === 'cartao') {
+                } else {
                     document.getElementById('pixCode').style.display = 'none';
                     document.getElementById('cardForm').classList.add('active');
                 }
             });
         });
         
-        // Confirmar pagamento
         async function confirmPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
@@ -296,40 +862,24 @@
             }
             
             try {
-                const { data, error } = await supabase
-                    .from('doacoes')
-                    .insert([
-                        {
-                            nome_doador: nome,
-                            email_doador: email,
-                            telefone_doador: telefone,
-                            produto: produto,
-                            valor: valor,
-                            mensagem: mensagem,
-                            metodo_pagamento: metodoPagamento,
-                            status: 'pendente',
-                            data_criacao: new Date().toISOString()
-                        }
-                    ])
-                    .select();
+                const { data, error } = await supabase.from('doacoes').insert([{
+                    nome_doador: nome, email_doador: email, telefone_doador: telefone,
+                    produto: produto, valor: valor, mensagem: mensagem,
+                    metodo_pagamento: metodoPagamento, status: 'pendente', data_criacao: new Date().toISOString()
+                }]).select();
                 
                 if (error) throw error;
-                
-                alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para o produto "${produto}" foi registrada com sucesso.`);
-                
+                alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para "${produto}" foi registrada.`);
                 document.getElementById('donationForm').reset();
                 document.getElementById('produto').value = '';
-                
             } catch (error) {
                 console.error('Erro ao salvar doação:', error);
                 alert('Erro ao processar doação. Tente novamente.');
             }
         }
         
-        // Login de administração
         function loginAdmin() {
             const password = document.getElementById('adminPassword').value;
-            
             if (password === ADMIN_PASSWORD) {
                 document.getElementById('adminLogin').classList.remove('active');
                 document.getElementById('adminPanel').classList.add('active');
@@ -341,39 +891,28 @@
             }
         }
         
-        // Logout de administração
         function logoutAdmin() {
             document.getElementById('adminPanel').classList.remove('active');
             document.getElementById('adminLogin').classList.add('active');
         }
         
-        // Carregar produtos para a administração
         async function loadAdminProducts() {
             const adminGrid = document.getElementById('adminProductsGrid');
             adminGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
-            
             try {
-                const { data, error } = await supabase
-                    .from('produtos')
-                    .select('*')
-                    .order('id', { ascending: false });
-                
+                const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
                 if (error) throw error;
-                
                 adminGrid.innerHTML = '';
-                
                 if (!data || data.length === 0) {
                     adminGrid.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
                     return;
                 }
-                
                 data.forEach((product) => {
                     const productCard = document.createElement('div');
                     productCard.className = 'admin-product-card';
-                    
                     productCard.innerHTML = `
                         <div class="admin-product-image">
-                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" alt="${product.nome}" onerror="this.src='https://via.placeholder.com/300x150?text=Erro+Imagem'">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" alt="${product.nome}">
                         </div>
                         <div class="admin-product-info">
                             <h3 class="admin-product-title">${product.nome}</h3>
@@ -384,31 +923,22 @@
                             </div>
                         </div>
                     `;
-                    
                     adminGrid.appendChild(productCard);
                 });
-                
             } catch (error) {
                 console.error('Erro ao carregar produtos:', error);
                 adminGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
             }
         }
         
-        // Excluir produto
         async function deleteProduct(productId) {
             if (confirm('Tem certeza que deseja excluir este produto?')) {
                 try {
-                    const { error } = await supabase
-                        .from('produtos')
-                        .delete()
-                        .eq('id', productId);
-                    
+                    const { error } = await supabase.from('produtos').delete().eq('id', productId);
                     if (error) throw error;
-                    
                     alert('Produto excluído com sucesso!');
                     loadAdminProducts();
                     loadProducts();
-                    
                 } catch (error) {
                     console.error('Erro ao excluir produto:', error);
                     alert('Erro ao excluir produto.');
@@ -416,35 +946,24 @@
             }
         }
         
-        // Carregar produtos do Supabase
         async function loadProducts() {
             const productsGrid = document.getElementById('productsGrid');
             productsGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
-            
             try {
-                const { data, error } = await supabase
-                    .from('produtos')
-                    .select('*')
-                    .order('id', { ascending: false });
-                
+                const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
                 if (error) throw error;
-                
                 productsGrid.innerHTML = '';
-                
                 if (!data || data.length === 0) {
                     productsGrid.innerHTML = '<p>Nenhum produto disponível para doação no momento.</p>';
                     return;
                 }
-                
                 data.forEach(product => {
+                    const safeName = product.nome.replace(/'/g, "\\'");
                     const productCard = document.createElement('div');
                     productCard.className = 'product-card';
-                    
-                    const safeName = product.nome.replace(/'/g, "\\'");
-                    
                     productCard.innerHTML = `
                         <div class="product-image">
-                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" alt="${product.nome}" onerror="this.src='https://via.placeholder.com/300x200?text=Erro+Imagem'">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" alt="${product.nome}">
                         </div>
                         <div class="product-info">
                             <h3 class="product-title">${product.nome}</h3>
@@ -453,49 +972,31 @@
                             <button class="btn" onclick="selectProduct('${safeName}', ${product.preco})">Selecionar</button>
                         </div>
                     `;
-                    
                     productsGrid.appendChild(productCard);
                 });
-                
             } catch (error) {
                 console.error('Erro ao carregar produtos:', error);
                 productsGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
             }
         }
         
-        // Upload de imagem para o Supabase Storage
         async function uploadImage(file) {
             try {
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
                 const filePath = `produtos/${fileName}`;
-                
-                const { data, error } = await supabase.storage
-                    .from('images')
-                    .upload(filePath, file, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
-                
+                const { data, error } = await supabase.storage.from('images').upload(filePath, file);
                 if (error) throw error;
-                
-                // Obter URL pública da imagem
-                const { data: { publicUrl } } = supabase.storage
-                    .from('images')
-                    .getPublicUrl(filePath);
-                
+                const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
                 return publicUrl;
-                
             } catch (error) {
                 console.error('Erro ao fazer upload da imagem:', error);
                 throw error;
             }
         }
         
-        // Processar formulário de produto - SOLUÇÃO PARA RLS
         document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const name = document.getElementById('productName').value;
             const description = document.getElementById('productDescription').value;
             const price = parseFloat(document.getElementById('productPrice').value);
@@ -508,98 +1009,33 @@
             
             try {
                 let imageUrl = null;
+                if (imageFile) imageUrl = await uploadImage(imageFile);
                 
-                // Processar imagem se fornecida
-                if (imageFile) {
-                    imageUrl = await uploadImage(imageFile);
-                }
-                
-                // SOLUÇÃO: Usar a service_role key temporariamente para contornar o RLS
+                // Usar service role key para contornar RLS
                 const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzM5NTkwMiwiZXhwIjoyMDc4OTcxOTAyfQ.9M3NrDz0q1mY2L3v9x4q4w4Q4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y';
-                
                 const supabaseAdmin = window.supabase.createClient(SUPABASE_URL, serviceRoleKey);
                 
-                // Tentar inserir com a service_role key (ignora RLS)
-                const { data, error } = await supabaseAdmin
-                    .from('produtos')
-                    .insert([
-                        {
-                            nome: name,
-                            descricao: description,
-                            preco: price,
-                            imagem_url: imageUrl,
-                            ativo: true,
-                            data_criacao: new Date().toISOString()
-                        }
-                    ])
-                    .select();
+                const { data, error } = await supabaseAdmin.from('produtos').insert([{
+                    nome: name, descricao: description, preco: price,
+                    imagem_url: imageUrl, ativo: true, data_criacao: new Date().toISOString()
+                }]).select();
                 
-                if (error) {
-                    // Se ainda der erro, tentar método alternativo
-                    console.log('Tentando método alternativo...');
-                    throw error;
-                }
+                if (error) throw error;
                 
                 showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
-                
-                // Limpar formulário
                 document.getElementById('productForm').reset();
-                
-                // Recarregar listas
                 loadAdminProducts();
                 loadProducts();
                 
             } catch (error) {
                 console.error('Erro ao salvar produto:', error);
-                
-                // SOLUÇÃO ALTERNATIVA: Desativar RLS temporariamente via SQL
-                showAlert('productAlert', 'Configurando permissões...', 'success');
-                
-                // Tentar executar SQL para desativar RLS
-                try {
-                    const { error: sqlError } = await supabase.rpc('disable_rls_temporarily');
-                    
-                    if (!sqlError) {
-                        // Se o RPC funcionou, tentar inserir novamente
-                        const { data, error: insertError } = await supabase
-                            .from('produtos')
-                            .insert([
-                                {
-                                    nome: name,
-                                    descricao: description,
-                                    preco: price,
-                                    imagem_url: imageUrl,
-                                    ativo: true,
-                                    data_criacao: new Date().toISOString()
-                                }
-                            ])
-                            .select();
-                        
-                        if (insertError) throw insertError;
-                        
-                        showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
-                        document.getElementById('productForm').reset();
-                        loadAdminProducts();
-                        loadProducts();
-                    } else {
-                        throw sqlError;
-                    }
-                } catch (sqlError) {
-                    console.error('Erro na solução alternativa:', sqlError);
-                    showAlert('productAlert', 'Erro de permissão. Execute o script SQL no Supabase.', 'error');
-                }
+                showAlert('productAlert', 'Erro ao cadastrar produto. Tente novamente.', 'error');
             }
         });
         
-        // Inicializar página
         document.addEventListener('DOMContentLoaded', function() {
-            // Mostrar PIX por padrão
             document.getElementById('pixCode').style.display = 'block';
-            
-            // Carregar produtos
             loadProducts();
-            
-            // Configurar link de administração
             document.getElementById('adminLink').addEventListener('click', function(e) {
                 e.preventDefault();
                 document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
