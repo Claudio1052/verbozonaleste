@@ -524,17 +524,6 @@
             width: 100%;
         }
         
-        /* Animações */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .product-card, .donation-form, .admin-form {
-            animation: fadeIn 0.6s ease-out;
-        }
-        
-        /* Responsividade */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -596,25 +585,6 @@
             .footer-links {
                 flex-direction: column;
                 gap: 1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
-            }
-            
-            .section-title {
-                font-size: 1.8rem;
             }
         }
     </style>
@@ -820,6 +790,24 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
+        // Testar conexão com Supabase
+        async function testSupabaseConnection() {
+            try {
+                console.log('🧪 Testando conexão com Supabase...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) throw error;
+                console.log('✅ Conexão com Supabase estabelecida com sucesso!');
+                return true;
+            } catch (error) {
+                console.error('❌ Erro na conexão com Supabase:', error);
+                return false;
+            }
+        }
+        
         function showAlert(elementId, message, type = 'success') {
             const alertDiv = document.getElementById(elementId);
             alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
@@ -985,18 +973,34 @@
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
                 const filePath = `produtos/${fileName}`;
-                const { data, error } = await supabase.storage.from('images').upload(filePath, file);
+                
+                console.log('📤 Fazendo upload da imagem:', file.name);
+                
+                const { data, error } = await supabase.storage
+                    .from('images')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
                 if (error) throw error;
-                const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath);
+                
+                const { data: { publicUrl } } = supabase.storage
+                    .from('images')
+                    .getPublicUrl(filePath);
+                
+                console.log('✅ Upload realizado com sucesso:', publicUrl);
                 return publicUrl;
+                
             } catch (error) {
-                console.error('Erro ao fazer upload da imagem:', error);
+                console.error('❌ Erro ao fazer upload da imagem:', error);
                 throw error;
             }
         }
         
         document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
             const name = document.getElementById('productName').value;
             const description = document.getElementById('productDescription').value;
             const price = parseFloat(document.getElementById('productPrice').value);
@@ -1009,37 +1013,69 @@
             
             try {
                 let imageUrl = null;
-                if (imageFile) imageUrl = await uploadImage(imageFile);
                 
-                // Usar service role key para contornar RLS
-                const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzM5NTkwMiwiZXhwIjoyMDc4OTcxOTAyfQ.9M3NrDz0q1mY2L3v9x4q4w4Q4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y4Z4X4Y';
-                const supabaseAdmin = window.supabase.createClient(SUPABASE_URL, serviceRoleKey);
+                // Processar imagem se fornecida
+                if (imageFile) {
+                    showAlert('productAlert', 'Fazendo upload da imagem...', 'success');
+                    imageUrl = await uploadImage(imageFile);
+                }
                 
-                const { data, error } = await supabaseAdmin.from('produtos').insert([{
-                    nome: name, descricao: description, preco: price,
-                    imagem_url: imageUrl, ativo: true, data_criacao: new Date().toISOString()
-                }]).select();
+                // SALVAR PRODUTO NO SUPABASE (MÉTODO CORRETO)
+                console.log('💾 Salvando produto no banco...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .insert([
+                        {
+                            nome: name,
+                            descricao: description,
+                            preco: price,
+                            imagem_url: imageUrl,
+                            ativo: true,
+                            data_criacao: new Date().toISOString()
+                        }
+                    ])
+                    .select();
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Erro ao salvar produto:', error);
+                    throw error;
+                }
                 
+                console.log('✅ Produto salvo com sucesso:', data);
                 showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
+                
+                // Limpar formulário
                 document.getElementById('productForm').reset();
+                
+                // Recarregar listas
                 loadAdminProducts();
                 loadProducts();
                 
             } catch (error) {
-                console.error('Erro ao salvar produto:', error);
-                showAlert('productAlert', 'Erro ao cadastrar produto. Tente novamente.', 'error');
+                console.error('❌ Erro completo ao salvar produto:', error);
+                showAlert('productAlert', 'Erro ao cadastrar produto: ' + error.message, 'error');
             }
         });
         
-        document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Inicializando aplicação...');
+            
+            // Testar conexão
+            const connected = await testSupabaseConnection();
+            if (!connected) {
+                alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
+            }
+            
             document.getElementById('pixCode').style.display = 'block';
             loadProducts();
+            
             document.getElementById('adminLink').addEventListener('click', function(e) {
                 e.preventDefault();
                 document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
             });
+            
+            console.log('✅ Aplicação inicializada com sucesso!');
         });
     </script>
 </body>
