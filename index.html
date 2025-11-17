@@ -1,35 +1,575 @@
--- Tabela de produtos
-CREATE TABLE IF NOT EXISTS produtos (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    descricao TEXT,
-    preco DECIMAL(10,2) NOT NULL,
-    imagem_url TEXT,
-    ativo BOOLEAN DEFAULT true,
-    data_criacao TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Tabela de doações
-CREATE TABLE IF NOT EXISTS doacoes (
-    id SERIAL PRIMARY KEY,
-    nome_doador VARCHAR(255) NOT NULL,
-    email_doador VARCHAR(255) NOT NULL,
-    telefone_doador VARCHAR(20),
-    produto VARCHAR(255),
-    valor DECIMAL(10,2) NOT NULL,
-    mensagem TEXT,
-    metodo_pagamento VARCHAR(50) NOT NULL,
-    status VARCHAR(50) DEFAULT 'pendente',
-    data_criacao TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Políticas RLS simples (desative RLS temporariamente se necessário)
-ALTER TABLE produtos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE doacoes ENABLE ROW LEVEL SECURITY;
-
--- Políticas mais permissivas para teste
-CREATE POLICY "Permitir tudo em produtos" ON produtos
-    FOR ALL USING (true);
-
-CREATE POLICY "Permitir tudo em doacoes" ON doacoes
-    FOR ALL USING (true);
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doações - Igreja Verbo da Vida Zona Leste</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* (MANTENHA TODOS OS ESTILOS ANTERIORES) */
+        :root {
+            --primary-color: #1a5276;
+            --secondary-color: #2e86c1;
+            --accent-color: #f39c12;
+            --light-color: #f8f9fa;
+            --dark-color: #333;
+            --success-color: #28a745;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        /* ... (todo o CSS anterior permanece igual) ... */
+        
+    </style>
+</head>
+<body>
+    <!-- (MANTENHA TODO O HTML ANTERIOR) -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
+                <nav>
+                    <ul>
+                        <li><a href="#produtos">Produtos</a></li>
+                        <li><a href="#doacao">Faça sua Doação</a></li>
+                        <li><a href="#admin" id="adminLink">Administração</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
+            <p>Contribua para a construção do nosso novo templo e ajude a expandir o Reino de Deus</p>
+            <a href="#doacao" class="btn">Fazer Doação</a>
+        </div>
+    </section>
+    
+    <section id="produtos" class="container">
+        <h2 class="section-title">Produtos para Doação</h2>
+        <div class="products-grid" id="productsGrid">
+            <div class="loading">Carregando produtos...</div>
+        </div>
+    </section>
+    
+    <section id="doacao" class="container">
+        <h2 class="section-title">Faça sua Doação</h2>
+        <div class="donation-form">
+            <form id="donationForm">
+                <div class="form-group">
+                    <label for="nome">Seu Nome *</label>
+                    <input type="text" id="nome" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mail *</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="tel" id="telefone" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="produto">Produto Selecionado</label>
+                    <input type="text" id="produto" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="valor">Valor da Doação (R$)</label>
+                    <input type="number" id="valor" class="form-control" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mensagem">Mensagem de Apoio</label>
+                    <textarea id="mensagem" class="form-control" placeholder="Deixe uma mensagem de apoio para o projeto..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Forma de Pagamento *</label>
+                    <div class="payment-methods">
+                        <div class="payment-option active" data-method="pix">
+                            <div class="payment-icon">💰</div>
+                            <div>PIX</div>
+                        </div>
+                        <div class="payment-option" data-method="cartao">
+                            <div class="payment-icon">💳</div>
+                            <div>Cartão de Crédito</div>
+                        </div>
+                    </div>
+                    
+                    <div class="pix-code" id="pixCode">
+                        <p>Escaneie o código PIX abaixo ou copie a chave:</p>
+                        <div style="background:white; padding:10px; display:inline-block;">
+                            <div style="width:200px; height:200px; background:#eee; display:flex; align-items:center; justify-content:center;">
+                                QR Code PIX
+                            </div>
+                        </div>
+                        <p>Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
+                        <button type="button" class="btn" style="margin-top:10px;" onclick="confirmPayment()">Confirmar Pagamento</button>
+                    </div>
+                    
+                    <div class="card-form" id="cardForm">
+                        <div class="form-group">
+                            <label for="numeroCartao">Número do Cartão</label>
+                            <input type="text" id="numeroCartao" class="form-control" placeholder="1234 5678 9012 3456">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="validade">Validade</label>
+                                <input type="text" id="validade" class="form-control" placeholder="MM/AA">
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" class="form-control" placeholder="123">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nomeTitular">Nome do Titular</label>
+                            <input type="text" id="nomeTitular" class="form-control">
+                        </div>
+                        
+                        <button type="button" class="btn" onclick="confirmPayment()">Confirmar Pagamento</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+    <!-- Seção de Login para Administração -->
+    <section id="adminLogin" class="container admin-section active">
+        <h2 class="section-title">Acesso Administrativo</h2>
+        <div class="login-form">
+            <div class="form-group">
+                <label for="adminPassword">Senha de Administração</label>
+                <input type="password" id="adminPassword" class="form-control" placeholder="Digite a senha">
+            </div>
+            <button class="btn" onclick="loginAdmin()">Acessar</button>
+        </div>
+    </section>
+    
+    <!-- Seção de Administração -->
+    <section id="adminPanel" class="container admin-section">
+        <div class="admin-header">
+            <h2 class="section-title">Administração de Produtos</h2>
+            <button class="btn btn-secondary" onclick="logoutAdmin()">Sair</button>
+        </div>
+        
+        <div class="admin-form">
+            <h3>Cadastrar Novo Produto</h3>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="productName">Nome do Produto *</label>
+                    <input type="text" id="productName" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productDescription">Descrição *</label>
+                    <textarea id="productDescription" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productPrice">Preço (R$) *</label>
+                    <input type="number" id="productPrice" class="form-control" min="1" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productImage">Imagem do Produto</label>
+                    <input type="file" id="productImage" class="form-control" accept="image/*">
+                    <small>Se não selecionar uma imagem, será usada uma imagem padrão</small>
+                </div>
+                
+                <button type="submit" class="btn">Salvar Produto</button>
+            </form>
+        </div>
+        
+        <h3 class="section-title">Produtos Cadastrados</h3>
+        <div class="admin-products-grid" id="adminProductsGrid">
+            <div class="loading">Carregando produtos...</div>
+        </div>
+    </section>
+    
+    <footer id="contato">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Igreja Verbo da Vida Zona Leste</div>
+                <div class="footer-links">
+                    <a href="#">Sobre Nós</a>
+                    <a href="#">Localização</a>
+                    <a href="#">Contato</a>
+                    <a href="#">Política de Privacidade</a>
+                </div>
+                <p>Rua Exemplo, 123 - Jardim Casa Nova, São Paulo - SP</p>
+                <p>contato@verbozonaleste.com.br | (11) 99999-9999</p>
+                <div class="copyright">
+                    &copy; 2023 Igreja Verbo da Vida Zona Leste. Todos os direitos reservados.
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Configuração do Supabase
+        const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Senha de administração
+        const ADMIN_PASSWORD = "admin123";
+        
+        // Array para armazenar os produtos em cache
+        let products = [];
+        
+        // Selecionar produto
+        function selectProduct(nome, valor) {
+            document.getElementById('produto').value = nome;
+            document.getElementById('valor').value = valor;
+            
+            // Scroll suave para o formulário
+            document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Alternar entre métodos de pagamento
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remover classe active de todos
+                document.querySelectorAll('.payment-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Adicionar classe active ao selecionado
+                this.classList.add('active');
+                
+                const method = this.getAttribute('data-method');
+                
+                // Mostrar o método de pagamento selecionado
+                if (method === 'pix') {
+                    document.getElementById('pixCode').style.display = 'block';
+                    document.getElementById('cardForm').classList.remove('active');
+                } else if (method === 'cartao') {
+                    document.getElementById('pixCode').style.display = 'none';
+                    document.getElementById('cardForm').classList.add('active');
+                }
+            });
+        });
+        
+        // Confirmar pagamento (salvar no Supabase)
+        async function confirmPayment() {
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
+            const produto = document.getElementById('produto').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const mensagem = document.getElementById('mensagem').value;
+            const metodoPagamento = document.querySelector('.payment-option.active').getAttribute('data-method');
+            
+            if (!nome || !email || !valor) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('doacoes')
+                    .insert([
+                        {
+                            nome_doador: nome,
+                            email_doador: email,
+                            telefone_doador: telefone,
+                            produto: produto,
+                            valor: valor,
+                            mensagem: mensagem,
+                            metodo_pagamento: metodoPagamento,
+                            status: 'pendente',
+                            data_criacao: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) throw error;
+                
+                alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para o produto "${produto}" foi registrada com sucesso.`);
+                
+                // Limpar formulário
+                document.getElementById('donationForm').reset();
+                document.getElementById('produto').value = '';
+                
+            } catch (error) {
+                console.error('Erro ao salvar doação:', error);
+                alert('Erro ao processar doação. Tente novamente.');
+            }
+        }
+        
+        // Login de administração
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('adminLogin').classList.remove('active');
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('adminPassword').value = '';
+                loadAdminProducts();
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+        
+        // Logout de administração
+        function logoutAdmin() {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('adminLogin').classList.add('active');
+        }
+        
+        // Carregar produtos para a administração
+        async function loadAdminProducts() {
+            const adminGrid = document.getElementById('adminProductsGrid');
+            adminGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*')
+                    .order('id', { ascending: false });
+                
+                if (error) throw error;
+                
+                adminGrid.innerHTML = '';
+                
+                if (!data || data.length === 0) {
+                    adminGrid.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
+                    return;
+                }
+                
+                data.forEach((product) => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'admin-product-card';
+                    
+                    productCard.innerHTML = `
+                        <div class="admin-product-image">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" alt="${product.nome}">
+                        </div>
+                        <div class="admin-product-info">
+                            <h3 class="admin-product-title">${product.nome}</h3>
+                            <p class="admin-product-description">${product.descricao}</p>
+                            <div class="admin-product-price">R$ ${product.preco.toFixed(2)}</div>
+                            <div class="admin-product-actions">
+                                <button class="btn btn-small btn-danger" onclick="deleteProduct(${product.id})">Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    adminGrid.appendChild(productCard);
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                adminGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
+            }
+        }
+        
+        // Excluir produto
+        async function deleteProduct(productId) {
+            if (confirm('Tem certeza que deseja excluir este produto?')) {
+                try {
+                    const { error } = await supabase
+                        .from('produtos')
+                        .delete()
+                        .eq('id', productId);
+                    
+                    if (error) throw error;
+                    
+                    alert('Produto excluído com sucesso!');
+                    loadAdminProducts();
+                    loadProducts();
+                    
+                } catch (error) {
+                    console.error('Erro ao excluir produto:', error);
+                    alert('Erro ao excluir produto.');
+                }
+            }
+        }
+        
+        // Carregar produtos do Supabase
+        async function loadProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*')
+                    .order('id', { ascending: false });
+                
+                if (error) throw error;
+                
+                productsGrid.innerHTML = '';
+                
+                if (!data || data.length === 0) {
+                    productsGrid.innerHTML = '<p>Nenhum produto disponível para doação no momento.</p>';
+                    return;
+                }
+                
+                // Atualizar cache local
+                products = data;
+                
+                data.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    
+                    productCard.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" alt="${product.nome}">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">${product.nome}</h3>
+                            <p class="product-description">${product.descricao}</p>
+                            <div class="product-price">R$ ${product.preco.toFixed(2)}</div>
+                            <button class="btn" onclick="selectProduct('${product.nome}', ${product.preco})">Selecionar</button>
+                        </div>
+                    `;
+                    
+                    productsGrid.appendChild(productCard);
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                productsGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
+            }
+        }
+        
+        // Upload de imagem para o Supabase Storage (VERSÃO SIMPLIFICADA)
+        async function uploadImage(file) {
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+                const filePath = `produtos/${fileName}`;
+                
+                console.log('Fazendo upload do arquivo:', file.name, 'para:', filePath);
+                
+                const { data, error } = await supabase.storage
+                    .from('images')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (error) {
+                    console.error('Erro no upload:', error);
+                    throw error;
+                }
+                
+                console.log('Upload realizado com sucesso:', data);
+                
+                // Obter URL pública da imagem
+                const { data: { publicUrl } } = supabase.storage
+                    .from('images')
+                    .getPublicUrl(filePath);
+                
+                console.log('URL pública:', publicUrl);
+                return publicUrl;
+                
+            } catch (error) {
+                console.error('Erro ao fazer upload da imagem:', error);
+                throw error;
+            }
+        }
+        
+        // Processar formulário de produto (VERSÃO CORRIGIDA)
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('productName').value;
+            const description = document.getElementById('productDescription').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const imageFile = document.getElementById('productImage').files[0];
+            
+            // Validar dados
+            if (!name || !description || !price) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            try {
+                let imageUrl = null;
+                
+                // Processar imagem se fornecida
+                if (imageFile) {
+                    console.log('Processando imagem...');
+                    imageUrl = await uploadImage(imageFile);
+                    console.log('Imagem processada, URL:', imageUrl);
+                } else {
+                    console.log('Nenhuma imagem fornecida, usando padrão');
+                }
+                
+                // Salvar produto no Supabase
+                console.log('Salvando produto no banco...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .insert([
+                        {
+                            nome: name,
+                            descricao: description,
+                            preco: price,
+                            imagem_url: imageUrl,
+                            ativo: true,
+                            data_criacao: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) {
+                    console.error('Erro ao salvar produto:', error);
+                    throw error;
+                }
+                
+                console.log('Produto salvo com sucesso:', data);
+                alert('Produto cadastrado com sucesso!');
+                
+                // Limpar formulário
+                document.getElementById('productForm').reset();
+                
+                // Recarregar listas
+                loadAdminProducts();
+                loadProducts();
+                
+            } catch (error) {
+                console.error('Erro completo ao salvar produto:', error);
+                alert('Erro ao cadastrar produto: ' + error.message);
+            }
+        });
+        
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar PIX por padrão
+            document.getElementById('pixCode').style.display = 'block';
+            
+            // Carregar produtos
+            loadProducts();
+            
+            // Configurar link de administração
+            document.getElementById('adminLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
