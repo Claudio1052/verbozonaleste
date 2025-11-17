@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Igreja Verbo da Vida Zona Leste</title>
+    <title>Doações - Igreja Verbo da Vida Zona Leste</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Reset e configurações gerais */
+        :root {
+            --primary-color: #1a5276;
+            --secondary-color: #2e86c1;
+            --accent-color: #f39c12;
+            --light-color: #f8f9fa;
+            --dark-color: #333;
+            --success-color: #28a745;
+            --error-color: #e74c3c;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -15,232 +25,525 @@
         
         body {
             background-color: #f5f5f5;
-            color: #333;
+            color: var(--dark-color);
             line-height: 1.6;
         }
         
-        /* Cabeçalho e navegação */
         header {
-            background-color: #2c3e50;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             padding: 1rem 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
         }
         
-        nav {
+        .container {
+            width: 90%;
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
         }
         
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
         }
         
-        .nav-links {
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        nav ul {
             display: flex;
             list-style: none;
         }
         
-        .nav-links li {
-            margin-left: 1.5rem;
+        nav ul li {
+            margin-left: 2rem;
         }
         
-        .nav-links a {
+        nav ul li a {
             color: white;
             text-decoration: none;
+            font-weight: 500;
             transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
         }
         
-        .nav-links a:hover {
-            color: #3498db;
+        nav ul li a:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
         }
         
-        /* Seção principal */
         .hero {
-            background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), url('https://source.unsplash.com/random/1200x600/?church') no-repeat center center/cover;
-            color: white;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            padding: 5rem 1rem;
+            color: white;
+            margin-top: 80px;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
         }
         
         .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
         .hero p {
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 2rem;
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         
         .btn {
             display: inline-block;
-            background-color: #e74c3c;
+            background: var(--accent-color);
             color: white;
-            padding: 0.8rem 1.5rem;
+            padding: 1rem 2rem;
             border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 1rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
         }
         
         .btn:hover {
-            background-color: #c0392b;
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
         }
         
-        /* Seções de conteúdo */
+        .btn-secondary {
+            background: var(--secondary-color);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: #2471a3;
+            box-shadow: 0 6px 20px rgba(46, 134, 193, 0.4);
+        }
+        
+        .btn-small {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background: var(--error-color);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+        
         section {
-            max-width: 1200px;
-            margin: 3rem auto;
-            padding: 0 20px;
+            padding: 5rem 0;
         }
         
-        h2 {
-            color: #2c3e50;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #3498db;
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            position: relative;
+            font-size: 2.5rem;
         }
         
-        /* Produtos */
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--accent-color);
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+        
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
         }
         
         .product-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
         }
         
         .product-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
         }
         
         .product-image {
-            height: 180px;
-            background-color: #ecf0f1;
+            height: 220px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #7f8c8d;
+            color: #6c757d;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
         }
         
         .product-info {
-            padding: 1rem;
+            padding: 2rem;
         }
         
-        .product-name {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+        .product-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
         }
         
         .product-price {
-            color: #e74c3c;
+            font-size: 1.5rem;
             font-weight: bold;
-        }
-        
-        /* Formulários */
-        .form-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .form-group {
+            color: var(--secondary-color);
             margin-bottom: 1.5rem;
         }
         
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
+        .donation-form, .admin-form, .login-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #e0e0e0;
         }
         
-        input[type="text"],
-        input[type="password"],
-        input[type="number"],
-        textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .admin-form {
+            max-width: 800px;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
             font-size: 1rem;
         }
         
-        input[type="file"] {
-            margin-top: 0.5rem;
-        }
-        
-        .file-info {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            margin-top: 0.5rem;
-        }
-        
-        /* Tabela de produtos cadastrados */
-        .products-table {
+        .form-control {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 2rem;
-            background: white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .products-table th,
-        .products-table td {
             padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #ecf0f1;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #f8f9fa;
         }
         
-        .products-table th {
-            background-color: #2c3e50;
-            color: white;
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1);
         }
         
-        .products-table tr:last-child td {
-            border-bottom: none;
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
         }
         
-        /* Rodapé */
-        footer {
-            background-color: #2c3e50;
-            color: white;
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-option {
+            flex: 1;
             text-align: center;
-            padding: 2rem 0;
+            padding: 1.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.05);
+        }
+        
+        .payment-option.active {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.1);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
+        }
+        
+        .payment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .pix-code {
+            display: none;
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 1.5rem;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .pix-code img {
+            max-width: 200px;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+        
+        .card-form {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        
+        .card-form.active {
+            display: block;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .admin-section {
+            display: none;
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .admin-products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
             margin-top: 3rem;
         }
         
-        /* Responsividade */
+        .admin-product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .admin-product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        
+        .admin-product-image {
+            height: 180px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            overflow: hidden;
+        }
+        
+        .admin-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .admin-product-info {
+            padding: 1.5rem;
+        }
+        
+        .admin-product-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .admin-product-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .admin-product-price {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .admin-product-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+        
+        .alert {
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .footer-logo span {
+            color: var(--accent-color);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #444;
+            padding-top: 1.5rem;
+            width: 100%;
+        }
+        
         @media (max-width: 768px) {
-            nav {
+            .header-content {
                 flex-direction: column;
+                text-align: center;
+                gap: 1rem;
             }
             
-            .nav-links {
+            nav ul {
                 margin-top: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
             }
             
-            .nav-links li {
-                margin: 0 0.5rem;
+            nav ul li {
+                margin: 0.5rem;
+            }
+            
+            .hero {
+                height: 50vh;
+                margin-top: 120px;
             }
             
             .hero h1 {
@@ -248,155 +551,531 @@
             }
             
             .hero p {
-                font-size: 1rem;
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .payment-methods {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+            
+            .products-grid, .admin-products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .donation-form, .admin-form, .login-form {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <nav>
-            <div class="logo">Igreja Verbo da Vida Zona Leste</div>
-            <ul class="nav-links">
-                <li><a href="#produtos">Produtos</a></li>
-                <li><a href="#doacao">Faça sua Doação</a></li>
-                <li><a href="#administracao">Administração</a></li>
-                <li><a href="#contato">Contato</a></li>
-            </ul>
-        </nav>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
+                <nav>
+                    <ul>
+                        <li><a href="#produtos">Produtos</a></li>
+                        <li><a href="#doacao">Faça sua Doação</a></li>
+                        <li><a href="#admin" id="adminLink">Administração</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </header>
-
+    
     <section class="hero">
-        <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
-        <p>Contribua para a construção do nosso novo templo e ajude a expandir o Reino de Deus</p>
-        <a href="#doacao" class="btn">Fazer Doação</a>
+        <div class="hero-content">
+            <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
+            <p>Contribua para a construção do nosso novo templo e ajude a expandir o Reino de Deus</p>
+            <a href="#doacao" class="btn">Fazer Doação</a>
+        </div>
     </section>
-
-    <section id="produtos">
-        <h2>Produtos para Doação</h2>
-        <div class="products-grid">
-            <!-- Produtos seriam carregados dinamicamente aqui -->
-            <div class="product-card">
-                <div class="product-image">Imagem do Produto</div>
-                <div class="product-info">
-                    <div class="product-name">Produto Exemplo 1</div>
-                    <div class="product-description">Descrição breve do produto.</div>
-                    <div class="product-price">R$ 50,00</div>
+    
+    <section id="produtos" class="container">
+        <h2 class="section-title">Produtos para Doação</h2>
+        <div class="products-grid" id="productsGrid">
+            <div class="loading">Carregando produtos...</div>
+        </div>
+    </section>
+    
+    <section id="doacao" class="container">
+        <h2 class="section-title">Faça sua Doação</h2>
+        <div class="donation-form">
+            <form id="donationForm">
+                <div class="form-group">
+                    <label for="nome">Seu Nome *</label>
+                    <input type="text" id="nome" class="form-control" required>
                 </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">Imagem do Produto</div>
-                <div class="product-info">
-                    <div class="product-name">Produto Exemplo 2</div>
-                    <div class="product-description">Descrição breve do produto.</div>
-                    <div class="product-price">R$ 75,00</div>
+                
+                <div class="form-group">
+                    <label for="email">E-mail *</label>
+                    <input type="email" id="email" class="form-control" required>
                 </div>
-            </div>
-            <!-- Mais produtos... -->
+                
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="tel" id="telefone" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="produto">Produto Selecionado</label>
+                    <input type="text" id="produto" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="valor">Valor da Doação (R$)</label>
+                    <input type="number" id="valor" class="form-control" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mensagem">Mensagem de Apoio</label>
+                    <textarea id="mensagem" class="form-control" placeholder="Deixe uma mensagem de apoio para o projeto..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Forma de Pagamento *</label>
+                    <div class="payment-methods">
+                        <div class="payment-option active" data-method="pix">
+                            <div class="payment-icon">💰</div>
+                            <div>PIX</div>
+                        </div>
+                        <div class="payment-option" data-method="cartao">
+                            <div class="payment-icon">💳</div>
+                            <div>Cartão de Crédito</div>
+                        </div>
+                    </div>
+                    
+                    <div class="pix-code" id="pixCode">
+                        <p>Escaneie o código PIX abaixo ou copie a chave:</p>
+                        <div style="background:white; padding:15px; display:inline-block; border-radius:10px;">
+                            <div style="width:200px; height:200px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:5px;">
+                                QR Code PIX
+                            </div>
+                        </div>
+                        <p>Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
+                        <button type="button" class="btn" style="margin-top:15px;" onclick="confirmPayment()">Confirmar Pagamento</button>
+                    </div>
+                    
+                    <div class="card-form" id="cardForm">
+                        <div class="form-group">
+                            <label for="numeroCartao">Número do Cartão</label>
+                            <input type="text" id="numeroCartao" class="form-control" placeholder="1234 5678 9012 3456">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="validade">Validade</label>
+                                <input type="text" id="validade" class="form-control" placeholder="MM/AA">
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" class="form-control" placeholder="123">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nomeTitular">Nome do Titular</label>
+                            <input type="text" id="nomeTitular" class="form-control">
+                        </div>
+                        
+                        <button type="button" class="btn" onclick="confirmPayment()">Confirmar Pagamento</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </section>
-
-    <section id="doacao">
-        <h2>Faça sua Doação</h2>
-        <div class="form-container">
-            <p>Escolha um produto para doação ou faça uma doação direta.</p>
-            <!-- Formulário de doação seria implementado aqui -->
+    
+    <!-- Seção de Login para Administração -->
+    <section id="adminLogin" class="container admin-section active">
+        <h2 class="section-title">Acesso Administrativo</h2>
+        <div class="login-form">
+            <div id="adminAlert"></div>
             <div class="form-group">
-                <label for="produto-doacao">Selecione um Produto</label>
-                <select id="produto-doacao" name="produto-doacao" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">Selecione um produto para doação</option>
-                    <option value="produto1">Produto Exemplo 1 - R$ 50,00</option>
-                    <option value="produto2">Produto Exemplo 2 - R$ 75,00</option>
-                </select>
+                <label for="adminPassword">Senha de Administração</label>
+                <input type="password" id="adminPassword" class="form-control" placeholder="Digite a senha">
             </div>
-            <div class="form-group">
-                <label for="valor-doacao">Ou informe o valor da doação</label>
-                <input type="number" id="valor-doacao" name="valor-doacao" placeholder="Valor em R$">
-            </div>
-            <button class="btn" style="width: 100%;">Continuar com a Doação</button>
+            <button type="button" class="btn" onclick="loginAdmin()">Acessar</button>
         </div>
     </section>
-
-    <section id="administracao">
-        <h2>Acesso Administrativo</h2>
-        <div class="form-container">
-            <div class="form-group">
-                <label for="senha-admin">Senha de Administração</label>
-                <input type="password" id="senha-admin" name="senha-admin" placeholder="Digite a senha">
-            </div>
-            <button class="btn" style="width: 100%;">Acessar</button>
+    
+    <!-- Seção de Administração -->
+    <section id="adminPanel" class="container admin-section">
+        <div class="admin-header">
+            <h2 class="section-title">Administração de Produtos</h2>
+            <button class="btn btn-secondary" onclick="logoutAdmin()">Sair</button>
+        </div>
+        
+        <div class="admin-form">
+            <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Cadastrar Novo Produto</h3>
+            <div id="productAlert"></div>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="productName">Nome do Produto *</label>
+                    <input type="text" id="productName" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productDescription">Descrição *</label>
+                    <textarea id="productDescription" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productPrice">Preço (R$) *</label>
+                    <input type="number" id="productPrice" class="form-control" min="1" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productImage">Imagem do Produto</label>
+                    <input type="file" id="productImage" class="form-control" accept="image/jpg,image/jpeg">
+                    <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão (apenas JPG)</small>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
+            </form>
+        </div>
+        
+        <h3 class="section-title">Produtos Cadastrados</h3>
+        <div class="admin-products-grid" id="adminProductsGrid">
+            <div class="loading">Carregando produtos...</div>
         </div>
     </section>
-
-    <section id="produtos-admin">
-        <h2>Administração de Produtos</h2>
-        <div class="form-container">
-            <h3>Cadastrar Novo Produto</h3>
-            <div class="form-group">
-                <label for="nome-produto">Nome do Produto *</label>
-                <input type="text" id="nome-produto" name="nome-produto" required>
-            </div>
-            <div class="form-group">
-                <label for="descricao-produto">Descrição *</label>
-                <textarea id="descricao-produto" name="descricao-produto" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="preco-produto">Preço (R$) *</label>
-                <input type="number" id="preco-produto" name="preco-produto" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="imagem-produto">Imagem do Produto (JPG)</label>
-                <input type="file" id="imagem-produto" name="imagem-produto" accept=".jpg,.jpeg">
-                <div class="file-info">Apenas arquivos JPG são aceitos (opcional)</div>
-            </div>
-            <button class="btn" style="width: 100%;">Salvar Produto</button>
-        </div>
-
-        <h3 style="margin-top: 3rem;">Produtos Cadastrados</h3>
-        <table class="products-table">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th>Preço</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Produtos cadastrados seriam listados aqui -->
-                <tr>
-                    <td>Produto Exemplo 1</td>
-                    <td>Descrição do produto exemplo 1</td>
-                    <td>R$ 50,00</td>
-                    <td>
-                        <button class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-right: 0.5rem;">Editar</button>
-                        <button class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background-color: #e74c3c;">Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Produto Exemplo 2</td>
-                    <td>Descrição do produto exemplo 2</td>
-                    <td>R$ 75,00</td>
-                    <td>
-                        <button class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-right: 0.5rem;">Editar</button>
-                        <button class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background-color: #e74c3c;">Excluir</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
+    
     <footer id="contato">
-        <p>Igreja Verbo da Vida Zona Leste</p>
-        <p>Contato: (11) 1234-5678 | email@igrejaverbodavida.com</p>
-        <p>Endereço: Rua Exemplo, 123 - Zona Leste, São Paulo - SP</p>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
+                <div class="footer-links">
+                    <a href="#">Sobre Nós</a>
+                    <a href="#">Localização</a>
+                    <a href="#">Contato</a>
+                    <a href="#">Política de Privacidade</a>
+                </div>
+                <p>Rua Exemplo, 123 - Jardim Casa Nova, São Paulo - SP</p>
+                <p>contato@verbozonaleste.com.br | (11) 99999-9999</p>
+                <div class="copyright">
+                    &copy; 2023 Igreja Verbo da Vida Zona Leste. Todos os direitos reservados.
+                </div>
+            </div>
+        </div>
     </footer>
 
     <script>
-        // Simulação de carregamento de produtos
-        document.addEventListener('DOMContentLoaded', function() {
-            // Aqui seria implementada a lógica para carregar produtos do servidor
-            console.log('Página carregada - produtos seriam carregados aqui');
+        // Configuração do Supabase
+        const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const ADMIN_PASSWORD = "admin123";
+        
+        // Testar conexão com Supabase
+        async function testSupabaseConnection() {
+            try {
+                console.log('🧪 Testando conexão com Supabase...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) throw error;
+                console.log('✅ Conexão com Supabase estabelecida com sucesso!');
+                return true;
+            } catch (error) {
+                console.error('❌ Erro na conexão com Supabase:', error);
+                return false;
+            }
+        }
+        
+        function showAlert(elementId, message, type = 'success') {
+            const alertDiv = document.getElementById(elementId);
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertDiv.innerHTML = '', 5000);
+        }
+        
+        function selectProduct(nome, valor) {
+            document.getElementById('produto').value = nome;
+            document.getElementById('valor').value = valor;
+            document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                const method = this.getAttribute('data-method');
+                if (method === 'pix') {
+                    document.getElementById('pixCode').style.display = 'block';
+                    document.getElementById('cardForm').classList.remove('active');
+                } else {
+                    document.getElementById('pixCode').style.display = 'none';
+                    document.getElementById('cardForm').classList.add('active');
+                }
+            });
+        });
+        
+        async function confirmPayment() {
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
+            const produto = document.getElementById('produto').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const mensagem = document.getElementById('mensagem').value;
+            const metodoPagamento = document.querySelector('.payment-option.active').getAttribute('data-method');
+            
+            if (!nome || !email || !valor) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.from('doacoes').insert([{
+                    nome_doador: nome, email_doador: email, telefone_doador: telefone,
+                    produto: produto, valor: valor, mensagem: mensagem,
+                    metodo_pagamento: metodoPagamento, status: 'pendente', data_criacao: new Date().toISOString()
+                }]).select();
+                
+                if (error) throw error;
+                alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para "${produto}" foi registrada.`);
+                document.getElementById('donationForm').reset();
+                document.getElementById('produto').value = '';
+            } catch (error) {
+                console.error('Erro ao salvar doação:', error);
+                alert('Erro ao processar doação. Tente novamente.');
+            }
+        }
+        
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('adminLogin').classList.remove('active');
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('adminPassword').value = '';
+                loadAdminProducts();
+                showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
+            } else {
+                showAlert('adminAlert', 'Senha incorreta!', 'error');
+            }
+        }
+        
+        function logoutAdmin() {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('adminLogin').classList.add('active');
+        }
+        
+        async function loadAdminProducts() {
+            const adminGrid = document.getElementById('adminProductsGrid');
+            adminGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            try {
+                const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
+                if (error) throw error;
+                adminGrid.innerHTML = '';
+                if (!data || data.length === 0) {
+                    adminGrid.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
+                    return;
+                }
+                data.forEach((product) => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'admin-product-card';
+                    productCard.innerHTML = `
+                        <div class="admin-product-image">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150.jpg?text=Sem+Imagem'}" alt="${product.nome}">
+                        </div>
+                        <div class="admin-product-info">
+                            <h3 class="admin-product-title">${product.nome}</h3>
+                            <p class="admin-product-description">${product.descricao}</p>
+                            <div class="admin-product-price">R$ ${product.preco.toFixed(2)}</div>
+                            <div class="admin-product-actions">
+                                <button class="btn btn-small btn-danger" onclick="deleteProduct(${product.id})">Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                    adminGrid.appendChild(productCard);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                adminGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
+            }
+        }
+        
+        async function deleteProduct(productId) {
+            if (confirm('Tem certeza que deseja excluir este produto?')) {
+                try {
+                    const { error } = await supabase.from('produtos').delete().eq('id', productId);
+                    if (error) throw error;
+                    alert('Produto excluído com sucesso!');
+                    loadAdminProducts();
+                    loadProducts();
+                } catch (error) {
+                    console.error('Erro ao excluir produto:', error);
+                    alert('Erro ao excluir produto.');
+                }
+            }
+        }
+        
+        async function loadProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            try {
+                const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
+                if (error) throw error;
+                productsGrid.innerHTML = '';
+                if (!data || data.length === 0) {
+                    productsGrid.innerHTML = '<p>Nenhum produto disponível para doação no momento.</p>';
+                    return;
+                }
+                data.forEach(product => {
+                    const safeName = product.nome.replace(/'/g, "\\'");
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    productCard.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200.jpg?text=Sem+Imagem'}" alt="${product.nome}">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">${product.nome}</h3>
+                            <p class="product-description">${product.descricao}</p>
+                            <div class="product-price">R$ ${product.preco.toFixed(2)}</div>
+                            <button class="btn" onclick="selectProduct('${safeName}', ${product.preco})">Selecionar</button>
+                        </div>
+                    `;
+                    productsGrid.appendChild(productCard);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                productsGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
+            }
+        }
+        
+        async function uploadImage(file) {
+            try {
+                // Garantir que a extensão seja .jpg
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.jpg`;
+                const filePath = `produtos/${fileName}`;
+                
+                console.log('📤 Fazendo upload da imagem JPG:', file.name);
+                
+                const { data, error } = await supabase.storage
+                    .from('imagens2')  // Bucket alterado para imagens2
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (error) throw error;
+                
+                const { data: { publicUrl } } = supabase.storage
+                    .from('imagens2')  // Bucket alterado para imagens2
+                    .getPublicUrl(filePath);
+                
+                console.log('✅ Upload realizado com sucesso:', publicUrl);
+                return publicUrl;
+                
+            } catch (error) {
+                console.error('❌ Erro ao fazer upload da imagem:', error);
+                throw error;
+            }
+        }
+        
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('productName').value;
+            const description = document.getElementById('productDescription').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const imageFile = document.getElementById('productImage').files[0];
+            
+            if (!name || !description || !price) {
+                showAlert('productAlert', 'Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            
+            try {
+                let imageUrl = null;
+                
+                // Processar imagem se fornecida
+                if (imageFile) {
+                    showAlert('productAlert', 'Fazendo upload da imagem JPG...', 'success');
+                    imageUrl = await uploadImage(imageFile);
+                }
+                
+                // SALVAR PRODUTO NO SUPABASE (MÉTODO CORRETO)
+                console.log('💾 Salvando produto no banco...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .insert([
+                        {
+                            nome: name,
+                            descricao: description,
+                            preco: price,
+                            imagem_url: imageUrl,
+                            ativo: true,
+                            data_criacao: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) {
+                    console.error('❌ Erro ao salvar produto:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Produto salvo com sucesso:', data);
+                showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
+                
+                // Limpar formulário
+                document.getElementById('productForm').reset();
+                
+                // Recarregar listas
+                loadAdminProducts();
+                loadProducts();
+                
+            } catch (error) {
+                console.error('❌ Erro completo ao salvar produto:', error);
+                showAlert('productAlert', 'Erro ao cadastrar produto: ' + error.message, 'error');
+            }
+        });
+        
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Inicializando aplicação...');
+            
+            // Testar conexão
+            const connected = await testSupabaseConnection();
+            if (!connected) {
+                alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
+            }
+            
+            document.getElementById('pixCode').style.display = 'block';
+            loadProducts();
+            
+            document.getElementById('adminLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            console.log('✅ Aplicação inicializada com sucesso!');
         });
     </script>
 </body>
