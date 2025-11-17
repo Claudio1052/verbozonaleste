@@ -6,7 +6,6 @@
     <title>Doações - Igreja Verbo da Vida Zona Leste</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* (MANTENHA TODOS OS ESTILOS ANTERIORES) */
         :root {
             --primary-color: #1a5276;
             --secondary-color: #2e86c1;
@@ -29,12 +28,477 @@
             line-height: 1.6;
         }
         
-        /* ... (todo o CSS anterior permanece igual) ... */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
         
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent-color);
+        }
+        
+        .hero {
+            background: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #e67e22;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #2471a3;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin: 3rem 0 2rem;
+            color: var(--primary-color);
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: var(--accent-color);
+            margin: 0.5rem auto;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .product-image {
+            height: 200px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .donation-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+        
+        .admin-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .payment-option {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .payment-option.active {
+            border-color: var(--secondary-color);
+            background-color: rgba(46, 134, 193, 0.1);
+        }
+        
+        .payment-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .pix-code {
+            display: none;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .pix-code img {
+            max-width: 200px;
+            margin: 0 auto 1rem;
+            display: block;
+        }
+        
+        .card-form {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .card-form.active {
+            display: block;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .admin-section {
+            display: none;
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .admin-product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .admin-product-image {
+            height: 150px;
+            background-color: #eee;
+            overflow: hidden;
+        }
+        
+        .admin-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .admin-product-info {
+            padding: 1rem;
+        }
+        
+        .admin-product-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .admin-product-price {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .admin-product-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .login-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 3rem auto;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary-color);
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+        
+        .copyright {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0 0.75rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .payment-methods {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- (MANTENHA TODO O HTML ANTERIOR) -->
     <header>
         <div class="container">
             <div class="header-content">
@@ -157,11 +621,12 @@
     <section id="adminLogin" class="container admin-section active">
         <h2 class="section-title">Acesso Administrativo</h2>
         <div class="login-form">
+            <div id="adminAlert"></div>
             <div class="form-group">
                 <label for="adminPassword">Senha de Administração</label>
                 <input type="password" id="adminPassword" class="form-control" placeholder="Digite a senha">
             </div>
-            <button class="btn" onclick="loginAdmin()">Acessar</button>
+            <button type="button" class="btn" onclick="loginAdmin()">Acessar</button>
         </div>
     </section>
     
@@ -174,6 +639,7 @@
         
         <div class="admin-form">
             <h3>Cadastrar Novo Produto</h3>
+            <div id="productAlert"></div>
             <form id="productForm">
                 <div class="form-group">
                     <label for="productName">Nome do Produto *</label>
@@ -230,13 +696,42 @@
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
         
+        // Inicializar Supabase
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Senha de administração
         const ADMIN_PASSWORD = "admin123";
         
-        // Array para armazenar os produtos em cache
-        let products = [];
+        // Função para mostrar alertas
+        function showAlert(elementId, message, type = 'success') {
+            const alertDiv = document.getElementById(elementId);
+            alertDiv.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                alertDiv.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Testar conexão com Supabase
+        async function testConnection() {
+            try {
+                console.log('Testando conexão com Supabase...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) throw error;
+                console.log('✅ Conexão com Supabase estabelecida com sucesso!');
+                return true;
+            } catch (error) {
+                console.error('❌ Erro na conexão com Supabase:', error);
+                return false;
+            }
+        }
         
         // Selecionar produto
         function selectProduct(nome, valor) {
@@ -287,6 +782,7 @@
             }
             
             try {
+                console.log('Salvando doação no Supabase...');
                 const { data, error } = await supabase
                     .from('doacoes')
                     .insert([
@@ -327,8 +823,9 @@
                 document.getElementById('adminPanel').classList.add('active');
                 document.getElementById('adminPassword').value = '';
                 loadAdminProducts();
+                showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
             } else {
-                alert('Senha incorreta!');
+                showAlert('adminAlert', 'Senha incorreta!', 'error');
             }
         }
         
@@ -344,6 +841,7 @@
             adminGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
             
             try {
+                console.log('Carregando produtos do Supabase...');
                 const { data, error } = await supabase
                     .from('produtos')
                     .select('*')
@@ -358,13 +856,15 @@
                     return;
                 }
                 
+                console.log(`✅ ${data.length} produtos carregados com sucesso`);
+                
                 data.forEach((product) => {
                     const productCard = document.createElement('div');
                     productCard.className = 'admin-product-card';
                     
                     productCard.innerHTML = `
                         <div class="admin-product-image">
-                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" alt="${product.nome}">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" alt="${product.nome}" onerror="this.src='https://via.placeholder.com/300x150?text=Erro+Imagem'">
                         </div>
                         <div class="admin-product-info">
                             <h3 class="admin-product-title">${product.nome}</h3>
@@ -389,6 +889,7 @@
         async function deleteProduct(productId) {
             if (confirm('Tem certeza que deseja excluir este produto?')) {
                 try {
+                    console.log(`Excluindo produto ID: ${productId}`);
                     const { error } = await supabase
                         .from('produtos')
                         .delete()
@@ -413,6 +914,7 @@
             productsGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
             
             try {
+                console.log('Carregando produtos para exibição...');
                 const { data, error } = await supabase
                     .from('produtos')
                     .select('*')
@@ -427,22 +929,24 @@
                     return;
                 }
                 
-                // Atualizar cache local
-                products = data;
+                console.log(`✅ ${data.length} produtos carregados para exibição`);
                 
                 data.forEach(product => {
                     const productCard = document.createElement('div');
                     productCard.className = 'product-card';
                     
+                    // Escapar aspas simples no nome para evitar problemas no JavaScript
+                    const safeName = product.nome.replace(/'/g, "\\'");
+                    
                     productCard.innerHTML = `
                         <div class="product-image">
-                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" alt="${product.nome}">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200?text=Sem+Imagem'}" alt="${product.nome}" onerror="this.src='https://via.placeholder.com/300x200?text=Erro+Imagem'">
                         </div>
                         <div class="product-info">
                             <h3 class="product-title">${product.nome}</h3>
                             <p class="product-description">${product.descricao}</p>
                             <div class="product-price">R$ ${product.preco.toFixed(2)}</div>
-                            <button class="btn" onclick="selectProduct('${product.nome}', ${product.preco})">Selecionar</button>
+                            <button class="btn" onclick="selectProduct('${safeName}', ${product.preco})">Selecionar</button>
                         </div>
                     `;
                     
@@ -455,14 +959,22 @@
             }
         }
         
-        // Upload de imagem para o Supabase Storage (VERSÃO SIMPLIFICADA)
+        // Upload de imagem para o Supabase Storage
         async function uploadImage(file) {
             try {
+                console.log('Iniciando upload da imagem...');
+                
+                // Verificar se o bucket existe
+                const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+                if (bucketsError) throw bucketsError;
+                
+                console.log('Buckets disponíveis:', buckets);
+                
                 const fileExt = file.name.split('.').pop();
-                const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
                 const filePath = `produtos/${fileName}`;
                 
-                console.log('Fazendo upload do arquivo:', file.name, 'para:', filePath);
+                console.log('Fazendo upload para:', filePath);
                 
                 const { data, error } = await supabase.storage
                     .from('images')
@@ -476,23 +988,23 @@
                     throw error;
                 }
                 
-                console.log('Upload realizado com sucesso:', data);
+                console.log('✅ Upload realizado com sucesso:', data);
                 
                 // Obter URL pública da imagem
                 const { data: { publicUrl } } = supabase.storage
                     .from('images')
                     .getPublicUrl(filePath);
                 
-                console.log('URL pública:', publicUrl);
+                console.log('📷 URL pública:', publicUrl);
                 return publicUrl;
                 
             } catch (error) {
-                console.error('Erro ao fazer upload da imagem:', error);
+                console.error('❌ Erro ao fazer upload da imagem:', error);
                 throw error;
             }
         }
         
-        // Processar formulário de produto (VERSÃO CORRIGIDA)
+        // Processar formulário de produto
         document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -503,7 +1015,7 @@
             
             // Validar dados
             if (!name || !description || !price) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
+                showAlert('productAlert', 'Por favor, preencha todos os campos obrigatórios.', 'error');
                 return;
             }
             
@@ -512,15 +1024,16 @@
                 
                 // Processar imagem se fornecida
                 if (imageFile) {
-                    console.log('Processando imagem...');
+                    console.log('📤 Processando imagem...');
+                    showAlert('productAlert', 'Fazendo upload da imagem...', 'success');
                     imageUrl = await uploadImage(imageFile);
-                    console.log('Imagem processada, URL:', imageUrl);
+                    console.log('✅ Imagem processada, URL:', imageUrl);
                 } else {
-                    console.log('Nenhuma imagem fornecida, usando padrão');
+                    console.log('ℹ️ Nenhuma imagem fornecida, usando padrão');
                 }
                 
                 // Salvar produto no Supabase
-                console.log('Salvando produto no banco...');
+                console.log('💾 Salvando produto no banco...');
                 const { data, error } = await supabase
                     .from('produtos')
                     .insert([
@@ -536,12 +1049,12 @@
                     .select();
                 
                 if (error) {
-                    console.error('Erro ao salvar produto:', error);
+                    console.error('❌ Erro ao salvar produto:', error);
                     throw error;
                 }
                 
-                console.log('Produto salvo com sucesso:', data);
-                alert('Produto cadastrado com sucesso!');
+                console.log('✅ Produto salvo com sucesso:', data);
+                showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
                 
                 // Limpar formulário
                 document.getElementById('productForm').reset();
@@ -551,13 +1064,21 @@
                 loadProducts();
                 
             } catch (error) {
-                console.error('Erro completo ao salvar produto:', error);
-                alert('Erro ao cadastrar produto: ' + error.message);
+                console.error('❌ Erro completo ao salvar produto:', error);
+                showAlert('productAlert', 'Erro ao cadastrar produto: ' + error.message, 'error');
             }
         });
         
         // Inicializar página
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Inicializando aplicação...');
+            
+            // Testar conexão
+            const connected = await testConnection();
+            if (!connected) {
+                alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
+            }
+            
             // Mostrar PIX por padrão
             document.getElementById('pixCode').style.display = 'block';
             
@@ -569,6 +1090,8 @@
                 e.preventDefault();
                 document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
             });
+            
+            console.log('✅ Aplicação inicializada com sucesso!');
         });
     </script>
 </body>
