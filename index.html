@@ -1141,7 +1141,7 @@
                 // Inicializar o checkout do PagSeguro e atribuir à variável GLOBAL
                 pagseguroCheckout = PagSeguro.Checkout({
                     token: PAGSEGURO_TOKEN,
-                    env: 'sandbox' // Mude para 'production' em produção
+                    env: 'production' // Mude para 'production' em produção
                 });
                 
                 console.log('✅ PagSeguro inicializado com sucesso');
@@ -1587,3 +1587,4 @@
     </script>
 </body>
 </html>
+
