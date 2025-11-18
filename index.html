@@ -8,7 +8,6 @@
     <!-- PagSeguro SDK -->
     <script src="https://assets.pagseguro.com.br/checkout-sdk-js/dist/1.1.0/pagseguro.min.js"></script>
     <style>
-        /* Estilos anteriores mantidos */
         :root {
             --primary-color: #1a5276;
             --secondary-color: #2e86c1;
@@ -32,92 +31,6 @@
             line-height: 1.6;
         }
         
-        /* Todos os estilos anteriores mantidos */
-        
-        /* NOVOS ESTILOS ADICIONADOS */
-        .installment-selector {
-            margin-top: 1rem;
-            display: none;
-        }
-        
-        .installment-selector.active {
-            display: block;
-        }
-        
-        .installment-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        
-        .installment-option {
-            padding: 0.8rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f8f9fa;
-        }
-        
-        .installment-option:hover {
-            border-color: var(--secondary-color);
-            background: rgba(46, 134, 193, 0.05);
-        }
-        
-        .installment-option.selected {
-            border-color: var(--secondary-color);
-            background: rgba(46, 134, 193, 0.1);
-            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
-        }
-        
-        .installment-quantity {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: var(--primary-color);
-        }
-        
-        .installment-value {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.3rem;
-        }
-        
-        .installment-no-interest {
-            color: var(--success-color);
-            font-weight: bold;
-        }
-        
-        .payment-type-selector {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .payment-type-option {
-            flex: 1;
-            text-align: center;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f8f9fa;
-        }
-        
-        .payment-type-option:hover {
-            border-color: var(--secondary-color);
-            background: rgba(46, 134, 193, 0.05);
-        }
-        
-        .payment-type-option.active {
-            border-color: var(--secondary-color);
-            background: rgba(46, 134, 193, 0.1);
-            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
-        }
-        
-        /* Estilos anteriores mantidos */
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
@@ -701,6 +614,89 @@
             width: 100%;
         }
         
+        /* NOVOS ESTILOS ADICIONADOS */
+        .installment-selector {
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .installment-selector.active {
+            display: block;
+        }
+        
+        .installment-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .installment-option {
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .installment-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.05);
+        }
+        
+        .installment-option.selected {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.1);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
+        }
+        
+        .installment-quantity {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+        
+        .installment-value {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
+        
+        .installment-no-interest {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .payment-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-type-option {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .payment-type-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.05);
+        }
+        
+        .payment-type-option.active {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.1);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
+        }
+        
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -871,7 +867,7 @@
                             Sua doação será processada de forma segura através do PagSeguro.
                         </div>
                         
-                        <!-- NOVO: Seletor de tipo de cartão (débito/crédito) -->
+                        <!-- Seletor de tipo de cartão (débito/crédito) -->
                         <div class="payment-type-selector">
                             <div class="payment-type-option active" data-type="credit">
                                 <div>Cartão de Crédito</div>
@@ -881,7 +877,7 @@
                             </div>
                         </div>
                         
-                        <!-- NOVO: Seletor de parcelas (apenas para crédito) -->
+                        <!-- Seletor de parcelas (apenas para crédito) -->
                         <div class="installment-selector" id="installmentSelector">
                             <label>Parcelamento:</label>
                             <div class="installment-options" id="installmentOptions">
@@ -996,10 +992,9 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
-        // Configuração do PagSeguro
+        // Configuração do PagSeguro - CORRIGIDA
+        // Token de teste do PagSeguro (sandbox)
         const PAGSEGURO_TOKEN = "77f7244a-5f99-44cd-9027-60a8862c4c3fa82a91094cdab347b519d228a1d429c33035-f67c-4223-8db3-81c072b0ab6c";
-        
-        let pagseguroCheckout;
         
         // Variáveis para controle de parcelamento
         let selectedInstallments = 1;
@@ -1038,7 +1033,7 @@
             updateInstallmentOptions();
         }
         
-        // NOVA FUNÇÃO: Atualizar opções de parcelamento
+        // Atualizar opções de parcelamento
         function updateInstallmentOptions() {
             const valor = parseFloat(document.getElementById('valor').value);
             const installmentOptions = document.getElementById('installmentOptions');
@@ -1089,7 +1084,7 @@
             });
         }
         
-        // NOVA FUNÇÃO: Alternar entre cartão de crédito e débito
+        // Alternar entre cartão de crédito e débito
         function setupPaymentTypeSelector() {
             document.querySelectorAll('.payment-type-option').forEach(option => {
                 option.addEventListener('click', function() {
@@ -1127,17 +1122,26 @@
             });
         });
         
-        // Inicializar PagSeguro
+        // Inicializar PagSeguro - CORRIGIDA
         function initializePagSeguro() {
             try {
-                pagseguroCheckout = new PagSeguro.Checkout({
+                // Verificar se o SDK do PagSeguro está carregado
+                if (typeof PagSeguro === 'undefined') {
+                    console.error('❌ SDK do PagSeguro não carregado');
+                    return false;
+                }
+                
+                // Inicializar o checkout do PagSeguro
+                pagseguroCheckout = PagSeguro.Checkout({
                     token: PAGSEGURO_TOKEN,
                     env: 'sandbox' // Altere para 'production' em produção
                 });
                 
                 console.log('✅ PagSeguro inicializado com sucesso');
+                return true;
             } catch (error) {
                 console.error('❌ Erro ao inicializar PagSeguro:', error);
+                return false;
             }
         }
         
@@ -1189,7 +1193,7 @@
             return errors;
         }
         
-        // Processar pagamento com cartão via PagSeguro
+        // Processar pagamento com cartão via PagSeguro - CORRIGIDA
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
@@ -1258,11 +1262,27 @@
                 
                 console.log('📦 Dados do pagamento:', paymentData);
                 
-                // Simular processamento com PagSeguro (em produção, usar a API real)
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                // IMPLEMENTAÇÃO REAL COM PAGSEGURO
+                if (!pagseguroCheckout) {
+                    throw new Error('PagSeguro não inicializado');
+                }
                 
-                // Gerar ID de transação simulado (em produção seria o ID real do PagSeguro)
-                const transactionId = `PS_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                // Processar pagamento com PagSeguro
+                const result = await pagseguroCheckout.payment({
+                    method: cardType === 'credit' ? 'creditCard' : 'debitCard',
+                    amount: paymentData.amount,
+                    card: paymentData.card,
+                    installment: paymentData.installment,
+                    sender: paymentData.sender,
+                    reference: paymentData.reference,
+                    items: paymentData.items
+                });
+                
+                console.log('✅ Resultado do pagamento:', result);
+                
+                if (result.errors) {
+                    throw new Error(result.errors.join(', '));
+                }
                 
                 // Salvar doação no banco de dados
                 const { data, error } = await supabase.from('doacoes').insert([{
@@ -1275,7 +1295,7 @@
                     metodo_pagamento: cardType === 'credit' ? 'cartao_credito_pagseguro' : 'cartao_debito_pagseguro',
                     parcelas: cardType === 'credit' ? selectedInstallments : 1,
                     status: 'processado',
-                    pagamento_id: transactionId,
+                    pagamento_id: result.code || result.transactionCode || `PS_${Date.now()}`,
                     data_criacao: new Date().toISOString()
                 }]).select();
                 
@@ -1288,7 +1308,7 @@
                     `Cartão de Crédito (${selectedInstallments}x)` : 
                     'Cartão de Débito';
                 
-                alert(`✅ Pagamento processado com sucesso via PagSeguro!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} foi processada.\nMétodo: ${paymentMethodText}\nID da Transação: ${transactionId}`);
+                alert(`✅ Pagamento processado com sucesso via PagSeguro!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} foi processada.\nMétodo: ${paymentMethodText}\nID da Transação: ${result.code || result.transactionCode}`);
                 
                 // Limpar formulário
                 document.getElementById('donationForm').reset();
@@ -1305,7 +1325,19 @@
                 document.getElementById('paymentProcessing').style.display = 'none';
                 
                 console.error('❌ Erro no processamento do cartão:', error);
-                alert('Erro ao processar pagamento com PagSeguro. Verifique os dados do cartão e tente novamente.');
+                
+                // Mensagem de erro mais específica
+                let errorMessage = 'Erro ao processar pagamento com PagSeguro. ';
+                
+                if (error.message.includes('token')) {
+                    errorMessage += 'Problema de autenticação. Verifique o token do PagSeguro.';
+                } else if (error.message.includes('card')) {
+                    errorMessage += 'Verifique os dados do cartão e tente novamente.';
+                } else {
+                    errorMessage += 'Tente novamente ou entre em contato com o suporte.';
+                }
+                
+                alert(errorMessage);
             }
         }
         
@@ -1535,7 +1567,10 @@
             }
             
             // Inicializar PagSeguro
-            initializePagSeguro();
+            const pagseguroInitialized = initializePagSeguro();
+            if (!pagseguroInitialized) {
+                console.warn('⚠️ PagSeguro não inicializado corretamente');
+            }
             
             // Configurar seletor de tipo de pagamento
             setupPaymentTypeSelector();
