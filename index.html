@@ -912,6 +912,9 @@
         // Email da conta PagBank
         const PAGBANK_EMAIL = "claudioalbertomaiasilva6@gmail.com";
         
+        // ✅ NOVO TOKEN DO PAGBANK (do PDF)
+        const PAGBANK_TOKEN = "6a019841-1ef9-4a09-9228-f295bc91b82a6c9780fc4f06be707c67d96e0c026deff2d1-0e59-";
+        
         // Testar conexão com Supabase
         async function testSupabaseConnection() {
             try {
@@ -954,7 +957,7 @@
             return { areaCode, number };
         }
 
-        // ✅ FUNÇÃO DE PAGAMENTO VIA CARTÃO (MÉTODO DIRETO SEM SESSÃO)
+        // ✅ FUNÇÃO DE PAGAMENTO VIA CARTÃO (MÉTODO FORMULÁRIO HTML HABILITADO)
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
@@ -980,7 +983,7 @@
                 document.getElementById('pagbankButton').disabled = true;
                 document.getElementById('pagbankButton').textContent = 'Processando...';
                 
-                console.log('💳 Iniciando pagamento via PagBank...');
+                console.log('💳 Iniciando pagamento via PagBank (Formulário HTML)...');
                 
                 // 1. Salvar a doação no Supabase com status "pendente"
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
@@ -1002,20 +1005,57 @@
                 // Preparar dados do telefone
                 const phoneData = formatPhoneForPagBank(telefoneInput);
                 
-                // 2. Criar URL direta para o PagBank (método mais simples)
-                const pagbankUrl = createDirectPagBankUrl({
-                    amount: valor,
-                    description: `Doação: ${produto || 'Contribuição Voluntária'}`,
-                    reference: `DOACAO_${donationData[0].id}`,
-                    sender: {
-                        name: nome,
-                        email: email,
-                        phone: phoneData
-                    }
-                });
+                // 2. Criar formulário HTML para o PagBank (método oficial)
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'https://pagseguro.uol.com.br/checkout/v2/payment.html';
+                form.style.display = 'none';
+                form.target = '_self';
                 
-                // 3. Redirecionar diretamente
-                window.location.href = pagbankUrl;
+                const addField = (name, value) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    form.appendChild(input);
+                };
+                
+                // ✅ CAMPOS OBRIGATÓRIOS PARA FORMULÁRIO HTML PAGBANK
+                addField('receiverEmail', PAGBANK_EMAIL);
+                addField('currency', 'BRL');
+                
+                // Dados do Item (Doação)
+                addField('itemId1', donationData[0].id);
+                addField('itemDescription1', `Doação: ${produto || 'Contribuição Voluntária'}`.substring(0, 95));
+                addField('itemAmount1', valor.toFixed(2));
+                addField('itemQuantity1', '1');
+                addField('itemWeight1', '0');
+                
+                // Referência para identificar depois
+                addField('reference', `DOACAO_${donationData[0].id}`);
+                
+                // Dados do Comprador
+                addField('senderName', nome.substring(0, 50));
+                addField('senderAreaCode', phoneData.areaCode);
+                addField('senderPhone', phoneData.number);
+                addField('senderEmail', email);
+                addField('senderCPF', ''); // Opcional
+                
+                // Configurações adicionais
+                addField('shippingAddressRequired', 'false');
+                addField('timeout', '600000'); // 10 minutos
+                
+                // URL de redirecionamento (após o pagamento)
+                addField('redirectURL', window.location.href);
+                
+                // ✅ Token de segurança (do PDF)
+                addField('token', PAGBANK_TOKEN);
+                
+                console.log('📦 Formulário PagBank criado com token. Redirecionando...');
+                console.log('🔑 Token usado:', PAGBANK_TOKEN);
+                
+                document.body.appendChild(form);
+                form.submit();
                 
             } catch (error) {
                 console.error('❌ Erro no processamento:', error);
@@ -1026,31 +1066,6 @@
                 
                 alert('Erro ao iniciar o pagamento: ' + error.message);
             }
-        }
-        
-        // ✅ FUNÇÃO PARA CRIAR URL DIRETA DO PAGBANK
-        function createDirectPagBankUrl(paymentData) {
-            // URL base do PagBank para pagamentos
-            const baseUrl = 'https://pagseguro.uol.com.br/v2/checkout/payment.html';
-            
-            // Parâmetros obrigatórios
-            const params = new URLSearchParams({
-                receiverEmail: PAGBANK_EMAIL,
-                currency: 'BRL',
-                itemId1: paymentData.reference,
-                itemDescription1: paymentData.description.substring(0, 95), // Limite de 95 chars
-                itemAmount1: paymentData.amount.toFixed(2),
-                itemQuantity1: '1',
-                itemWeight1: '0',
-                reference: paymentData.reference,
-                senderName: paymentData.sender.name.substring(0, 50),
-                senderAreaCode: paymentData.sender.phone.areaCode,
-                senderPhone: paymentData.sender.phone.number,
-                senderEmail: paymentData.sender.email,
-                redirectURL: window.location.href
-            });
-            
-            return `${baseUrl}?${params.toString()}`;
         }
         
         async function confirmPayment() {
