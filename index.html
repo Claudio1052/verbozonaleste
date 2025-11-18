@@ -1,59 +1,1203 @@
-<script>
-        // ==========================================
-        // CONFIGURAÇÕES GERAIS
-        // ==========================================
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doações - Igreja Verbo da Vida Zona Leste</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://assets.pagseguro.com.br/checkout-sdk-js/dist/1.1.0/pagseguro.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a5276;
+            --secondary-color: #2e86c1;
+            --accent-color: #f39c12;
+            --light-color: #f8f9fa;
+            --dark-color: #333;
+            --success-color: #28a745;
+            --error-color: #e74c3c;
+        }
         
-        // Supabase
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 2rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            margin-top: 80px;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+        
+        .btn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: #2471a3;
+            box-shadow: 0 6px 20px rgba(46, 134, 193, 0.4);
+        }
+        
+        .btn-small {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background: var(--error-color);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-pagseguro {
+            background: #4CAF50;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-pagseguro:hover {
+            background: #45a049;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            position: relative;
+            font-size: 2.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--accent-color);
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            height: 220px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            background: white;
+            padding: 10px;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+        
+        .product-info {
+            padding: 2rem;
+        }
+        
+        .product-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .donation-form, .admin-form, .login-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .admin-form {
+            max-width: 800px;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-option {
+            flex: 1;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.05);
+        }
+        
+        .payment-option.active {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.1);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
+        }
+        
+        .payment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .pix-code {
+            display: none;
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 1.5rem;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .pix-code img {
+            max-width: 200px;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+        
+        .card-form {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        
+        .card-form.active {
+            display: block;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .admin-section {
+            display: none;
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .admin-products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .admin-product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .admin-product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        
+        .admin-product-image {
+            height: 180px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .admin-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: white;
+            padding: 10px;
+        }
+        
+        .admin-product-info {
+            padding: 1.5rem;
+        }
+        
+        .admin-product-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .admin-product-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .admin-product-price {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .admin-product-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+        
+        .alert {
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        .pagseguro-container {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            margin-top: 1.5rem;
+        }
+        
+        .pagseguro-info {
+            background: #e8f5e8;
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #2d5016;
+        }
+        
+        .pagseguro-card-form {
+            margin-bottom: 1rem;
+        }
+        
+        .pagseguro-card-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .pagseguro-card-form input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .payment-processing {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .footer-logo span {
+            color: var(--accent-color);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #444;
+            padding-top: 1.5rem;
+            width: 100%;
+        }
+        
+        /* NOVOS ESTILOS ADICIONADOS */
+        .installment-selector {
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .installment-selector.active {
+            display: block;
+        }
+        
+        .installment-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .installment-option {
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .installment-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.05);
+        }
+        
+        .installment-option.selected {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.1);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
+        }
+        
+        .installment-quantity {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+        
+        .installment-value {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
+        
+        .installment-no-interest {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .payment-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-type-option {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .payment-type-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.05);
+        }
+        
+        .payment-type-option.active {
+            border-color: var(--secondary-color);
+            background: rgba(46, 134, 193, 0.1);
+            box-shadow: 0 4px 15px rgba(46, 134, 193, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            nav ul li {
+                margin: 0.5rem;
+            }
+            
+            .hero {
+                height: 50vh;
+                margin-top: 120px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .payment-methods {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+            
+            .products-grid, .admin-products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .donation-form, .admin-form, .login-form {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            /* Estilos responsivos para novos elementos */
+            .installment-options {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            
+            .payment-type-selector {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
+                <nav>
+                    <ul>
+                        <li><a href="#produtos">Produtos</a></li>
+                        <li><a href="#doacao">Faça sua Doação</a></li>
+                        <li><a href="#admin" id="adminLink">Administração</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
+            <p>Contribua para a construção do nosso novo templo e ajude a expandir o Reino de Deus</p>
+            <a href="#doacao" class="btn">Fazer Doação</a>
+        </div>
+    </section>
+    
+    <section id="produtos" class="container">
+        <h2 class="section-title">Produtos para Doação</h2>
+        <div class="products-grid" id="productsGrid">
+            <div class="loading">Carregando produtos...</div>
+        </div>
+    </section>
+    
+    <section id="doacao" class="container">
+        <h2 class="section-title">Faça sua Doação</h2>
+        <div class="donation-form">
+            <form id="donationForm">
+                <div class="form-group">
+                    <label for="nome">Seu Nome *</label>
+                    <input type="text" id="nome" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mail *</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="tel" id="telefone" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="produto">Produto Selecionado</label>
+                    <input type="text" id="produto" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="valor">Valor da Doação (R$) *</label>
+                    <input type="number" id="valor" class="form-control" min="1" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mensagem">Mensagem de Apoio</label>
+                    <textarea id="mensagem" class="form-control" placeholder="Deixe uma mensagem de apoio para o projeto..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Forma de Pagamento *</label>
+                    <div class="payment-methods">
+                        <div class="payment-option active" data-method="pix">
+                            <div class="payment-icon">💰</div>
+                            <div>PIX</div>
+                        </div>
+                        <div class="payment-option" data-method="cartao">
+                            <div class="payment-icon">💳</div>
+                            <div>Cartão</div>
+                        </div>
+                    </div>
+                    
+                    <div class="pix-code" id="pixCode">
+                        <p>Escaneie o código PIX abaixo ou copie a chave:</p>
+                        <div style="background:white; padding:15px; display:inline-block; border-radius:10px;">
+                            <div style="width:200px; height:200px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:5px;">
+                                QR Code PIX
+                            </div>
+                        </div>
+                        <p>Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
+                        <button type="button" class="btn" style="margin-top:15px;" onclick="confirmPayment()">Confirmar Pagamento</button>
+                    </div>
+                    
+                    <div class="card-form" id="cardForm">
+                        <div class="pagseguro-info">
+                            💳 <strong>Pagamento Seguro com PagSeguro</strong><br>
+                            Sua doação será processada de forma segura através do PagSeguro.
+                        </div>
+                        
+                        <div class="payment-type-selector">
+                            <div class="payment-type-option active" data-type="credit">
+                                <div>Cartão de Crédito</div>
+                            </div>
+                            <div class="payment-type-option" data-type="debit">
+                                <div>Cartão de Débito</div>
+                            </div>
+                        </div>
+                        
+                        <div class="installment-selector" id="installmentSelector">
+                            <label>Parcelamento:</label>
+                            <div class="installment-options" id="installmentOptions">
+                                </div>
+                        </div>
+                        
+                        <div class="pagseguro-container">
+                            <div class="pagseguro-card-form">
+                                <input type="text" id="cardNumber" placeholder="Número do Cartão" maxlength="19" required>
+                                <input type="text" id="cardHolder" placeholder="Nome no Cartão" required>
+                                <div class="form-row">
+                                    <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5" required>
+                                    <input type="text" id="cardCVC" placeholder="CVV" maxlength="4" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-processing" id="paymentProcessing">
+                            <div class="spinner"></div>
+                            <p>Processando pagamento com PagSeguro...</p>
+                        </div>
+                        
+                        <button type="button" class="btn btn-pagseguro" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()">
+                            Pagar com Cartão via PagSeguro
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+    <section id="adminLogin" class="container admin-section active">
+        <h2 class="section-title">Acesso Administrativo</h2>
+        <div class="login-form">
+            <div id="adminAlert"></div>
+            <div class="form-group">
+                <label for="adminPassword">Senha de Administração</label>
+                <input type="password" id="adminPassword" class="form-control" placeholder="Digite a senha">
+            </div>
+            <button type="button" class="btn" onclick="loginAdmin()">Acessar</button>
+        </div>
+    </section>
+    
+    <section id="adminPanel" class="container admin-section">
+        <div class="admin-header">
+            <h2 class="section-title">Administração de Produtos</h2>
+            <button class="btn btn-secondary" onclick="logoutAdmin()">Sair</button>
+        </div>
+        
+        <div class="admin-form">
+            <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Cadastrar Novo Produto</h3>
+            <div id="productAlert"></div>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="productName">Nome do Produto *</label>
+                    <input type="text" id="productName" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productDescription">Descrição *</label>
+                    <textarea id="productDescription" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productPrice">Preço (R$) *</label>
+                    <input type="number" id="productPrice" class="form-control" min="1" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productImage">Imagem do Produto</label>
+                    <input type="file" id="productImage" class="form-control" accept="image/jpg,image/jpeg">
+                    <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão (apenas JPG)</small>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
+            </form>
+        </div>
+        
+        <h3 class="section-title">Produtos Cadastrados</h3>
+        <div class="admin-products-grid" id="adminProductsGrid">
+            <div class="loading">Carregando produtos...</div>
+        </div>
+    </section>
+    
+    <footer id="contato">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
+                <div class="footer-links">
+                    <a href="#">Sobre Nós</a>
+                    <a href="#">Localização</a>
+                    <a href="#">Contato</a>
+                    <a href="#">Política de Privacidade</a>
+                </div>
+                <p>Rua Exemplo, 123 - Jardim Casa Nova, São Paulo - SP</p>
+                <p>contato@verbozonaleste.com.br | (11) 99999-9999</p>
+                <div class="copyright">
+                    &copy; 2023 Igreja Verbo da Vida Zona Leste. Todos os direitos reservados.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Configuração do Supabase
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // Admin
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
-        // PagSeguro (Token Sandbox)
+        // Configuração do PagSeguro - CORRIGIDA
+        // Token de teste do PagSeguro (sandbox) - O TOKEN NOVO
         const PAGSEGURO_TOKEN = "2515675b-77f1-455e-8773-2af51ae659d2bf45c1ce4a328550ec306bdf219db647aada-7537-469e-8366-bd735c1a2caa";
         
-        // VARIÁVEIS GLOBAIS (CORREÇÃO DO ERRO AQUI)
-        let pagseguroCheckout = null; // Declarada globalmente
+        // Variáveis GLOBAIS para controle (Isso corrige o erro "is not defined")
+        let pagseguroCheckout = null;
         let selectedInstallments = 1;
-        let cardType = 'credit'; 
-
-        // ==========================================
-        // FUNÇÕES DO PAGSEGURO
-        // ==========================================
-
-        // Inicializar PagSeguro
+        let cardType = 'credit'; // 'credit' ou 'debit'
+        
+        // Testar conexão com Supabase
+        async function testSupabaseConnection() {
+            try {
+                console.log('🧪 Testando conexão com Supabase...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) throw error;
+                console.log('✅ Conexão com Supabase estabelecida com sucesso!');
+                return true;
+            } catch (error) {
+                console.error('❌ Erro na conexão com Supabase:', error);
+                return false;
+            }
+        }
+        
+        function showAlert(elementId, message, type = 'success') {
+            const alertDiv = document.getElementById(elementId);
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertDiv.innerHTML = '', 5000);
+        }
+        
+        function selectProduct(nome, valor) {
+            document.getElementById('produto').value = nome;
+            document.getElementById('valor').value = valor;
+            document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
+            
+            // Atualizar opções de parcelamento quando um produto é selecionado
+            updateInstallmentOptions();
+        }
+        
+        // Atualizar opções de parcelamento
+        function updateInstallmentOptions() {
+            const valor = parseFloat(document.getElementById('valor').value);
+            const installmentOptions = document.getElementById('installmentOptions');
+            
+            if (!valor || valor <= 0) {
+                installmentOptions.innerHTML = '';
+                return;
+            }
+            
+            let optionsHTML = '';
+            
+            // Para cartão de débito, apenas 1 parcela
+            if (cardType === 'debit') {
+                optionsHTML = `
+                    <div class="installment-option selected" data-installments="1">
+                        <div class="installment-quantity">1x</div>
+                        <div class="installment-value">R$ ${valor.toFixed(2)}</div>
+                    </div>
+                `;
+                selectedInstallments = 1;
+            } else {
+                // Para cartão de crédito, até 12x sem juros
+                for (let i = 1; i <= 12; i++) {
+                    const installmentValue = valor / i;
+                    const isSelected = i === selectedInstallments;
+                    
+                    optionsHTML += `
+                        <div class="installment-option ${isSelected ? 'selected' : ''}" data-installments="${i}">
+                            <div class="installment-quantity">${i}x</div>
+                            <div class="installment-value">
+                                R$ ${installmentValue.toFixed(2)}
+                                ${i <= 12 ? '<div class="installment-no-interest">sem juros</div>' : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            installmentOptions.innerHTML = optionsHTML;
+            
+            // Adicionar event listeners para as opções de parcelamento
+            document.querySelectorAll('.installment-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.installment-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedInstallments = parseInt(this.getAttribute('data-installments'));
+                });
+            });
+        }
+        
+        // Alternar entre cartão de crédito e débito
+        function setupPaymentTypeSelector() {
+            document.querySelectorAll('.payment-type-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.payment-type-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    cardType = this.getAttribute('data-type');
+                    
+                    // Mostrar/ocultar seletor de parcelas
+                    const installmentSelector = document.getElementById('installmentSelector');
+                    if (cardType === 'credit') {
+                        installmentSelector.classList.add('active');
+                    } else {
+                        installmentSelector.classList.remove('active');
+                        selectedInstallments = 1;
+                    }
+                    
+                    // Atualizar opções de parcelamento
+                    updateInstallmentOptions();
+                });
+            });
+        }
+        
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                const method = this.getAttribute('data-method');
+                if (method === 'pix') {
+                    document.getElementById('pixCode').style.display = 'block';
+                    document.getElementById('cardForm').classList.remove('active');
+                } else {
+                    document.getElementById('pixCode').style.display = 'none';
+                    document.getElementById('cardForm').classList.add('active');
+                }
+            });
+        });
+        
+        // Inicializar PagSeguro - CORRIGIDA
         function initializePagSeguro() {
             try {
+                // Verificar se o SDK do PagSeguro está carregado
                 if (typeof PagSeguro === 'undefined') {
-                    console.error('❌ SDK do PagSeguro não carregado no cabeçalho HTML');
+                    console.error('❌ SDK do PagSeguro não carregado');
                     return false;
                 }
                 
-                // Atribuição à variável global
+                // Inicializar o checkout do PagSeguro e atribuir à variável GLOBAL
+                // NOTA: Mude 'production' para 'production' apenas quando colocar o TOKEN de produção
                 pagseguroCheckout = PagSeguro.Checkout({
                     token: PAGSEGURO_TOKEN,
-                    env: 'production' // Mude para 'production' quando for lançar
+                    env: 'sandbox' 
                 });
                 
-                console.log('✅ PagSeguro inicializado e pronto para uso.');
+                console.log('✅ PagSeguro inicializado com sucesso');
                 return true;
             } catch (error) {
                 console.error('❌ Erro ao inicializar PagSeguro:', error);
                 return false;
             }
         }
-
-        // Processar pagamento com cartão
+        
+        // Formatação do cartão
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = value.substring(0, 19);
+        });
+        
+        document.getElementById('cardExpiry').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value.substring(0, 5);
+        });
+        
+        document.getElementById('cardCVC').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+        });
+        
+        // Validação básica do cartão
+        function validateCard(cardNumber, cardHolder, cardExpiry, cardCVC) {
+            const errors = [];
+            
+            // Validar número do cartão (pelo menos 13 dígitos)
+            const cleanCardNumber = cardNumber.replace(/\s/g, '');
+            if (cleanCardNumber.length < 13) {
+                errors.push('Número do cartão inválido');
+            }
+            
+            // Validar nome
+            if (cardHolder.trim().length < 3) {
+                errors.push('Nome no cartão deve ter pelo menos 3 caracteres');
+            }
+            
+            // Validar data de expiração
+            const expiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
+            if (!expiryRegex.test(cardExpiry)) {
+                errors.push('Data de expiração inválida (use MM/AA)');
+            }
+            
+            // Validar CVV
+            if (cardCVC.length < 3) {
+                errors.push('CVV inválido');
+            }
+            
+            return errors;
+        }
+        
+        // Processar pagamento com cartão via PagSeguro - CORRIGIDA
         async function processCardPayment() {
-            // 1. Verificação de segurança do PagSeguro
+            // VERIFICAÇÃO DE SEGURANÇA (Se a variável não estiver carregada, tenta carregar)
             if (!pagseguroCheckout) {
-                console.warn('PagSeguro não estava pronto. Tentando inicializar agora...');
+                console.warn('⚠️ PagSeguro não estava inicializado. Tentando novamente...');
                 initializePagSeguro();
                 
                 if (!pagseguroCheckout) {
-                    alert('Erro técnico: O sistema de pagamento não pôde ser carregado. Por favor, recarregue a página e tente novamente.');
+                    alert('Erro técnico: O sistema de pagamento não foi carregado corretamente. Por favor, recarregue a página.');
                     return;
                 }
             }
@@ -70,24 +1214,28 @@
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCVC = document.getElementById('cardCVC').value;
             
-            // Validações
+            // Validar campos obrigatórios
             if (!nome || !email || !valor) {
-                alert('Por favor, preencha todos os campos obrigatórios (Nome, Email e Valor).');
+                alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
             
+            // Validar dados do cartão
             const validationErrors = validateCard(cardNumber, cardHolder, cardExpiry, cardCVC);
             if (validationErrors.length > 0) {
-                alert('Erros no cartão:\n\n' + validationErrors.join('\n'));
+                alert('Erros de validação:\n\n' + validationErrors.join('\n'));
                 return;
             }
             
             try {
+                // Mostrar indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'block';
                 
-                // Preparar dados
+                console.log('💳 Iniciando processamento com PagSeguro...');
+                
+                // Preparar dados para PagSeguro
                 const paymentData = {
-                    amount: (valor * 100).toFixed(0),
+                    amount: (valor * 100).toFixed(0), // Valor em centavos
                     card: {
                         number: cardNumber.replace(/\s/g, ''),
                         holder: cardHolder,
@@ -111,6 +1259,7 @@
                     }]
                 };
                 
+                // Adicionar informações de parcelamento para cartão de crédito
                 if (cardType === 'credit') {
                     paymentData.installment = {
                         quantity: selectedInstallments,
@@ -118,7 +1267,14 @@
                     };
                 }
                 
-                // CHAMADA REAL DE PAGAMENTO
+                console.log('📦 Dados do pagamento:', paymentData);
+                
+                // IMPLEMENTAÇÃO REAL COM PAGSEGURO
+                if (!pagseguroCheckout) {
+                    throw new Error('PagSeguro não inicializado');
+                }
+                
+                // Processar pagamento com PagSeguro
                 const result = await pagseguroCheckout.payment({
                     method: cardType === 'credit' ? 'creditCard' : 'debitCard',
                     amount: paymentData.amount,
@@ -129,248 +1285,317 @@
                     items: paymentData.items
                 });
                 
-                console.log('✅ Resultado:', result);
+                console.log('✅ Resultado do pagamento:', result);
                 
                 if (result.errors) {
-                    throw new Error(JSON.stringify(result.errors));
+                    throw new Error(JSON.stringify(result.errors)); // Melhor visualização do erro
                 }
                 
-                // Sucesso - Salvar no Banco
-                await saveDonation(nome, email, telefone, produto, valor, mensagem, result.code || 'TRANSACAO_OK');
+                // Salvar doação no banco de dados
+                const { data, error } = await supabase.from('doacoes').insert([{
+                    nome_doador: nome, 
+                    email_doador: email, 
+                    telefone_doador: telefone,
+                    produto: produto, 
+                    valor: valor, 
+                    mensagem: mensagem,
+                    metodo_pagamento: cardType === 'credit' ? 'cartao_credito_pagseguro' : 'cartao_debito_pagseguro',
+                    parcelas: cardType === 'credit' ? selectedInstallments : 1,
+                    status: 'processado',
+                    pagamento_id: result.code || result.transactionCode || `PS_${Date.now()}`,
+                    data_criacao: new Date().toISOString()
+                }]).select();
                 
+                if (error) throw error;
+                
+                // Esconder indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'none';
-                alert(`✅ Pagamento Aprovado!\nObrigado, ${nome}!\nTransação: ${result.code || 'Sucesso'}`);
                 
-                // Limpar form
+                let paymentMethodText = cardType === 'credit' ? 
+                    `Cartão de Crédito (${selectedInstallments}x)` : 
+                    'Cartão de Débito';
+                
+                alert(`✅ Pagamento processado com sucesso via PagSeguro!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} foi processada.\nMétodo: ${paymentMethodText}\nID da Transação: ${result.code || result.transactionCode}`);
+                
+                // Limpar formulário
                 document.getElementById('donationForm').reset();
+                document.getElementById('produto').value = '';
+                
+                // Limpar formulário do cartão
+                document.getElementById('cardNumber').value = '';
+                document.getElementById('cardHolder').value = '';
+                document.getElementById('cardExpiry').value = '';
+                document.getElementById('cardCVC').value = '';
                 
             } catch (error) {
+                // Esconder indicador de processamento em caso de erro
                 document.getElementById('paymentProcessing').style.display = 'none';
-                console.error('❌ Erro:', error);
-                alert('O PagSeguro recusou a transação ou houve um erro técnico.\n\nDetalhe: ' + (error.message || error));
-            }
-        }
-
-        // ==========================================
-        // FUNÇÕES AUXILIARES E DE INTERFACE
-        // ==========================================
-
-        async function saveDonation(nome, email, tel, prod, val, msg, txId) {
-            const { error } = await supabase.from('doacoes').insert([{
-                nome_doador: nome, 
-                email_doador: email, 
-                telefone_doador: tel,
-                produto: prod, 
-                valor: val, 
-                mensagem: msg,
-                metodo_pagamento: cardType === 'credit' ? 'credito' : 'debito',
-                parcelas: selectedInstallments,
-                status: 'pago',
-                pagamento_id: txId,
-                data_criacao: new Date().toISOString()
-            }]);
-            if (error) console.error('Erro ao salvar no banco:', error);
-        }
-
-        function validateCard(number, holder, expiry, cvc) {
-            const errors = [];
-            if (number.replace(/\s/g, '').length < 13) errors.push('Número do cartão inválido');
-            if (holder.trim().length < 3) errors.push('Nome inválido');
-            if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) errors.push('Data deve ser MM/AA');
-            if (cvc.length < 3) errors.push('CVV inválido');
-            return errors;
-        }
-
-        // Formatação de inputs
-        document.getElementById('cardNumber').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-            e.target.value = value.substring(0, 19);
-        });
-        
-        document.getElementById('cardExpiry').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length >= 2) value = value.substring(0, 2) + '/' + value.substring(2, 4);
-            e.target.value = value.substring(0, 5);
-        });
-        
-        document.getElementById('cardCVC').addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
-        });
-
-        // Atualizar parcelas
-        function updateInstallmentOptions() {
-            const valor = parseFloat(document.getElementById('valor').value);
-            const container = document.getElementById('installmentOptions');
-            if (!valor || valor <= 0) { container.innerHTML = ''; return; }
-            
-            let html = '';
-            if (cardType === 'debit') {
-                html = `<div class="installment-option selected" data-n="1"><div class="installment-quantity">1x</div><div>R$ ${valor.toFixed(2)}</div></div>`;
-                selectedInstallments = 1;
-            } else {
-                for (let i = 1; i <= 12; i++) {
-                    html += `<div class="installment-option ${i===1?'selected':''}" data-n="${i}"><div class="installment-quantity">${i}x</div><div>R$ ${(valor/i).toFixed(2)}</div></div>`;
+                
+                console.error('❌ Erro no processamento do cartão:', error);
+                
+                // Mensagem de erro detalhada para ajudar no debug
+                let errorMessage = 'Erro ao processar pagamento com PagSeguro:\n';
+                
+                if (error.message) {
+                     errorMessage += error.message;
+                } else if (typeof error === 'object') {
+                     errorMessage += JSON.stringify(error);
+                } else {
+                     errorMessage += 'Erro desconhecido. Verifique o console.';
                 }
+                
+                alert(errorMessage);
             }
-            container.innerHTML = html;
-            
-            document.querySelectorAll('.installment-option').forEach(opt => {
-                opt.addEventListener('click', function() {
-                    document.querySelectorAll('.installment-option').forEach(o => o.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedInstallments = parseInt(this.getAttribute('data-n'));
-                });
-            });
         }
-
-        // Inicialização da Página
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Iniciando sistema...');
+        
+        async function confirmPayment() {
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
+            const produto = document.getElementById('produto').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const mensagem = document.getElementById('mensagem').value;
+            const metodoPagamento = document.querySelector('.payment-option.active').getAttribute('data-method');
             
-            // Inicia PagSeguro imediatamente
-            initializePagSeguro();
-
-            // Listeners
-            document.getElementById('valor').addEventListener('input', updateInstallmentOptions);
+            if (!nome || !email || !valor) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
             
-            // Troca de Abas (Pix/Cartão)
-            document.querySelectorAll('.payment-option').forEach(opt => {
-                opt.addEventListener('click', function() {
-                    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
-                    this.classList.add('active');
-                    if (this.dataset.method === 'pix') {
-                        document.getElementById('pixCode').style.display = 'block';
-                        document.getElementById('cardForm').classList.remove('active');
-                    } else {
-                        document.getElementById('pixCode').style.display = 'none';
-                        document.getElementById('cardForm').classList.add('active');
-                    }
-                });
-            });
-
-            // Troca Crédito/Débito
-            document.querySelectorAll('.payment-type-option').forEach(opt => {
-                opt.addEventListener('click', function() {
-                    document.querySelectorAll('.payment-type-option').forEach(o => o.classList.remove('active'));
-                    this.classList.add('active');
-                    cardType = this.dataset.type;
-                    const selector = document.getElementById('installmentSelector');
-                    if (cardType === 'credit') selector.classList.add('active');
-                    else { selector.classList.remove('active'); selectedInstallments = 1; }
-                    updateInstallmentOptions();
-                });
-            });
-            
-            // Carregar produtos e admin (funções mantidas simplificadas para brevidade, adicione se necessário)
-            loadProducts();
-            
-            // Botões de Admin
-             document.getElementById('adminLink').addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('adminLogin').scrollIntoView({behavior:'smooth'});
-            });
-        });
-
-        // Funções de Admin e Produtos (Mantidas do original para garantir funcionamento)
-        async function loadProducts() {
-            const grid = document.getElementById('productsGrid');
             try {
-                const { data } = await supabase.from('produtos').select('*').eq('ativo', true);
-                if(data && data.length > 0) {
-                    grid.innerHTML = '';
-                    data.forEach(p => {
-                        grid.innerHTML += `
-                        <div class="product-card">
-                            <div class="product-image"><img src="${p.imagem_url || 'https://placehold.co/300'}" /></div>
-                            <div class="product-info">
-                                <h3>${p.nome}</h3>
-                                <p>${p.descricao}</p>
-                                <div class="product-price">R$ ${p.preco}</div>
-                                <button class="btn" onclick="selectProduct('${p.nome}', ${p.preco})">Selecionar</button>
-                            </div>
-                        </div>`;
-                    });
-                } else { grid.innerHTML = '<p>Sem produtos no momento.</p>'; }
-            } catch(e) { grid.innerHTML = '<p>Erro ao carregar.</p>'; }
+                const { data, error } = await supabase.from('doacoes').insert([{
+                    nome_doador: nome, email_doador: email, telefone_doador: telefone,
+                    produto: produto, valor: valor, mensagem: mensagem,
+                    metodo_pagamento: metodoPagamento, status: 'pendente', data_criacao: new Date().toISOString()
+                }]).select();
+                
+                if (error) throw error;
+                alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para "${produto}" foi registrada.`);
+                document.getElementById('donationForm').reset();
+                document.getElementById('produto').value = '';
+            } catch (error) {
+                console.error('Erro ao salvar doação:', error);
+                alert('Erro ao processar doação. Tente novamente.');
+            }
         }
-
-        function selectProduct(nome, val) {
-            document.getElementById('produto').value = nome;
-            document.getElementById('valor').value = val;
-            document.getElementById('doacao').scrollIntoView({behavior:'smooth'});
-            updateInstallmentOptions();
-        }
-
+        
         function loginAdmin() {
-            if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
                 document.getElementById('adminLogin').classList.remove('active');
                 document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('adminPassword').value = '';
                 loadAdminProducts();
-            } else alert('Senha incorreta');
+                showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
+            } else {
+                showAlert('adminAlert', 'Senha incorreta!', 'error');
+            }
         }
         
         function logoutAdmin() {
-             document.getElementById('adminPanel').classList.remove('active');
-             document.getElementById('adminLogin').classList.add('active');
-        }
-
-        // Funções auxiliares de Admin (Carregar e Deletar)
-        async function loadAdminProducts() {
-            const grid = document.getElementById('adminProductsGrid');
-            const { data } = await supabase.from('produtos').select('*');
-            grid.innerHTML = '';
-            if(data) data.forEach(p => {
-                grid.innerHTML += `<div class="admin-product-card">
-                    <h4>${p.nome}</h4>
-                    <button class="btn btn-danger btn-small" onclick="deleteProduct(${p.id})">Excluir</button>
-                </div>`;
-            });
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('adminLogin').classList.add('active');
         }
         
-        async function deleteProduct(id) {
-            if(confirm('Deletar?')) {
-                await supabase.from('produtos').delete().eq('id', id);
+        async function loadAdminProducts() {
+            const adminGrid = document.getElementById('adminProductsGrid');
+            adminGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            try {
+                const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
+                if (error) throw error;
+                adminGrid.innerHTML = '';
+                if (!data || data.length === 0) {
+                    adminGrid.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
+                    return;
+                }
+                data.forEach((product) => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'admin-product-card';
+                    productCard.innerHTML = `
+                        <div class="admin-product-image">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150.jpg?text=Sem+Imagem'}" alt="${product.nome}">
+                        </div>
+                        <div class="admin-product-info">
+                            <h3 class="admin-product-title">${product.nome}</h3>
+                            <p class="admin-product-description">${product.descricao}</p>
+                            <div class="admin-product-price">R$ ${product.preco.toFixed(2)}</div>
+                            <div class="admin-product-actions">
+                                <button class="btn btn-small btn-danger" onclick="deleteProduct(${product.id})">Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                    adminGrid.appendChild(productCard);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                adminGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
+            }
+        }
+        
+        async function deleteProduct(productId) {
+            if (confirm('Tem certeza que deseja excluir este produto?')) {
+                try {
+                    const { error } = await supabase.from('produtos').delete().eq('id', productId);
+                    if (error) throw error;
+                    alert('Produto excluído com sucesso!');
+                    loadAdminProducts();
+                    loadProducts();
+                } catch (error) {
+                    console.error('Erro ao excluir produto:', error);
+                    alert('Erro ao excluir produto.');
+                }
+            }
+        }
+        
+        async function loadProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            try {
+                const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
+                if (error) throw error;
+                productsGrid.innerHTML = '';
+                if (!data || data.length === 0) {
+                    productsGrid.innerHTML = '<p>Nenhum produto disponível para doação no momento.</p>';
+                    return;
+                }
+                data.forEach(product => {
+                    const safeName = product.nome.replace(/'/g, "\\'");
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    productCard.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200.jpg?text=Sem+Imagem'}" alt="${product.nome}">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">${product.nome}</h3>
+                            <p class="product-description">${product.descricao}</p>
+                            <div class="product-price">R$ ${product.preco.toFixed(2)}</div>
+                            <button class="btn" onclick="selectProduct('${safeName}', ${product.preco})">Selecionar</button>
+                        </div>
+                    `;
+                    productsGrid.appendChild(productCard);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                productsGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
+            }
+        }
+        
+        async function uploadImage(file) {
+            try {
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.jpg`;
+                const filePath = `produtos/${fileName}`;
+                
+                console.log('📤 Fazendo upload da imagem JPG:', file.name);
+                
+                const { data, error } = await supabase.storage
+                    .from('imagens2')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (error) throw error;
+                
+                const { data: { publicUrl } } = supabase.storage
+                    .from('imagens2')
+                    .getPublicUrl(filePath);
+                
+                console.log('✅ Upload realizado com sucesso:', publicUrl);
+                return publicUrl;
+                
+            } catch (error) {
+                console.error('❌ Erro ao fazer upload da imagem:', error);
+                throw error;
+            }
+        }
+        
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('productName').value;
+            const description = document.getElementById('productDescription').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const imageFile = document.getElementById('productImage').files[0];
+            
+            if (!name || !description || !price) {
+                showAlert('productAlert', 'Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            
+            try {
+                let imageUrl = null;
+                
+                if (imageFile) {
+                    showAlert('productAlert', 'Fazendo upload da imagem JPG...', 'success');
+                    imageUrl = await uploadImage(imageFile);
+                }
+                
+                console.log('💾 Salvando produto no banco...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .insert([
+                        {
+                            nome: name,
+                            descricao: description,
+                            preco: price,
+                            imagem_url: imageUrl,
+                            ativo: true,
+                            data_criacao: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) {
+                    console.error('❌ Erro ao salvar produto:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Produto salvo com sucesso:', data);
+                showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
+                
+                document.getElementById('productForm').reset();
                 loadAdminProducts();
                 loadProducts();
+                
+            } catch (error) {
+                console.error('❌ Erro completo ao salvar produto:', error);
+                showAlert('productAlert', 'Erro ao cadastrar produto: ' + error.message, 'error');
             }
-        }
-        
-        // Upload e Submit de Produto (Simplificado)
-        document.getElementById('productForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const file = document.getElementById('productImage').files[0];
-            let url = null;
-            if(file) {
-                const path = `produtos/${Date.now()}_${file.name}`;
-                await supabase.storage.from('imagens2').upload(path, file);
-                const { data } = supabase.storage.from('imagens2').getPublicUrl(path);
-                url = data.publicUrl;
-            }
-            await supabase.from('produtos').insert([{
-                nome: document.getElementById('productName').value,
-                descricao: document.getElementById('productDescription').value,
-                preco: document.getElementById('productPrice').value,
-                imagem_url: url,
-                ativo: true
-            }]);
-            alert('Produto salvo!');
-            document.getElementById('productForm').reset();
-            loadAdminProducts();
-            loadProducts();
         });
-
-        // Pix confirm
-        async function confirmPayment() {
-            await saveDonation(
-                document.getElementById('nome').value,
-                document.getElementById('email').value,
-                document.getElementById('telefone').value,
-                document.getElementById('produto').value,
-                document.getElementById('valor').value,
-                document.getElementById('mensagem').value,
-                'PIX_PENDENTE'
-            );
-            alert('Doação PIX registrada! Aguardando confirmação.');
-        }
+        
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Inicializando aplicação...');
+            
+            const connected = await testSupabaseConnection();
+            if (!connected) {
+                alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
+            }
+            
+            // Inicializar PagSeguro
+            const pagseguroInitialized = initializePagSeguro();
+            if (!pagseguroInitialized) {
+                console.warn('⚠️ PagSeguro não inicializado corretamente');
+            }
+            
+            // Configurar seletor de tipo de pagamento
+            setupPaymentTypeSelector();
+            
+            // Atualizar opções de parcelamento quando o valor muda
+            document.getElementById('valor').addEventListener('input', updateInstallmentOptions);
+            
+            document.getElementById('pixCode').style.display = 'block';
+            loadProducts();
+            
+            document.getElementById('adminLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            console.log('✅ Aplicação inicializada com sucesso!');
+            console.log('🔑 Token PagSeguro configurado:', PAGSEGURO_TOKEN);
+        });
     </script>
+</body>
+</html>
