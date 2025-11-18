@@ -160,12 +160,12 @@
             box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
         }
         
-        .btn-pagseguro {
+        .btn-pagbank {
             background: #4CAF50;
             box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
         
-        .btn-pagseguro:hover {
+        .btn-pagbank:hover {
             background: #45a049;
             box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
         }
@@ -489,7 +489,7 @@
             border-color: #f5c6cb;
         }
         
-        .pagseguro-container {
+        .pagbank-container {
             background: #f8f9fa;
             padding: 1.5rem;
             border-radius: 10px;
@@ -497,7 +497,7 @@
             margin-top: 1.5rem;
         }
         
-        .pagseguro-info {
+        .pagbank-info {
             background: #e8f5e8;
             border: 1px solid #4CAF50;
             border-radius: 8px;
@@ -507,11 +507,11 @@
             color: #2d5016;
         }
         
-        .pagseguro-card-form {
+        .pagbank-card-form {
             margin-bottom: 1rem;
         }
         
-        .pagseguro-card-form input {
+        .pagbank-card-form input {
             width: 100%;
             padding: 12px;
             margin-bottom: 10px;
@@ -521,7 +521,7 @@
             transition: all 0.3s;
         }
         
-        .pagseguro-card-form input:focus {
+        .pagbank-card-form input:focus {
             outline: none;
             border-color: #4CAF50;
             box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
@@ -799,7 +799,7 @@
                     </div>
                     
                     <div class="card-form" id="cardForm">
-                        <div class="pagseguro-info">
+                        <div class="pagbank-info">
                             💳 <strong>Pagamento Seguro com PagBank</strong><br>
                             Você será redirecionado para o ambiente seguro para finalizar.
                         </div>
@@ -819,7 +819,7 @@
                             <p>Redirecionando para o PagBank...</p>
                         </div>
                         
-                        <button type="button" class="btn btn-pagseguro" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()" id="pagseguroButton">
+                        <button type="button" class="btn btn-pagbank" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()" id="pagbankButton">
                             Ir para PagBank e Pagar
                         </button>
                     </div>
@@ -908,9 +908,15 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
-        // ========== CONFIGURAÇÃO DO PAGBANK (PAGSEGURO) ==========
-        // ATENÇÃO: Substitua este e-mail pelo e-mail da sua conta PagSeguro/PagBank
-        const PAGSEGURO_EMAIL = "claudioalbertomaiasilva6@gmail.com"; 
+        // ========== CONFIGURAÇÃO DO PAGBANK ==========
+        // Token completo do PagBank (do PDF fornecido)
+        const PAGBANK_TOKEN = "2d060b56-b9e4-4bae-ac58-d54e440108af243b0e1442eb92407bf29ee18a1e06e6a6f9-c1fa-";
+        
+        // Email da conta PagBank
+        const PAGBANK_EMAIL = "claudioalbertomaiasilva6@gmail.com";
+        
+        // URL de notificação configurada no PagBank
+        const NOTIFICATION_URL = "https://claudio1052.github.io/verbozonaleste/";
         
         // Variáveis GLOBAIS para controle
         let cardType = 'credit'; // Padrão
@@ -941,8 +947,8 @@
             document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
         }
         
-        // Função Auxiliar para formatar telefone para o PagSeguro (Separa DDD do número)
-        function formatPhoneForPagSeguro(fullPhone) {
+        // Função Auxiliar para formatar telefone para o PagBank (Separa DDD do número)
+        function formatPhoneForPagBank(fullPhone) {
             // Remove tudo que não é número
             const nums = fullPhone.replace(/\D/g, '');
             
@@ -957,7 +963,7 @@
             return { areaCode, number };
         }
 
-        // ✅ FUNÇÃO DE PAGAMENTO VIA CARTÃO (CHECKOUT PADRÃO)
+        // ✅ FUNÇÃO DE PAGAMENTO VIA CARTÃO (CHECKOUT TRANSPARENTE PAGBANK)
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
@@ -980,10 +986,10 @@
             try {
                 // Mostrar indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'block';
-                document.getElementById('pagseguroButton').disabled = true;
-                document.getElementById('pagseguroButton').textContent = 'Processando...';
+                document.getElementById('pagbankButton').disabled = true;
+                document.getElementById('pagbankButton').textContent = 'Processando...';
                 
-                console.log('💳 Iniciando redirecionamento PagBank...');
+                console.log('💳 Iniciando pagamento via PagBank...');
                 
                 // 1. Salvar a doação no Supabase com status "pendente"
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
@@ -993,7 +999,7 @@
                     produto: produto, 
                     valor: valor, 
                     mensagem: mensagem,
-                    metodo_pagamento: 'pagbank_checkout',
+                    metodo_pagamento: 'pagbank_cartao',
                     status: 'pendente',
                     data_criacao: new Date().toISOString()
                 }]).select();
@@ -1003,62 +1009,76 @@
                 console.log('✅ Doação salva no banco:', donationData[0].id);
                 
                 // Preparar dados do telefone
-                const phoneData = formatPhoneForPagSeguro(telefoneInput);
+                const phoneData = formatPhoneForPagBank(telefoneInput);
                 
-                // 2. Criar formulário HTML para o Checkout Padrão do PagSeguro
-                // Documentação: https://dev.pagseguro.uol.com.br/reference/checkout-pagseguro-redirect
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'https://pagseguro.uol.com.br/v2/checkout/payment.html';
-                form.style.display = 'none';
-                // Remova o target='_blank' se preferir que abra na mesma aba, 
-                // mas manter _blank evita perder o contexto do site.
-                form.target = '_self'; 
+                // 2. Criar sessão de pagamento com o PagBank usando a API
+                const sessionResponse = await createPagBankSession({
+                    amount: valor,
+                    description: `Doação: ${produto || 'Contribuição Voluntária'}`,
+                    reference: `DOACAO_${donationData[0].id}`,
+                    sender: {
+                        name: nome,
+                        email: email,
+                        phone: phoneData
+                    }
+                });
                 
-                const addField = (name, value) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = name;
-                    input.value = value;
-                    form.appendChild(input);
-                };
-                
-                // Campos Obrigatórios do Checkout Padrão
-                addField('receiverEmail', PAGSEGURO_EMAIL); // Email do Vendedor
-                addField('currency', 'BRL');
-                
-                // Dados do Item (Doação)
-                addField('itemId1', donationData[0].id);
-                addField('itemDescription1', `Doacao: ${produto || 'Contribuicao Voluntaria'}`);
-                addField('itemAmount1', valor.toFixed(2)); // Deve ser "100.00"
-                addField('itemQuantity1', '1');
-                addField('itemWeight1', '0'); // Peso zero pois é serviço/doação
-                
-                // Referência para você identificar depois
-                addField('reference', `DOACAO_${donationData[0].id}`);
-                
-                // Dados do Comprador (Opcional, mas bom para preencher automático)
-                addField('senderName', nome);
-                addField('senderAreaCode', phoneData.areaCode);
-                addField('senderPhone', phoneData.number);
-                addField('senderEmail', email); // Se o email for sandbox, daria erro, mas em prod ok.
-                
-                // Configurações de Retorno (opcional, se quiser que voltem pro seu site)
-                // addField('redirectURL', window.location.href);
-                
-                console.log('📦 Formulário PagBank criado. Redirecionando...');
-                
-                document.body.appendChild(form);
-                form.submit();
+                if (sessionResponse && sessionResponse.id) {
+                    // 3. Redirecionar para o checkout do PagBank
+                    window.location.href = `https://pagbank.uol.com.br/checkout/${sessionResponse.id}`;
+                } else {
+                    throw new Error('Não foi possível criar a sessão de pagamento');
+                }
                 
             } catch (error) {
                 console.error('❌ Erro no processamento:', error);
                 
                 document.getElementById('paymentProcessing').style.display = 'none';
-                document.getElementById('pagseguroButton').disabled = false;
-                document.getElementById('pagseguroButton').textContent = 'Ir para PagBank e Pagar';
+                document.getElementById('pagbankButton').disabled = false;
+                document.getElementById('pagbankButton').textContent = 'Ir para PagBank e Pagar';
                 
                 alert('Erro ao iniciar o pagamento: ' + error.message);
+            }
+        }
+        
+        // ✅ FUNÇÃO PARA CRIAR SESSÃO NO PAGBANK
+        async function createPagBankSession(paymentData) {
+            try {
+                const response = await fetch('https://api.pagbank.com.br/v1/sessions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${PAGBANK_TOKEN}`,
+                    },
+                    body: JSON.stringify({
+                        amount: {
+                            value: Math.round(paymentData.amount * 100), // Em centavos
+                            currency: 'BRL'
+                        },
+                        description: paymentData.description,
+                        reference: paymentData.reference,
+                        sender: {
+                            name: paymentData.sender.name,
+                            email: paymentData.sender.email,
+                            phone: {
+                                areaCode: paymentData.sender.phone.areaCode,
+                                number: paymentData.sender.phone.number
+                            }
+                        },
+                        notificationURL: NOTIFICATION_URL,
+                        redirectURL: window.location.href
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erro PagBank: ${response.status} - ${errorText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('❌ Erro ao criar sessão PagBank:', error);
+                throw error;
             }
         }
         
