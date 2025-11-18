@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doações - Igreja Verbo da Vida Zona Leste</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://assets.pagseguro.com.br/checkout-sdk-js/dist/1.1.0/pagseguro.min.js"></script>
     <style>
-        /* Estilos mantidos do código original */
+        /* Todos os estilos CSS anteriores mantidos */
         :root {
             --primary-color: #1a5276;
             --secondary-color: #2e86c1;
@@ -885,7 +884,6 @@
                         
                         <div class="pagseguro-container">
                             <div class="pagseguro-card-form">
-                                <!-- Removemos os campos de cartão pois o usuário irá para o checkout do PagSeguro -->
                                 <p>Você será redirecionado para o ambiente seguro do PagSeguro para finalizar seu pagamento.</p>
                             </div>
                         </div>
@@ -895,7 +893,7 @@
                             <p>Processando pagamento com PagSeguro...</p>
                         </div>
                         
-                        <button type="button" class="btn btn-pagseguro" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()">
+                        <button type="button" class="btn btn-pagseguro" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()" id="pagseguroButton">
                             Ir para PagSeguro
                         </button>
                     </div>
@@ -992,6 +990,7 @@
         let pagseguroCheckout = null;
         let selectedInstallments = 1;
         let cardType = 'credit'; // 'credit' ou 'debit'
+        let pagseguroLoaded = false;
         
         // Testar conexão com Supabase
         async function testSupabaseConnection() {
@@ -1100,20 +1099,49 @@
             });
         }
         
+        // Carregar SDK do PagSeguro dinamicamente
+        function loadPagSeguroSDK() {
+            return new Promise((resolve, reject) => {
+                // Verificar se já está carregado
+                if (typeof PagSeguro !== 'undefined') {
+                    console.log('✅ SDK do PagSeguro já carregado');
+                    resolve();
+                    return;
+                }
+                
+                console.log('📥 Carregando SDK do PagSeguro...');
+                const script = document.createElement('script');
+                script.src = 'https://assets.pagseguro.com.br/checkout-sdk-js/dist/1.1.0/pagseguro.min.js';
+                script.onload = () => {
+                    console.log('✅ SDK do PagSeguro carregado com sucesso');
+                    pagseguroLoaded = true;
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.error('❌ Erro ao carregar SDK do PagSeguro');
+                    reject(new Error('Falha ao carregar SDK do PagSeguro'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
         // Inicializar PagSeguro - CORRIGIDA
-        function initializePagSeguro() {
+        async function initializePagSeguro() {
             try {
+                // Tentar carregar o SDK se necessário
+                if (!pagseguroLoaded) {
+                    await loadPagSeguroSDK();
+                }
+                
                 // Verificar se o SDK do PagSeguro está carregado
                 if (typeof PagSeguro === 'undefined') {
-                    console.error('❌ SDK do PagSeguro não carregado');
-                    return false;
+                    throw new Error('SDK do PagSeguro não carregado');
                 }
                 
                 // Inicializar o checkout do PagSeguro e atribuir à variável GLOBAL
-                // NOTA: Mude 'sandbox' para 'production' apenas quando colocar o TOKEN de produção
                 pagseguroCheckout = PagSeguro.Checkout({
                     token: PAGSEGURO_TOKEN,
-                    env: 'sandbox' 
+                    env: 'sandbox' // Mude para 'production' em produção
                 });
                 
                 console.log('✅ PagSeguro inicializado com sucesso');
@@ -1126,17 +1154,6 @@
         
         // Processar pagamento com cartão via PagSeguro - CORRIGIDA
         async function processCardPayment() {
-            // VERIFICAÇÃO DE SEGURANÇA (Se a variável não estiver carregada, tenta carregar)
-            if (!pagseguroCheckout) {
-                console.warn('⚠️ PagSeguro não estava inicializado. Tentando novamente...');
-                initializePagSeguro();
-                
-                if (!pagseguroCheckout) {
-                    alert('Erro técnico: O sistema de pagamento não foi carregado corretamente. Por favor, recarregue a página.');
-                    return;
-                }
-            }
-
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
             const telefone = document.getElementById('telefone').value;
@@ -1153,8 +1170,18 @@
             try {
                 // Mostrar indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'block';
+                document.getElementById('pagseguroButton').disabled = true;
                 
                 console.log('💳 Iniciando processamento com PagSeguro...');
+                
+                // Inicializar PagSeguro se necessário
+                if (!pagseguroCheckout) {
+                    console.log('🔄 Inicializando PagSeguro...');
+                    const initialized = await initializePagSeguro();
+                    if (!initialized) {
+                        throw new Error('Não foi possível inicializar o PagSeguro');
+                    }
+                }
                 
                 // Preparar dados para PagSeguro
                 const paymentData = {
@@ -1186,11 +1213,6 @@
                 
                 console.log('📦 Dados do pagamento:', paymentData);
                 
-                // IMPLEMENTAÇÃO REAL COM PAGSEGURO - REDIRECIONAMENTO
-                if (!pagseguroCheckout) {
-                    throw new Error('PagSeguro não inicializado');
-                }
-                
                 // Primeiro, salvar a doação no banco de dados com status "pendente"
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
                     nome_doador: nome, 
@@ -1208,7 +1230,7 @@
                 if (donationError) throw donationError;
                 
                 // Gerar o checkout do PagSeguro
-                const checkoutCode = await pagseguroCheckout.open({
+                pagseguroCheckout.open({
                     amount: paymentData.amount,
                     reference: paymentData.reference,
                     sender: paymentData.sender,
@@ -1269,14 +1291,16 @@
                     }
                 });
                 
-                console.log('✅ Checkout gerado com sucesso:', checkoutCode);
+                console.log('✅ Checkout gerado com sucesso');
                 
                 // Esconder indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'none';
+                document.getElementById('pagseguroButton').disabled = false;
                 
             } catch (error) {
                 // Esconder indicador de processamento em caso de erro
                 document.getElementById('paymentProcessing').style.display = 'none';
+                document.getElementById('pagseguroButton').disabled = false;
                 
                 console.error('❌ Erro no processamento do cartão:', error);
                 
@@ -1285,8 +1309,6 @@
                 
                 if (error.message) {
                      errorMessage += error.message;
-                } else if (typeof error === 'object') {
-                     errorMessage += JSON.stringify(error);
                 } else {
                      errorMessage += 'Erro desconhecido. Verifique o console.';
                 }
@@ -1341,7 +1363,7 @@
         
         function logoutAdmin() {
             document.getElementById('adminPanel').classList.remove('active');
-            document.getElementById('adminLogin').classList.add('active');
+            document.getElementById('adminLogin').classlection.add('active');
         }
         
         async function loadAdminProducts() {
@@ -1466,11 +1488,13 @@
                 alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
             }
             
-            // Inicializar PagSeguro
-            const pagseguroInitialized = initializePagSeguro();
-            if (!pagseguroInitialized) {
-                console.warn('⚠️ PagSeguro não inicializado corretamente');
-            }
+            // Pré-carregar o SDK do PagSeguro
+            console.log('📥 Pré-carregando SDK do PagSeguro...');
+            loadPagSeguroSDK().then(() => {
+                console.log('✅ SDK do PagSeguro pré-carregado com sucesso');
+            }).catch(error => {
+                console.warn('⚠️ Não foi possível pré-carregar o SDK do PagSeguro:', error);
+            });
             
             // Configurar seletor de tipo de pagamento
             setupPaymentTypeSelector();
