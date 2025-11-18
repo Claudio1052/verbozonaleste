@@ -983,14 +983,13 @@
         const ADMIN_PASSWORD = "admin123";
         
         // ========== CONFIGURAÇÃO ATUALIZADA PARA PAGBANK ==========
-        // TOKEN DO PAGBANK DO SEU PDF - FORMATO CORRETO
-        const PAGBANK_TOKEN = "2d060b56-b9e4-4bae-ac58-d54e440108af243b0e1442eb92407bf29ee18a1e06e6a6f9-c1fa-";
+        // TOKEN ATUALIZADO DO PAGBANK
+        const PAGBANK_TOKEN = "0bea0b9b-a1c5-4cf4-ac46-fa7984cd6ab97f90c6294180a864e817b500f84e52770a16-6e90-400b-bc11-229e960b9f32";
+        const PAGBANK_EMAIL = "claudioalbertomaiasilva6@gmail.com";
         
         // Variáveis GLOBAIS para controle
-        let pagseguroCheckout = null;
         let selectedInstallments = 1;
         let cardType = 'credit'; // 'credit' ou 'debit'
-        let pagseguroLoaded = false;
         
         // Testar conexão com Supabase
         async function testSupabaseConnection() {
@@ -1099,7 +1098,7 @@
             });
         }
         
-        // ✅ MÉTODO ATUALIZADO PARA PAGBANK - INTEGRAÇÃO VIA FORMULÁRIO HTML
+        // ✅ MÉTODO ATUALIZADO PARA PAGBANK - INTEGRAÇÃO VIA API
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
@@ -1107,26 +1106,25 @@
             const produto = document.getElementById('produto').value;
             const valor = parseFloat(document.getElementById('valor').value);
             const mensagem = document.getElementById('mensagem').value;
-            
+
             // Validar campos obrigatórios
             if (!nome || !email || !valor) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
-            
+
             if (valor < 1) {
                 alert('O valor mínimo para doação é R$ 1,00.');
                 return;
             }
-            
+
             try {
                 // Mostrar indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'block';
                 document.getElementById('pagseguroButton').disabled = true;
                 document.getElementById('pagseguroButton').textContent = 'Processando...';
-                
+
                 console.log('💳 Iniciando processamento com PagBank...');
-                console.log('🔑 Token PagBank:', PAGBANK_TOKEN);
                 
                 // 1. Primeiro, salvar a doação no banco de dados com status "pendente"
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
@@ -1141,74 +1139,129 @@
                     status: 'pendente',
                     data_criacao: new Date().toISOString()
                 }]).select();
-                
+
                 if (donationError) throw donationError;
-                
+
                 console.log('✅ Doação salva no banco:', donationData[0].id);
-                
-                // 2. Criar formulário dinâmico para PagBank (método Formulário HTML)
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'https://pagbank.com.br/checkout'; // URL do PagBank
-                form.style.display = 'none';
-                form.target = '_blank'; // Abrir em nova aba
-                
-                // Adicionar campos obrigatórios para PagBank
-                const addField = (name, value) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = name;
-                    input.value = value;
-                    form.appendChild(input);
+
+                // 2. Criar checkout no PagBank
+                const checkoutData = {
+                    reference_id: `DOACAO_${donationData[0].id}`,
+                    customer: {
+                        name: nome,
+                        email: email,
+                        tax_id: "12345678909", // CPF fictício - em produção peça ao usuário
+                        phones: [
+                            {
+                                country: "55",
+                                area: "11",
+                                number: telefone ? telefone.replace(/\D/g, '').substring(2) : "999999999",
+                                type: "MOBILE"
+                            }
+                        ]
+                    },
+                    items: [
+                        {
+                            reference_id: `produto_${donationData[0].id}`,
+                            name: produto || "Doação para Igreja Verbo da Vida",
+                            quantity: 1,
+                            unit_amount: Math.round(valor * 100) // Em centavos
+                        }
+                    ],
+                    shipping: {
+                        address: {
+                            street: "Rua Exemplo",
+                            number: "123",
+                            complement: "Doação Online",
+                            locality: "Jardim Casa Nova",
+                            city: "São Paulo",
+                            region_code: "SP",
+                            country: "BRA",
+                            postal_code: "08210000"
+                        }
+                    },
+                    notification_urls: [
+                        "https://claudio1052.github.io/verbozonaleste/notification"
+                    ],
+                    charges: [
+                        {
+                            reference_id: `charge_${donationData[0].id}`,
+                            description: "Doação para Igreja Verbo da Vida Zona Leste",
+                            amount: {
+                                value: Math.round(valor * 100), // Em centavos
+                                currency: "BRL"
+                            },
+                            payment_method: {
+                                type: cardType === 'credit' ? 'CREDIT_CARD' : 'DEBIT_CARD',
+                                installments: cardType === 'credit' ? selectedInstallments : 1,
+                                capture: true,
+                                card: {
+                                    encrypted: "false", // Em produção use criptografia real
+                                    security_code: "123", // CVV fictício
+                                    holder: {
+                                        name: nome
+                                    },
+                                    // Em produção, esses dados viriam do formulário de cartão
+                                    number: "4111111111111111", // Cartão de teste
+                                    exp_month: "12",
+                                    exp_year: "2030"
+                                }
+                            }
+                        }
+                    ]
                 };
+
+                console.log('📦 Dados do checkout:', checkoutData);
+
+                // 3. Fazer requisição para API do PagBank
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'accept': 'application/json',
+                        'Authorization': `Bearer ${PAGBANK_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(checkoutData)
+                };
+
+                const response = await fetch('https://sandbox.api.pagseguro.com/checkouts', options);
                 
-                // Campos básicos obrigatórios
-                addField('receiverEmail', 'seu-email@pagbank.com.br'); // Email da conta PagBank
-                addField('currency', 'BRL');
-                
-                // Informações do item
-                addField('itemId1', `doacao_${donationData[0].id}`);
-                addField('itemDescription1', produto || 'Doação para Igreja Verbo da Vida');
-                addField('itemAmount1', valor.toFixed(2));
-                addField('itemQuantity1', '1');
-                
-                // Informações de referência
-                addField('reference', `DOACAO_${donationData[0].id}`);
-                
-                // Informações do comprador
-                addField('senderName', nome);
-                addField('senderEmail', email);
-                addField('senderPhone', telefone || '11999999999');
-                
-                // Configurações de pagamento
-                addField('paymentMethod', 'creditCard'); // ou 'debitCard'
-                if (cardType === 'credit') {
-                    addField('installmentQuantity', selectedInstallments.toString());
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erro PagBank ${response.status}: ${errorText}`);
                 }
-                
-                // URL de notificação (do seu PDF)
-                addField('notificationURL', 'https://claudio1052.github.io/verbozonaleste/');
-                
-                // URL de redirecionamento
-                addField('redirectURL', window.location.href + '?payment=success');
-                
-                console.log('📦 Formulário PagBank criado com sucesso');
-                
-                // Adicionar formulário à página e submeter
-                document.body.appendChild(form);
-                form.submit();
-                
-                // Atualizar status após envio do formulário
-                setTimeout(async () => {
-                    await supabase
-                        .from('doacoes')
-                        .update({
-                            status: 'encaminhado_pagbank',
-                            data_atualizacao: new Date().toISOString()
-                        })
-                        .eq('id', donationData[0].id);
-                }, 2000);
-                
+
+                const checkoutResponse = await response.json();
+                console.log('✅ Checkout criado com sucesso:', checkoutResponse);
+
+                // 4. Redirecionar para página de pagamento ou mostrar QR Code
+                if (checkoutResponse.links && checkoutResponse.links.length > 0) {
+                    const paymentLink = checkoutResponse.links.find(link => link.rel === 'PAY');
+                    if (paymentLink) {
+                        // Redirecionar para página de pagamento do PagBank
+                        window.open(paymentLink.href, '_blank');
+                        
+                        // Atualizar status da doação
+                        await supabase
+                            .from('doacoes')
+                            .update({
+                                status: 'encaminhado_pagbank',
+                                id_checkout: checkoutResponse.id,
+                                data_atualizacao: new Date().toISOString()
+                            })
+                            .eq('id', donationData[0].id);
+
+                        alert('✅ Redirecionando para PagBank! Complete o pagamento na nova janela.');
+                        
+                        // Resetar botão
+                        document.getElementById('paymentProcessing').style.display = 'none';
+                        document.getElementById('pagseguroButton').disabled = false;
+                        document.getElementById('pagseguroButton').textContent = 'Ir para PagBank';
+                    }
+                } else {
+                    throw new Error('Link de pagamento não encontrado na resposta do PagBank');
+                }
+
             } catch (error) {
                 console.error('❌ Erro no processamento:', error);
                 
@@ -1222,6 +1275,8 @@
                 
                 if (error.message.includes('network') || error.message.includes('fetch')) {
                     errorMessage += 'Erro de conexão. Verifique sua internet.';
+                } else if (error.message.includes('401')) {
+                    errorMessage += 'Token de acesso inválido. Verifique as credenciais do PagBank.';
                 } else {
                     errorMessage += error.message;
                 }
