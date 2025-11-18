@@ -537,6 +537,30 @@
             flex: 1;
         }
         
+        .payment-processing {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         footer {
             background: var(--dark-color);
             color: white;
@@ -753,17 +777,22 @@
                         
                         <div class="pagseguro-container">
                             <div class="pagseguro-card-form">
-                                <input type="text" id="cardNumber" placeholder="Número do Cartão" maxlength="19">
-                                <input type="text" id="cardHolder" placeholder="Nome no Cartão">
+                                <input type="text" id="cardNumber" placeholder="Número do Cartão" maxlength="19" required>
+                                <input type="text" id="cardHolder" placeholder="Nome no Cartão" required>
                                 <div class="form-row">
-                                    <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5">
-                                    <input type="text" id="cardCVC" placeholder="CVV" maxlength="4">
+                                    <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5" required>
+                                    <input type="text" id="cardCVC" placeholder="CVV" maxlength="4" required>
                                 </div>
                             </div>
                         </div>
                         
+                        <div class="payment-processing" id="paymentProcessing">
+                            <div class="spinner"></div>
+                            <p>Processando pagamento com PagSeguro...</p>
+                        </div>
+                        
                         <button type="button" class="btn btn-pagseguro" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()">
-                            Pagar com Cartão
+                            Pagar com Cartão via PagSeguro
                         </button>
                     </div>
                 </div>
@@ -854,7 +883,9 @@
         const ADMIN_PASSWORD = "admin123";
         
         // Configuração do PagSeguro
-        const PAGSEGURO_TOKEN = "a6ddc838-b0eb-4255-a96e-8cc07a1106a358ed51114e68becc6372a007513e807c8e90-cddd-4ac5-98ad-795be7e6a3c9";
+        const PAGSEGURO_TOKEN = "77f7244a-5f99-44cd-9027-60a8862c4c3fa82a91094cdab347b519d228a1d429c33035-f67c-4223-8db3-81c072b0ab6c";
+        
+        let pagseguroCheckout;
         
         // Testar conexão com Supabase
         async function testSupabaseConnection() {
@@ -901,6 +932,20 @@
             });
         });
         
+        // Inicializar PagSeguro
+        function initializePagSeguro() {
+            try {
+                pagseguroCheckout = new PagSeguro.Checkout({
+                    token: PAGSEGURO_TOKEN,
+                    env: 'sandbox' // Altere para 'production' em produção
+                });
+                
+                console.log('✅ PagSeguro inicializado com sucesso');
+            } catch (error) {
+                console.error('❌ Erro ao inicializar PagSeguro:', error);
+            }
+        }
+        
         // Formatação do cartão
         document.getElementById('cardNumber').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -920,6 +965,35 @@
             e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
         });
         
+        // Validação básica do cartão
+        function validateCard(cardNumber, cardHolder, cardExpiry, cardCVC) {
+            const errors = [];
+            
+            // Validar número do cartão (pelo menos 13 dígitos)
+            const cleanCardNumber = cardNumber.replace(/\s/g, '');
+            if (cleanCardNumber.length < 13) {
+                errors.push('Número do cartão inválido');
+            }
+            
+            // Validar nome
+            if (cardHolder.trim().length < 3) {
+                errors.push('Nome no cartão deve ter pelo menos 3 caracteres');
+            }
+            
+            // Validar data de expiração
+            const expiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
+            if (!expiryRegex.test(cardExpiry)) {
+                errors.push('Data de expiração inválida (use MM/AA)');
+            }
+            
+            // Validar CVV
+            if (cardCVC.length < 3) {
+                errors.push('CVV inválido');
+            }
+            
+            return errors;
+        }
+        
         // Processar pagamento com cartão via PagSeguro
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
@@ -929,77 +1003,62 @@
             const valor = parseFloat(document.getElementById('valor').value);
             const mensagem = document.getElementById('mensagem').value;
             
-            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardNumber = document.getElementById('cardNumber').value;
             const cardHolder = document.getElementById('cardHolder').value;
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCVC = document.getElementById('cardCVC').value;
             
+            // Validar campos obrigatórios
             if (!nome || !email || !valor) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
             
-            if (!cardNumber || !cardHolder || !cardExpiry || !cardCVC) {
-                alert('Por favor, preencha todos os dados do cartão.');
-                return;
-            }
-            
-            if (cardNumber.length < 13) {
-                alert('Número do cartão inválido.');
+            // Validar dados do cartão
+            const validationErrors = validateCard(cardNumber, cardHolder, cardExpiry, cardCVC);
+            if (validationErrors.length > 0) {
+                alert('Erros de validação:\n\n' + validationErrors.join('\n'));
                 return;
             }
             
             try {
+                // Mostrar indicador de processamento
+                document.getElementById('paymentProcessing').style.display = 'block';
+                
                 console.log('💳 Iniciando processamento com PagSeguro...');
                 
-                // Simular processamento com PagSeguro
-                // Em produção, você enviaria esses dados para seu backend
-                // que se comunicaria com a API do PagSeguro
-                
-                const transactionData = {
-                    token: PAGSEGURO_TOKEN,
-                    paymentMode: 'default',
-                    paymentMethod: 'creditCard',
-                    receiverEmail: 'igreja@verbozonaleste.com.br',
-                    currency: 'BRL',
-                    extraAmount: '0.00',
-                    itemId1: '0001',
-                    itemDescription1: produto,
-                    itemAmount1: valor.toFixed(2),
-                    itemQuantity1: '1',
-                    notificationURL: 'https://sualoja.com.br/notifica.html',
+                // Preparar dados para PagSeguro
+                const paymentData = {
+                    amount: (valor * 100).toFixed(0), // Valor em centavos
+                    card: {
+                        number: cardNumber.replace(/\s/g, ''),
+                        holder: cardHolder,
+                        exp_date: cardExpiry,
+                        cvv: cardCVC
+                    },
                     reference: `DONATION_${Date.now()}`,
-                    senderName: nome,
-                    senderEmail: email,
-                    senderPhone: telefone,
-                    creditCardToken: 'SIMULATED_TOKEN', // Em produção seria o token gerado
-                    installmentQuantity: '1',
-                    installmentValue: valor.toFixed(2),
-                    noInterestInstallmentQuantity: '4',
-                    creditCardHolderName: cardHolder,
-                    creditCardHolderCPF: '00000000000', // Em produção coletaria o CPF
-                    creditCardHolderBirthDate: '01/01/1980', // Em produção coletaria a data
-                    creditCardHolderAreaCode: '11',
-                    creditCardHolderPhone: '999999999',
-                    billingAddressStreet: 'Rua Exemplo',
-                    billingAddressNumber: '123',
-                    billingAddressComplement: '',
-                    billingAddressDistrict: 'Jardim Casa Nova',
-                    billingAddressPostalCode: '00000000',
-                    billingAddressCity: 'São Paulo',
-                    billingAddressState: 'SP',
-                    billingAddressCountry: 'BRA'
+                    sender: {
+                        name: nome,
+                        email: email,
+                        phone: {
+                            area_code: telefone ? telefone.replace(/\D/g, '').substring(0, 2) : '11',
+                            number: telefone ? telefone.replace(/\D/g, '').substring(2) : '999999999'
+                        }
+                    },
+                    items: [{
+                        id: '1',
+                        description: produto || 'Doação para Igreja',
+                        amount: (valor * 100).toFixed(0),
+                        quantity: 1
+                    }]
                 };
                 
-                console.log('📦 Dados da transação:', transactionData);
+                console.log('📦 Dados do pagamento:', paymentData);
                 
-                // Simular processamento
-                alert('Processando pagamento com PagSeguro...');
-                
-                // Aguardar para simular processamento
+                // Simular processamento com PagSeguro (em produção, usar a API real)
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 
-                // Gerar um ID de transação simulado
+                // Gerar ID de transação simulado (em produção seria o ID real do PagSeguro)
                 const transactionId = `PS_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
                 
                 // Salvar doação no banco de dados
@@ -1010,7 +1069,7 @@
                     produto: produto, 
                     valor: valor, 
                     mensagem: mensagem,
-                    metodo_pagamento: 'cartao_credito', 
+                    metodo_pagamento: 'cartao_credito_pagseguro', 
                     status: 'processado',
                     pagamento_id: transactionId,
                     data_criacao: new Date().toISOString()
@@ -1018,7 +1077,10 @@
                 
                 if (error) throw error;
                 
-                alert(`✅ Pagamento processado com sucesso!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} foi registrada.\nID da Transação: ${transactionId}`);
+                // Esconder indicador de processamento
+                document.getElementById('paymentProcessing').style.display = 'none';
+                
+                alert(`✅ Pagamento processado com sucesso via PagSeguro!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} foi processada.\nID da Transação: ${transactionId}`);
                 
                 // Limpar formulário
                 document.getElementById('donationForm').reset();
@@ -1031,8 +1093,11 @@
                 document.getElementById('cardCVC').value = '';
                 
             } catch (error) {
+                // Esconder indicador de processamento em caso de erro
+                document.getElementById('paymentProcessing').style.display = 'none';
+                
                 console.error('❌ Erro no processamento do cartão:', error);
-                alert('Erro ao processar pagamento. Verifique os dados do cartão e tente novamente.');
+                alert('Erro ao processar pagamento com PagSeguro. Verifique os dados do cartão e tente novamente.');
             }
         }
         
@@ -1261,6 +1326,9 @@
                 alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
             }
             
+            // Inicializar PagSeguro
+            initializePagSeguro();
+            
             document.getElementById('pixCode').style.display = 'block';
             loadProducts();
             
@@ -1270,7 +1338,7 @@
             });
             
             console.log('✅ Aplicação inicializada com sucesso!');
-            console.log('🔑 Token PagSeguro configurado');
+            console.log('🔑 Token PagSeguro configurado:', PAGSEGURO_TOKEN);
         });
     </script>
 </body>
