@@ -885,12 +885,8 @@
                         
                         <div class="pagseguro-container">
                             <div class="pagseguro-card-form">
-                                <input type="text" id="cardNumber" placeholder="Número do Cartão" maxlength="19" required>
-                                <input type="text" id="cardHolder" placeholder="Nome no Cartão" required>
-                                <div class="form-row">
-                                    <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5" required>
-                                    <input type="text" id="cardCVC" placeholder="CVV" maxlength="4" required>
-                                </div>
+                                <!-- Removemos os campos de cartão pois o usuário irá para o checkout do PagSeguro -->
+                                <p>Você será redirecionado para o ambiente seguro do PagSeguro para finalizar seu pagamento.</p>
                             </div>
                         </div>
                         
@@ -900,7 +896,7 @@
                         </div>
                         
                         <button type="button" class="btn btn-pagseguro" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()">
-                            Pagar com Cartão via PagSeguro
+                            Ir para PagSeguro
                         </button>
                     </div>
                 </div>
@@ -1128,56 +1124,6 @@
             }
         }
         
-        // Formatação do cartão
-        function setupCardFormatting() {
-            document.getElementById('cardNumber').addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-                e.target.value = value.substring(0, 19);
-            });
-            
-            document.getElementById('cardExpiry').addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length >= 2) {
-                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
-                }
-                e.target.value = value.substring(0, 5);
-            });
-            
-            document.getElementById('cardCVC').addEventListener('input', function(e) {
-                e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
-            });
-        }
-        
-        // Validação básica do cartão
-        function validateCard(cardNumber, cardHolder, cardExpiry, cardCVC) {
-            const errors = [];
-            
-            // Validar número do cartão (pelo menos 13 dígitos)
-            const cleanCardNumber = cardNumber.replace(/\s/g, '');
-            if (cleanCardNumber.length < 13) {
-                errors.push('Número do cartão inválido');
-            }
-            
-            // Validar nome
-            if (cardHolder.trim().length < 3) {
-                errors.push('Nome no cartão deve ter pelo menos 3 caracteres');
-            }
-            
-            // Validar data de expiração
-            const expiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
-            if (!expiryRegex.test(cardExpiry)) {
-                errors.push('Data de expiração inválida (use MM/AA)');
-            }
-            
-            // Validar CVV
-            if (cardCVC.length < 3) {
-                errors.push('CVV inválido');
-            }
-            
-            return errors;
-        }
-        
         // Processar pagamento com cartão via PagSeguro - CORRIGIDA
         async function processCardPayment() {
             // VERIFICAÇÃO DE SEGURANÇA (Se a variável não estiver carregada, tenta carregar)
@@ -1198,21 +1144,9 @@
             const valor = parseFloat(document.getElementById('valor').value);
             const mensagem = document.getElementById('mensagem').value;
             
-            const cardNumber = document.getElementById('cardNumber').value;
-            const cardHolder = document.getElementById('cardHolder').value;
-            const cardExpiry = document.getElementById('cardExpiry').value;
-            const cardCVC = document.getElementById('cardCVC').value;
-            
             // Validar campos obrigatórios
             if (!nome || !email || !valor) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            // Validar dados do cartão
-            const validationErrors = validateCard(cardNumber, cardHolder, cardExpiry, cardCVC);
-            if (validationErrors.length > 0) {
-                alert('Erros de validação:\n\n' + validationErrors.join('\n'));
                 return;
             }
             
@@ -1225,12 +1159,6 @@
                 // Preparar dados para PagSeguro
                 const paymentData = {
                     amount: (valor * 100).toFixed(0), // Valor em centavos
-                    card: {
-                        number: cardNumber.replace(/\s/g, ''),
-                        holder: cardHolder,
-                        exp_date: cardExpiry,
-                        cvv: cardCVC
-                    },
                     reference: `DONATION_${Date.now()}`,
                     sender: {
                         name: nome,
@@ -1249,7 +1177,7 @@
                 };
                 
                 // Adicionar informações de parcelamento para cartão de crédito
-                if (cardType === 'credit') {
+                if (cardType === 'credit' && selectedInstallments > 1) {
                     paymentData.installment = {
                         quantity: selectedInstallments,
                         value: (valor * 100 / selectedInstallments).toFixed(0)
@@ -1258,30 +1186,13 @@
                 
                 console.log('📦 Dados do pagamento:', paymentData);
                 
-                // IMPLEMENTAÇÃO REAL COM PAGSEGURO
+                // IMPLEMENTAÇÃO REAL COM PAGSEGURO - REDIRECIONAMENTO
                 if (!pagseguroCheckout) {
                     throw new Error('PagSeguro não inicializado');
                 }
                 
-                // Processar pagamento com PagSeguro
-                const result = await pagseguroCheckout.payment({
-                    method: cardType === 'credit' ? 'creditCard' : 'debitCard',
-                    amount: paymentData.amount,
-                    card: paymentData.card,
-                    installment: paymentData.installment,
-                    sender: paymentData.sender,
-                    reference: paymentData.reference,
-                    items: paymentData.items
-                });
-                
-                console.log('✅ Resultado do pagamento:', result);
-                
-                if (result.errors) {
-                    throw new Error(JSON.stringify(result.errors)); // Melhor visualização do erro
-                }
-                
-                // Salvar doação no banco de dados
-                const { data, error } = await supabase.from('doacoes').insert([{
+                // Primeiro, salvar a doação no banco de dados com status "pendente"
+                const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
                     nome_doador: nome, 
                     email_doador: email, 
                     telefone_doador: telefone,
@@ -1290,31 +1201,78 @@
                     mensagem: mensagem,
                     metodo_pagamento: cardType === 'credit' ? 'cartao_credito_pagseguro' : 'cartao_debito_pagseguro',
                     parcelas: cardType === 'credit' ? selectedInstallments : 1,
-                    status: 'processado',
-                    pagamento_id: result.code || result.transactionCode || `PS_${Date.now()}`,
+                    status: 'pendente',
                     data_criacao: new Date().toISOString()
                 }]).select();
                 
-                if (error) throw error;
+                if (donationError) throw donationError;
+                
+                // Gerar o checkout do PagSeguro
+                const checkoutCode = await pagseguroCheckout.open({
+                    amount: paymentData.amount,
+                    reference: paymentData.reference,
+                    sender: paymentData.sender,
+                    items: paymentData.items,
+                    installment: paymentData.installment,
+                    success: async function(response) {
+                        // Atualizar a doação com o status de sucesso
+                        const { error: updateError } = await supabase
+                            .from('doacoes')
+                            .update({
+                                status: 'processado',
+                                pagamento_id: response.code || response.transactionCode,
+                                data_atualizacao: new Date().toISOString()
+                            })
+                            .eq('id', donationData[0].id);
+                        
+                        if (updateError) {
+                            console.error('Erro ao atualizar doação:', updateError);
+                        }
+                        
+                        alert(`✅ Pagamento processado com sucesso via PagSeguro!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} foi processada.\nID da Transação: ${response.code || response.transactionCode}`);
+                        
+                        // Limpar formulário
+                        document.getElementById('donationForm').reset();
+                        document.getElementById('produto').value = '';
+                    },
+                    error: async function(response) {
+                        // Atualizar a doação com o status de erro
+                        const { error: updateError } = await supabase
+                            .from('doacoes')
+                            .update({
+                                status: 'erro',
+                                data_atualizacao: new Date().toISOString()
+                            })
+                            .eq('id', donationData[0].id);
+                        
+                        if (updateError) {
+                            console.error('Erro ao atualizar doação:', updateError);
+                        }
+                        
+                        alert('❌ Erro no processamento do pagamento. Por favor, tente novamente.');
+                    },
+                    cancel: async function(response) {
+                        // Atualizar a doação com o status de cancelado
+                        const { error: updateError } = await supabase
+                            .from('doacoes')
+                            .update({
+                                status: 'cancelado',
+                                data_atualizacao: new Date().toISOString()
+                            })
+                            .eq('id', donationData[0].id);
+                        
+                        if (updateError) {
+                            console.error('Erro ao atualizar doação:', updateError);
+                        }
+                        
+                        alert('⚠️ Pagamento cancelado pelo usuário.');
+                    }
+                });
+                
+                console.log('✅ Checkout gerado com sucesso:', checkoutCode);
                 
                 // Esconder indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'none';
-                
-                let paymentMethodText = cardType === 'credit' ? 
-                    `Cartão de Crédito (${selectedInstallments}x)` : 
-                    'Cartão de Débito';
-                
-                alert(`✅ Pagamento processado com sucesso via PagSeguro!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} foi processada.\nMétodo: ${paymentMethodText}\nID da Transação: ${result.code || result.transactionCode}`);
-                
-                // Limpar formulário
-                document.getElementById('donationForm').reset();
-                document.getElementById('produto').value = '';
-                
-                // Limpar formulário do cartão
-                document.getElementById('cardNumber').value = '';
-                document.getElementById('cardHolder').value = '';
-                document.getElementById('cardExpiry').value = '';
-                document.getElementById('cardCVC').value = '';
                 
             } catch (error) {
                 // Esconder indicador de processamento em caso de erro
@@ -1516,9 +1474,6 @@
             
             // Configurar seletor de tipo de pagamento
             setupPaymentTypeSelector();
-            
-            // Configurar formatação do cartão
-            setupCardFormatting();
             
             // Atualizar opções de parcelamento quando o valor muda
             document.getElementById('valor').addEventListener('input', updateInstallmentOptions);
