@@ -160,14 +160,14 @@
             box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
         }
         
-        .btn-pagseguro {
-            background: #4CAF50;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        .btn-infinite {
+            background: #4A00E0;
+            box-shadow: 0 4px 15px rgba(74, 0, 224, 0.3);
         }
         
-        .btn-pagseguro:hover {
-            background: #45a049;
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        .btn-infinite:hover {
+            background: #3a00b0;
+            box-shadow: 0 6px 20px rgba(74, 0, 224, 0.4);
         }
         
         section {
@@ -489,7 +489,7 @@
             border-color: #f5c6cb;
         }
         
-        .pagseguro-container {
+        .infinite-container {
             background: #f8f9fa;
             padding: 1.5rem;
             border-radius: 10px;
@@ -497,43 +497,14 @@
             margin-top: 1.5rem;
         }
         
-        .pagseguro-info {
-            background: #e8f5e8;
-            border: 1px solid #4CAF50;
+        .infinite-info {
+            background: #e8f0fe;
+            border: 1px solid #4A00E0;
             border-radius: 8px;
             padding: 1rem;
             margin-bottom: 1rem;
             font-size: 0.9rem;
-            color: #2d5016;
-        }
-        
-        .pagseguro-card-form {
-            margin-bottom: 1rem;
-        }
-        
-        .pagseguro-card-form input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        
-        .pagseguro-card-form input:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .form-row .form-group {
-            flex: 1;
+            color: #2d3e50;
         }
         
         .payment-processing {
@@ -547,7 +518,7 @@
         
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #4CAF50;
+            border-top: 4px solid #4A00E0;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -861,40 +832,22 @@
                     </div>
                     
                     <div class="card-form" id="cardForm">
-                        <div class="pagseguro-info">
-                            💳 <strong>Pagamento Seguro com PagBank</strong><br>
-                            Sua doação será processada de forma segura através do PagBank.
+                        <div class="infinite-info">
+                            💳 <strong>Pagamento Seguro com InfinitePay</strong><br>
+                            Sua doação será processada de forma segura através da InfinitePay.
                         </div>
                         
-                        <div class="payment-type-selector">
-                            <div class="payment-type-option active" data-type="credit">
-                                <div>Cartão de Crédito</div>
-                            </div>
-                            <div class="payment-type-option" data-type="debit">
-                                <div>Cartão de Débito</div>
-                            </div>
-                        </div>
-                        
-                        <div class="installment-selector" id="installmentSelector">
-                            <label>Parcelamento:</label>
-                            <div class="installment-options" id="installmentOptions">
-                                <!-- Opções de parcelamento serão inseridas aqui -->
-                            </div>
-                        </div>
-                        
-                        <div class="pagseguro-container">
-                            <div class="pagseguro-card-form">
-                                <p>Você será redirecionado para o ambiente seguro do PagBank para finalizar seu pagamento.</p>
-                            </div>
+                        <div class="infinite-container">
+                            <p>Você será redirecionado para o ambiente seguro da InfinitePay para finalizar seu pagamento.</p>
                         </div>
                         
                         <div class="payment-processing" id="paymentProcessing">
                             <div class="spinner"></div>
-                            <p>Processando pagamento com PagBank...</p>
+                            <p>Processando pagamento com InfinitePay...</p>
                         </div>
                         
-                        <button type="button" class="btn btn-pagseguro" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()" id="pagseguroButton">
-                            Ir para PagBank
+                        <button type="button" class="btn btn-infinite" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()" id="infiniteButton">
+                            Ir para InfinitePay
                         </button>
                     </div>
                 </div>
@@ -982,14 +935,9 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
-        // ========== CONFIGURAÇÃO ATUALIZADA PARA PAGBANK ==========
-        // TOKEN ATUALIZADO DO PAGBANK
-        const PAGBANK_TOKEN = "0bea0b9b-a1c5-4cf4-ac46-fa7984cd6ab97f90c6294180a864e817b500f84e52770a16-6e90-400b-bc11-229e960b9f32";
-        const PAGBANK_EMAIL = "claudioalbertomaiasilva6@gmail.com";
-        
-        // Variáveis GLOBAIS para controle
-        let selectedInstallments = 1;
-        let cardType = 'credit'; // 'credit' ou 'debit'
+        // ========== CONFIGURAÇÃO ATUALIZADA PARA INFINITEPAY ==========
+        const INFINITEPAY_HANDLE = "claudio-alberto-479"; // Seu handle na InfinitePay
+        const REDIRECT_URL = "https://claudio1052.github.io/verbozonaleste/sucesso"; // URL de redirecionamento após pagamento
         
         // Testar conexão com Supabase
         async function testSupabaseConnection() {
@@ -1019,86 +967,9 @@
             document.getElementById('produto').value = nome;
             document.getElementById('valor').value = valor;
             document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
-            
-            // Atualizar opções de parcelamento quando um produto é selecionado
-            updateInstallmentOptions();
         }
         
-        // Atualizar opções de parcelamento
-        function updateInstallmentOptions() {
-            const valor = parseFloat(document.getElementById('valor').value);
-            const installmentOptions = document.getElementById('installmentOptions');
-            
-            if (!valor || valor <= 0) {
-                installmentOptions.innerHTML = '';
-                return;
-            }
-            
-            let optionsHTML = '';
-            
-            // Para cartão de débito, apenas 1 parcela
-            if (cardType === 'debit') {
-                optionsHTML = `
-                    <div class="installment-option selected" data-installments="1">
-                        <div class="installment-quantity">1x</div>
-                        <div class="installment-value">R$ ${valor.toFixed(2)}</div>
-                    </div>
-                `;
-                selectedInstallments = 1;
-            } else {
-                // Para cartão de crédito, até 12x sem juros
-                for (let i = 1; i <= 12; i++) {
-                    const installmentValue = valor / i;
-                    const isSelected = i === selectedInstallments;
-                    
-                    optionsHTML += `
-                        <div class="installment-option ${isSelected ? 'selected' : ''}" data-installments="${i}">
-                            <div class="installment-quantity">${i}x</div>
-                            <div class="installment-value">
-                                R$ ${installmentValue.toFixed(2)}
-                                ${i <= 12 ? '<div class="installment-no-interest">sem juros</div>' : ''}
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-            
-            installmentOptions.innerHTML = optionsHTML;
-            
-            // Adicionar event listeners para as opções de parcelamento
-            document.querySelectorAll('.installment-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    document.querySelectorAll('.installment-option').forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedInstallments = parseInt(this.getAttribute('data-installments'));
-                });
-            });
-        }
-        
-        // Alternar entre cartão de crédito e débito
-        function setupPaymentTypeSelector() {
-            document.querySelectorAll('.payment-type-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    document.querySelectorAll('.payment-type-option').forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    cardType = this.getAttribute('data-type');
-                    
-                    // Mostrar/ocultar seletor de parcelas
-                    const installmentSelector = document.getElementById('installmentSelector');
-                    if (cardType === 'credit') {
-                        installmentSelector.classList.add('active');
-                    } else {
-                        installmentSelector.classList.remove('active');
-                        selectedInstallments = 1;
-                    }
-                    
-                    // Atualizar opções de parcelamento
-                    updateInstallmentOptions();
-                });
-            });
-        }
-        
-        // ✅ MÉTODO ATUALIZADO PARA PAGBANK - INTEGRAÇÃO VIA API
+        // ✅ MÉTODO ATUALIZADO PARA INFINITEPAY - INTEGRAÇÃO VIA LINK
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
@@ -1121,10 +992,10 @@
             try {
                 // Mostrar indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'block';
-                document.getElementById('pagseguroButton').disabled = true;
-                document.getElementById('pagseguroButton').textContent = 'Processando...';
+                document.getElementById('infiniteButton').disabled = true;
+                document.getElementById('infiniteButton').textContent = 'Processando...';
 
-                console.log('💳 Iniciando processamento com PagBank...');
+                console.log('💳 Iniciando processamento com InfinitePay...');
                 
                 // 1. Primeiro, salvar a doação no banco de dados com status "pendente"
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
@@ -1134,8 +1005,7 @@
                     produto: produto, 
                     valor: valor, 
                     mensagem: mensagem,
-                    metodo_pagamento: cardType === 'credit' ? 'cartao_credito_pagbank' : 'cartao_debito_pagbank',
-                    parcelas: cardType === 'credit' ? selectedInstallments : 1,
+                    metodo_pagamento: 'cartao_infinitepay',
                     status: 'pendente',
                     data_criacao: new Date().toISOString()
                 }]).select();
@@ -1144,139 +1014,79 @@
 
                 console.log('✅ Doação salva no banco:', donationData[0].id);
 
-                // 2. Criar checkout no PagBank
-                const checkoutData = {
-                    reference_id: `DOACAO_${donationData[0].id}`,
-                    customer: {
-                        name: nome,
-                        email: email,
-                        tax_id: "12345678909", // CPF fictício - em produção peça ao usuário
-                        phones: [
-                            {
-                                country: "55",
-                                area: "11",
-                                number: telefone ? telefone.replace(/\D/g, '').substring(2) : "999999999",
-                                type: "MOBILE"
-                            }
-                        ]
-                    },
-                    items: [
-                        {
-                            reference_id: `produto_${donationData[0].id}`,
-                            name: produto || "Doação para Igreja Verbo da Vida",
-                            quantity: 1,
-                            unit_amount: Math.round(valor * 100) // Em centavos
-                        }
-                    ],
-                    shipping: {
-                        address: {
-                            street: "Rua Exemplo",
-                            number: "123",
-                            complement: "Doação Online",
-                            locality: "Jardim Casa Nova",
-                            city: "São Paulo",
-                            region_code: "SP",
-                            country: "BRA",
-                            postal_code: "08210000"
-                        }
-                    },
-                    notification_urls: [
-                        "https://claudio1052.github.io/verbozonaleste/notification"
-                    ],
-                    charges: [
-                        {
-                            reference_id: `charge_${donationData[0].id}`,
-                            description: "Doação para Igreja Verbo da Vida Zona Leste",
-                            amount: {
-                                value: Math.round(valor * 100), // Em centavos
-                                currency: "BRL"
-                            },
-                            payment_method: {
-                                type: cardType === 'credit' ? 'CREDIT_CARD' : 'DEBIT_CARD',
-                                installments: cardType === 'credit' ? selectedInstallments : 1,
-                                capture: true,
-                                card: {
-                                    encrypted: "false", // Em produção use criptografia real
-                                    security_code: "123", // CVV fictício
-                                    holder: {
-                                        name: nome
-                                    },
-                                    // Em produção, esses dados viriam do formulário de cartão
-                                    number: "4111111111111111", // Cartão de teste
-                                    exp_month: "12",
-                                    exp_year: "2030"
-                                }
-                            }
-                        }
-                    ]
-                };
-
-                console.log('📦 Dados do checkout:', checkoutData);
-
-                // 3. Fazer requisição para API do PagBank
-                const options = {
-                    method: 'POST',
-                    headers: {
-                        'accept': 'application/json',
-                        'Authorization': `Bearer ${PAGBANK_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(checkoutData)
-                };
-
-                const response = await fetch('https://sandbox.api.pagseguro.com/checkouts', options);
+                // 2. Criar o link de checkout da InfinitePay
+                const orderNsu = `DOACAO_${donationData[0].id}`;
                 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Erro PagBank ${response.status}: ${errorText}`);
-                }
-
-                const checkoutResponse = await response.json();
-                console.log('✅ Checkout criado com sucesso:', checkoutResponse);
-
-                // 4. Redirecionar para página de pagamento ou mostrar QR Code
-                if (checkoutResponse.links && checkoutResponse.links.length > 0) {
-                    const paymentLink = checkoutResponse.links.find(link => link.rel === 'PAY');
-                    if (paymentLink) {
-                        // Redirecionar para página de pagamento do PagBank
-                        window.open(paymentLink.href, '_blank');
-                        
-                        // Atualizar status da doação
-                        await supabase
-                            .from('doacoes')
-                            .update({
-                                status: 'encaminhado_pagbank',
-                                id_checkout: checkoutResponse.id,
-                                data_atualizacao: new Date().toISOString()
-                            })
-                            .eq('id', donationData[0].id);
-
-                        alert('✅ Redirecionando para PagBank! Complete o pagamento na nova janela.');
-                        
-                        // Resetar botão
-                        document.getElementById('paymentProcessing').style.display = 'none';
-                        document.getElementById('pagseguroButton').disabled = false;
-                        document.getElementById('pagseguroButton').textContent = 'Ir para PagBank';
+                // Preparar os dados do produto
+                const productName = produto || "Doação para Igreja Verbo da Vida";
+                
+                // Criar o array de itens no formato JSON
+                const items = JSON.stringify([
+                    {
+                        name: productName,
+                        price: Math.round(valor * 100), // Em centavos
+                        quantity: 1
                     }
-                } else {
-                    throw new Error('Link de pagamento não encontrado na resposta do PagBank');
+                ]);
+                
+                // Codificar os parâmetros para URL
+                const encodedItems = encodeURIComponent(items);
+                const encodedRedirectUrl = encodeURIComponent(REDIRECT_URL);
+                const encodedCustomerName = encodeURIComponent(nome);
+                const encodedCustomerEmail = encodeURIComponent(email);
+                
+                // Construir o link da InfinitePay
+                let infinitePayUrl = `https://checkout.infinitepay.io/${INFINITEPAY_HANDLE}?items=${encodedItems}&order_nsu=${orderNsu}&redirect_url=${encodedRedirectUrl}`;
+                
+                // Adicionar informações do cliente se disponíveis
+                if (nome) {
+                    infinitePayUrl += `&customer_name=${encodedCustomerName}`;
                 }
+                
+                if (email) {
+                    infinitePayUrl += `&customer_email=${encodedCustomerEmail}`;
+                }
+                
+                if (telefone) {
+                    const cleanedPhone = telefone.replace(/\D/g, '');
+                    infinitePayUrl += `&customer_cellphone=${cleanedPhone}`;
+                }
+                
+                console.log('🔗 Link InfinitePay gerado:', infinitePayUrl);
+                
+                // 3. Atualizar status da doação
+                await supabase
+                    .from('doacoes')
+                    .update({
+                        status: 'encaminhado_infinitepay',
+                        checkout_url: infinitePayUrl,
+                        data_atualizacao: new Date().toISOString()
+                    })
+                    .eq('id', donationData[0].id);
+
+                // 4. Redirecionar para o checkout da InfinitePay
+                window.open(infinitePayUrl, '_blank');
+                
+                alert('✅ Redirecionando para InfinitePay! Complete o pagamento na nova janela.');
+                
+                // Resetar botão
+                document.getElementById('paymentProcessing').style.display = 'none';
+                document.getElementById('infiniteButton').disabled = false;
+                document.getElementById('infiniteButton').textContent = 'Ir para InfinitePay';
 
             } catch (error) {
                 console.error('❌ Erro no processamento:', error);
                 
                 // Esconder indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'none';
-                document.getElementById('pagseguroButton').disabled = false;
-                document.getElementById('pagseguroButton').textContent = 'Ir para PagBank';
+                document.getElementById('infiniteButton').disabled = false;
+                document.getElementById('infiniteButton').textContent = 'Ir para InfinitePay';
                 
                 // Mensagem de erro detalhada
-                let errorMessage = 'Erro ao processar pagamento com PagBank:\n';
+                let errorMessage = 'Erro ao processar pagamento com InfinitePay:\n';
                 
                 if (error.message.includes('network') || error.message.includes('fetch')) {
                     errorMessage += 'Erro de conexão. Verifique sua internet.';
-                } else if (error.message.includes('401')) {
-                    errorMessage += 'Token de acesso inválido. Verifique as credenciais do PagBank.';
                 } else {
                     errorMessage += error.message;
                 }
@@ -1285,17 +1095,20 @@
             }
         }
         
-        // ✅ VERIFICAR PARÂMETROS DE RETORNO DO PAGBANK
+        // ✅ VERIFICAR PARÂMETROS DE RETORNO DA INFINITEPAY
         function checkPaymentReturn() {
             const urlParams = new URLSearchParams(window.location.search);
-            const paymentStatus = urlParams.get('payment');
+            const receiptUrl = urlParams.get('receipt_url');
+            const transactionId = urlParams.get('transaction_id');
+            const orderNsu = urlParams.get('order_nsu');
             
-            if (paymentStatus === 'success') {
+            if (receiptUrl && transactionId) {
                 alert('✅ Pagamento processado com sucesso! Obrigado pela sua doação.');
+                
+                // Aqui você pode atualizar o status da doação no banco de dados
+                // usando os parâmetros recebidos
+                
                 // Limpar parâmetros da URL
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } else if (paymentStatus === 'cancel') {
-                alert('⚠️ Pagamento cancelado. Você pode tentar novamente quando quiser.');
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -1471,7 +1284,7 @@
         // Inicializar página
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Inicializando aplicação...');
-            console.log('🔑 Token PagBank configurado:', PAGBANK_TOKEN);
+            console.log('🔗 Handle InfinitePay configurado:', INFINITEPAY_HANDLE);
             
             // Verificar retorno de pagamento
             checkPaymentReturn();
@@ -1480,12 +1293,6 @@
             if (!connected) {
                 alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
             }
-            
-            // Configurar seletor de tipo de pagamento
-            setupPaymentTypeSelector();
-            
-            // Atualizar opções de parcelamento quando o valor muda
-            document.getElementById('valor').addEventListener('input', updateInstallmentOptions);
             
             // Configurar alternância entre métodos de pagamento
             document.querySelectorAll('.payment-option').forEach(option => {
