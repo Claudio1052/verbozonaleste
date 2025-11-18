@@ -6,7 +6,7 @@
     <title>Doações - Igreja Verbo da Vida Zona Leste</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Todos os estilos CSS anteriores mantidos */
+        /* Todos os estilos CSS anteriores mantidos - EXATAMENTE IGUAL */
         :root {
             --primary-color: #1a5276;
             --secondary-color: #2e86c1;
@@ -862,8 +862,8 @@
                     
                     <div class="card-form" id="cardForm">
                         <div class="pagseguro-info">
-                            💳 <strong>Pagamento Seguro com PagSeguro</strong><br>
-                            Sua doação será processada de forma segura através do PagSeguro.
+                            💳 <strong>Pagamento Seguro com PagBank</strong><br>
+                            Sua doação será processada de forma segura através do PagBank.
                         </div>
                         
                         <div class="payment-type-selector">
@@ -884,17 +884,17 @@
                         
                         <div class="pagseguro-container">
                             <div class="pagseguro-card-form">
-                                <p>Você será redirecionado para o ambiente seguro do PagSeguro para finalizar seu pagamento.</p>
+                                <p>Você será redirecionado para o ambiente seguro do PagBank para finalizar seu pagamento.</p>
                             </div>
                         </div>
                         
                         <div class="payment-processing" id="paymentProcessing">
                             <div class="spinner"></div>
-                            <p>Processando pagamento com PagSeguro...</p>
+                            <p>Processando pagamento com PagBank...</p>
                         </div>
                         
                         <button type="button" class="btn btn-pagseguro" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()" id="pagseguroButton">
-                            Ir para PagSeguro
+                            Ir para PagBank
                         </button>
                     </div>
                 </div>
@@ -982,9 +982,9 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
-        // Configuração do PagSeguro - CORRIGIDA
-        // Token de teste do PagSeguro (sandbox) - TOKEN CORRIGIDO
-        const PAGSEGURO_TOKEN = "2515675b-77f1-455e-8773-2af51ae659d2bf45c1ce4a328550ec306bdf219db647aada-7537-469e-8366-bd735c1a2caa";
+        // ========== CONFIGURAÇÃO ATUALIZADA PARA PAGBANK ==========
+        // TOKEN DO PAGBANK DO SEU PDF - FORMATO CORRETO
+        const PAGBANK_TOKEN = "2d060b56-b9e4-4bae-ac58-d54e440108af243b0e1442eb92407bf29ee18a1e06e6a6f9-c1fa-";
         
         // Variáveis GLOBAIS para controle
         let pagseguroCheckout = null;
@@ -1099,60 +1099,7 @@
             });
         }
         
-        // Carregar SDK do PagSeguro dinamicamente
-        function loadPagSeguroSDK() {
-            return new Promise((resolve, reject) => {
-                // Verificar se já está carregado
-                if (typeof PagSeguro !== 'undefined') {
-                    console.log('✅ SDK do PagSeguro já carregado');
-                    resolve();
-                    return;
-                }
-                
-                console.log('📥 Carregando SDK do PagSeguro...');
-                const script = document.createElement('script');
-                script.src = 'https://assets.pagseguro.com.br/checkout-sdk-js/dist/1.1.0/pagseguro.min.js';
-                script.onload = () => {
-                    console.log('✅ SDK do PagSeguro carregado com sucesso');
-                    pagseguroLoaded = true;
-                    resolve();
-                };
-                script.onerror = () => {
-                    console.error('❌ Erro ao carregar SDK do PagSeguro');
-                    reject(new Error('Falha ao carregar SDK do PagSeguro'));
-                };
-                document.head.appendChild(script);
-            });
-        }
-        
-        // Inicializar PagSeguro - CORRIGIDA
-        async function initializePagSeguro() {
-            try {
-                // Tentar carregar o SDK se necessário
-                if (!pagseguroLoaded) {
-                    await loadPagSeguroSDK();
-                }
-                
-                // Verificar se o SDK do PagSeguro está carregado
-                if (typeof PagSeguro === 'undefined') {
-                    throw new Error('SDK do PagSeguro não carregado');
-                }
-                
-                // Inicializar o checkout do PagSeguro e atribuir à variável GLOBAL
-                pagseguroCheckout = PagSeguro.Checkout({
-                    token: PAGSEGURO_TOKEN,
-                    env: 'production' // Mude para 'production' em produção
-                });
-                
-                console.log('✅ PagSeguro inicializado com sucesso');
-                return true;
-            } catch (error) {
-                console.error('❌ Erro ao inicializar PagSeguro:', error);
-                return false;
-            }
-        }
-        
-        // Processar pagamento com cartão via PagSeguro - CORRIGIDA
+        // ✅ MÉTODO ATUALIZADO PARA PAGBANK - INTEGRAÇÃO VIA FORMULÁRIO HTML
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
@@ -1167,53 +1114,21 @@
                 return;
             }
             
+            if (valor < 1) {
+                alert('O valor mínimo para doação é R$ 1,00.');
+                return;
+            }
+            
             try {
                 // Mostrar indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'block';
                 document.getElementById('pagseguroButton').disabled = true;
+                document.getElementById('pagseguroButton').textContent = 'Processando...';
                 
-                console.log('💳 Iniciando processamento com PagSeguro...');
+                console.log('💳 Iniciando processamento com PagBank...');
+                console.log('🔑 Token PagBank:', PAGBANK_TOKEN);
                 
-                // Inicializar PagSeguro se necessário
-                if (!pagseguroCheckout) {
-                    console.log('🔄 Inicializando PagSeguro...');
-                    const initialized = await initializePagSeguro();
-                    if (!initialized) {
-                        throw new Error('Não foi possível inicializar o PagSeguro');
-                    }
-                }
-                
-                // Preparar dados para PagSeguro
-                const paymentData = {
-                    amount: (valor * 100).toFixed(0), // Valor em centavos
-                    reference: `DONATION_${Date.now()}`,
-                    sender: {
-                        name: nome,
-                        email: email,
-                        phone: {
-                            area_code: telefone ? telefone.replace(/\D/g, '').substring(0, 2) : '11',
-                            number: telefone ? telefone.replace(/\D/g, '').substring(2) : '999999999'
-                        }
-                    },
-                    items: [{
-                        id: '1',
-                        description: produto || 'Doação para Igreja',
-                        amount: (valor * 100).toFixed(0),
-                        quantity: 1
-                    }]
-                };
-                
-                // Adicionar informações de parcelamento para cartão de crédito
-                if (cardType === 'credit' && selectedInstallments > 1) {
-                    paymentData.installment = {
-                        quantity: selectedInstallments,
-                        value: (valor * 100 / selectedInstallments).toFixed(0)
-                    };
-                }
-                
-                console.log('📦 Dados do pagamento:', paymentData);
-                
-                // Primeiro, salvar a doação no banco de dados com status "pendente"
+                // 1. Primeiro, salvar a doação no banco de dados com status "pendente"
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
                     nome_doador: nome, 
                     email_doador: email, 
@@ -1221,7 +1136,7 @@
                     produto: produto, 
                     valor: valor, 
                     mensagem: mensagem,
-                    metodo_pagamento: cardType === 'credit' ? 'cartao_credito_pagseguro' : 'cartao_debito_pagseguro',
+                    metodo_pagamento: cardType === 'credit' ? 'cartao_credito_pagbank' : 'cartao_debito_pagbank',
                     parcelas: cardType === 'credit' ? selectedInstallments : 1,
                     status: 'pendente',
                     data_criacao: new Date().toISOString()
@@ -1229,91 +1144,104 @@
                 
                 if (donationError) throw donationError;
                 
-                // Gerar o checkout do PagSeguro
-                pagseguroCheckout.open({
-                    amount: paymentData.amount,
-                    reference: paymentData.reference,
-                    sender: paymentData.sender,
-                    items: paymentData.items,
-                    installment: paymentData.installment,
-                    success: async function(response) {
-                        // Atualizar a doação com o status de sucesso
-                        const { error: updateError } = await supabase
-                            .from('doacoes')
-                            .update({
-                                status: 'processado',
-                                pagamento_id: response.code || response.transactionCode,
-                                data_atualizacao: new Date().toISOString()
-                            })
-                            .eq('id', donationData[0].id);
-                        
-                        if (updateError) {
-                            console.error('Erro ao atualizar doação:', updateError);
-                        }
-                        
-                        alert(`✅ Pagamento processado com sucesso via PagSeguro!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} foi processada.\nID da Transação: ${response.code || response.transactionCode}`);
-                        
-                        // Limpar formulário
-                        document.getElementById('donationForm').reset();
-                        document.getElementById('produto').value = '';
-                    },
-                    error: async function(response) {
-                        // Atualizar a doação com o status de erro
-                        const { error: updateError } = await supabase
-                            .from('doacoes')
-                            .update({
-                                status: 'erro',
-                                data_atualizacao: new Date().toISOString()
-                            })
-                            .eq('id', donationData[0].id);
-                        
-                        if (updateError) {
-                            console.error('Erro ao atualizar doação:', updateError);
-                        }
-                        
-                        alert('❌ Erro no processamento do pagamento. Por favor, tente novamente.');
-                    },
-                    cancel: async function(response) {
-                        // Atualizar a doação com o status de cancelado
-                        const { error: updateError } = await supabase
-                            .from('doacoes')
-                            .update({
-                                status: 'cancelado',
-                                data_atualizacao: new Date().toISOString()
-                            })
-                            .eq('id', donationData[0].id);
-                        
-                        if (updateError) {
-                            console.error('Erro ao atualizar doação:', updateError);
-                        }
-                        
-                        alert('⚠️ Pagamento cancelado pelo usuário.');
-                    }
-                });
+                console.log('✅ Doação salva no banco:', donationData[0].id);
                 
-                console.log('✅ Checkout gerado com sucesso');
+                // 2. Criar formulário dinâmico para PagBank (método Formulário HTML)
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'https://pagbank.com.br/checkout'; // URL do PagBank
+                form.style.display = 'none';
+                form.target = '_blank'; // Abrir em nova aba
+                
+                // Adicionar campos obrigatórios para PagBank
+                const addField = (name, value) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    form.appendChild(input);
+                };
+                
+                // Campos básicos obrigatórios
+                addField('receiverEmail', 'seu-email@pagbank.com.br'); // Email da conta PagBank
+                addField('currency', 'BRL');
+                
+                // Informações do item
+                addField('itemId1', `doacao_${donationData[0].id}`);
+                addField('itemDescription1', produto || 'Doação para Igreja Verbo da Vida');
+                addField('itemAmount1', valor.toFixed(2));
+                addField('itemQuantity1', '1');
+                
+                // Informações de referência
+                addField('reference', `DOACAO_${donationData[0].id}`);
+                
+                // Informações do comprador
+                addField('senderName', nome);
+                addField('senderEmail', email);
+                addField('senderPhone', telefone || '11999999999');
+                
+                // Configurações de pagamento
+                addField('paymentMethod', 'creditCard'); // ou 'debitCard'
+                if (cardType === 'credit') {
+                    addField('installmentQuantity', selectedInstallments.toString());
+                }
+                
+                // URL de notificação (do seu PDF)
+                addField('notificationURL', 'https://claudio1052.github.io/verbozonaleste/');
+                
+                // URL de redirecionamento
+                addField('redirectURL', window.location.href + '?payment=success');
+                
+                console.log('📦 Formulário PagBank criado com sucesso');
+                
+                // Adicionar formulário à página e submeter
+                document.body.appendChild(form);
+                form.submit();
+                
+                // Atualizar status após envio do formulário
+                setTimeout(async () => {
+                    await supabase
+                        .from('doacoes')
+                        .update({
+                            status: 'encaminhado_pagbank',
+                            data_atualizacao: new Date().toISOString()
+                        })
+                        .eq('id', donationData[0].id);
+                }, 2000);
+                
+            } catch (error) {
+                console.error('❌ Erro no processamento:', error);
                 
                 // Esconder indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'none';
                 document.getElementById('pagseguroButton').disabled = false;
+                document.getElementById('pagseguroButton').textContent = 'Ir para PagBank';
                 
-            } catch (error) {
-                // Esconder indicador de processamento em caso de erro
-                document.getElementById('paymentProcessing').style.display = 'none';
-                document.getElementById('pagseguroButton').disabled = false;
+                // Mensagem de erro detalhada
+                let errorMessage = 'Erro ao processar pagamento com PagBank:\n';
                 
-                console.error('❌ Erro no processamento do cartão:', error);
-                
-                // Mensagem de erro detalhada para ajudar no debug
-                let errorMessage = 'Erro ao processar pagamento com PagSeguro:\n';
-                
-                if (error.message) {
-                     errorMessage += error.message;
+                if (error.message.includes('network') || error.message.includes('fetch')) {
+                    errorMessage += 'Erro de conexão. Verifique sua internet.';
                 } else {
-                     errorMessage += 'Erro desconhecido. Verifique o console.';
+                    errorMessage += error.message;
                 }
                 
                 alert(errorMessage);
+            }
+        }
+        
+        // ✅ VERIFICAR PARÂMETROS DE RETORNO DO PAGBANK
+        function checkPaymentReturn() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('payment');
+            
+            if (paymentStatus === 'success') {
+                alert('✅ Pagamento processado com sucesso! Obrigado pela sua doação.');
+                // Limpar parâmetros da URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (paymentStatus === 'cancel') {
+                alert('⚠️ Pagamento cancelado. Você pode tentar novamente quando quiser.');
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
         
@@ -1339,7 +1267,13 @@
                 }]).select();
                 
                 if (error) throw error;
-                alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para "${produto}" foi registrada.`);
+                
+                if (metodoPagamento === 'pix') {
+                    alert(`✅ Doação registrada com sucesso!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} para "${produto}" foi registrada.\n\nUse o PIX abaixo para realizar o pagamento.`);
+                } else {
+                    alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para "${produto}" foi registrada.`);
+                }
+                
                 document.getElementById('donationForm').reset();
                 document.getElementById('produto').value = '';
             } catch (error) {
@@ -1363,7 +1297,7 @@
         
         function logoutAdmin() {
             document.getElementById('adminPanel').classList.remove('active');
-            document.getElementById('adminLogin').classlection.add('active');
+            document.getElementById('adminLogin').classList.add('active');
         }
         
         async function loadAdminProducts() {
@@ -1482,19 +1416,15 @@
         // Inicializar página
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Inicializando aplicação...');
+            console.log('🔑 Token PagBank configurado:', PAGBANK_TOKEN);
+            
+            // Verificar retorno de pagamento
+            checkPaymentReturn();
             
             const connected = await testSupabaseConnection();
             if (!connected) {
                 alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
             }
-            
-            // Pré-carregar o SDK do PagSeguro
-            console.log('📥 Pré-carregando SDK do PagSeguro...');
-            loadPagSeguroSDK().then(() => {
-                console.log('✅ SDK do PagSeguro pré-carregado com sucesso');
-            }).catch(error => {
-                console.warn('⚠️ Não foi possível pré-carregar o SDK do PagSeguro:', error);
-            });
             
             // Configurar seletor de tipo de pagamento
             setupPaymentTypeSelector();
@@ -1582,9 +1512,7 @@
             });
             
             console.log('✅ Aplicação inicializada com sucesso!');
-            console.log('🔑 Token PagSeguro configurado:', PAGSEGURO_TOKEN);
         });
     </script>
 </body>
 </html>
-
