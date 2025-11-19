@@ -16,7 +16,7 @@
             /* Paleta de Cores Refinada */
             --primary: #0f172a;       /* Navy Blue Profundo */
             --primary-light: #1e293b;
-            --accent: #d97706;        /* Dourado/Âmbar mais sofisticado */
+            --accent: #d97706;        /* Dourado/Âmbar sofisticado */
             --accent-hover: #b45309;
             
             --bg-body: #f8fafc;
@@ -213,7 +213,7 @@
             color: white;
             padding: 1rem 2.5rem;
             border: none;
-            border-radius: 50px; /* Pill shape */
+            border-radius: 50px;
             cursor: pointer;
             text-decoration: none;
             font-size: 1rem;
@@ -255,6 +255,26 @@
 
         .btn-infinite:hover {
             background: #333333;
+        }
+        
+        .btn-confirm-admin {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .btn-confirm-admin:hover {
+            background: #047857;
+            transform: scale(1.05);
         }
 
         /* --- Sections --- */
@@ -321,7 +341,7 @@
         .product-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Changed to cover for better aesthetic */
+            object-fit: cover;
             transition: transform 0.5s ease;
         }
 
@@ -433,6 +453,10 @@
             font-weight: 600;
             color: var(--text-main);
             font-size: 0.9rem;
+        }
+        
+        .form-group label span.required {
+            color: var(--error);
         }
 
         .form-control {
@@ -630,7 +654,7 @@
         .donations-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
+            min-width: 700px;
         }
         
         .donations-table th {
@@ -647,6 +671,7 @@
             padding: 1rem;
             border-top: 1px solid #f1f5f9;
             font-size: 0.95rem;
+            vertical-align: middle;
         }
         
         .status-badge {
@@ -655,6 +680,7 @@
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
+            display: inline-block;
         }
         
         .status-pendente { background: #fef3c7; color: #92400e; }
@@ -732,13 +758,14 @@
         /* --- Responsividade --- */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
-            nav { display: none; } /* Simplificado para este exemplo, idealmente teria um menu mobile */
+            nav { display: none; } /* Simplificado para este exemplo */
             .product-details-container { grid-template-columns: 1fr; padding: 1.5rem; }
             .form-card { padding: 1.5rem; }
             .admin-tabs { flex-direction: column; }
             .header-content { justify-content: center; flex-direction: column; gap: 1rem; }
             nav ul { gap: 1rem; flex-wrap: wrap; justify-content: center; display: flex; }
             .payment-methods { grid-template-columns: 1fr; }
+            .donations-table { display: block; overflow-x: auto; }
         }
     </style>
 </head>
@@ -807,19 +834,20 @@
             <p class="section-subtitle">Ambiente seguro e criptografado para sua tranquilidade.</p>
             
             <div class="form-card donation-form">
+                <div id="donationAlert"></div>
                 <form id="donationForm">
                     <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-size: 1.2rem;">
                         <i class="fa-regular fa-user"></i> Seus Dados
                     </h3>
                     
                     <div class="form-group">
-                        <label for="nome">Nome Completo</label>
+                        <label for="nome">Nome Completo <span class="required">*</span></label>
                         <input type="text" id="nome" class="form-control" required placeholder="Ex: João da Silva">
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label for="email">E-mail</label>
+                            <label for="email">E-mail <span class="required">*</span></label>
                             <input type="email" id="email" class="form-control" required placeholder="seu@email.com">
                         </div>
                         <div class="form-group">
@@ -835,12 +863,12 @@
                     </h3>
 
                     <div class="form-group">
-                        <label for="produto">Item Selecionado (Opcional)</label>
-                        <input type="text" id="produto" class="form-control" readonly style="background-color: #f1f5f9; color: #64748b;">
+                        <label for="produto">Item Selecionado <span class="required">* (Obrigatório)</span></label>
+                        <input type="text" id="produto" class="form-control" readonly style="background-color: #f1f5f9; color: #64748b;" placeholder="Selecione um produto na lista acima">
                     </div>
                     
                     <div class="form-group">
-                        <label for="valor">Valor da Doação (R$)</label>
+                        <label for="valor">Valor da Doação (R$) <span class="required">*</span></label>
                         <div style="position: relative;">
                             <span style="position: absolute; left: 15px; top: 14px; color: #64748b;">R$</span>
                             <input type="number" id="valor" class="form-control" min="1" step="0.01" required style="padding-left: 3rem; font-weight: 700; font-size: 1.1rem;">
@@ -1032,7 +1060,7 @@
 
     <script>
         // ==========================================================================
-        // MANTENDO O SCRIPT EXATAMENTE COMO SOLICITADO
+        // MANTENDO O SCRIPT E ADICIONANDO AS REGRAS DE OBRIGATORIEDADE E STATUS
         // ==========================================================================
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
@@ -1096,7 +1124,7 @@
         }
         
         // ==========================================================================
-        // INTEGRAÇÃO INFINITEPAY
+        // INTEGRAÇÃO INFINITEPAY - COM VALIDAÇÃO DE ITEM OBRIGATÓRIO
         // ==========================================================================
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
@@ -1106,13 +1134,20 @@
             const valor = parseFloat(document.getElementById('valor').value);
             const mensagem = document.getElementById('mensagem').value;
 
+            // VALIDAÇÃO RIGOROSA
+            if (!produto || produto.trim() === "") {
+                showAlert('donationAlert', 'Por favor, selecione um PRODUTO na lista acima antes de doar.', 'error');
+                document.getElementById('produtos').scrollIntoView({behavior: 'smooth'});
+                return;
+            }
+
             if (!nome || !email || !valor) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
+                showAlert('donationAlert', 'Por favor, preencha Nome, Email e Valor.', 'error');
                 return;
             }
 
             if (valor < 1) {
-                alert('O valor mínimo para doação é R$ 1,00.');
+                showAlert('donationAlert', 'O valor mínimo para doação é R$ 1,00.', 'error');
                 return;
             }
 
@@ -1200,7 +1235,7 @@
                 document.getElementById('paymentProcessing').style.display = 'none';
                 document.getElementById('infiniteButton').disabled = false;
                 document.getElementById('infiniteButton').textContent = 'Tentar Novamente';
-                alert('Ocorreu um erro ao processar. Verifique sua conexão.');
+                showAlert('donationAlert', 'Ocorreu um erro ao processar. Verifique sua conexão.', 'error');
             }
         }
 
@@ -1218,7 +1253,7 @@
             const transactionId = urlParams.get('transaction_nsu');
             
             if (receiptUrl && transactionId) {
-                showAlert('donationForm', '✅ Pagamento confirmado com sucesso! Deus abençoe.', 'success');
+                showAlert('donationAlert', '✅ Pagamento confirmado com sucesso! Deus abençoe.', 'success');
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -1232,8 +1267,15 @@
             const mensagem = document.getElementById('mensagem').value;
             const metodoPagamento = document.querySelector('.payment-option.active').getAttribute('data-method');
             
+            // VALIDAÇÃO RIGOROSA
+            if (!produto || produto.trim() === "") {
+                showAlert('donationAlert', 'Por favor, selecione um PRODUTO na lista acima antes de confirmar.', 'error');
+                document.getElementById('produtos').scrollIntoView({behavior: 'smooth'});
+                return;
+            }
+
             if (!nome || !email || !valor) {
-                alert('Preencha todos os campos obrigatórios.');
+                showAlert('donationAlert', 'Preencha todos os campos obrigatórios (*).', 'error');
                 return;
             }
             
@@ -1246,9 +1288,9 @@
                 
                 if (error) throw error;
                 
-                alert(metodoPagamento === 'pix' ? 
+                showAlert('donationAlert', metodoPagamento === 'pix' ? 
                     `✅ Doação registrada! Realize o PIX para concluir.` : 
-                    `Obrigado! Sua doação foi registrada.`);
+                    `Obrigado! Sua doação foi registrada.`, 'success');
                 
                 document.getElementById('donationForm').reset();
                 document.getElementById('produto').value = '';
@@ -1256,7 +1298,7 @@
                 
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao processar doação.');
+                showAlert('donationAlert', 'Erro ao processar doação.', 'error');
             }
         }
         
@@ -1267,7 +1309,6 @@
                 document.getElementById('adminPanel').classList.add('active');
                 document.getElementById('adminPassword').value = '';
                 
-                // Ajuste para exibir o painel e esconder o login (display logic)
                 document.getElementById('adminLogin').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 
@@ -1283,11 +1324,33 @@
             document.getElementById('adminPanel').classList.remove('active');
             document.getElementById('adminLogin').classList.add('active');
             
-            // Ajuste reverso
             document.getElementById('adminLogin').style.display = 'flex';
             document.getElementById('adminPanel').style.display = 'none';
         }
         
+        // ==========================================================================
+        // ADMIN - ATUALIZAÇÃO DE STATUS MANUAL
+        // ==========================================================================
+        async function updateStatusManual(id) {
+            if(!confirm('Tem certeza que deseja confirmar o recebimento deste pagamento manualmente? O status será alterado para CONCLUÍDO.')) return;
+            
+            try {
+                const { error } = await supabase.from('doacoes').update({
+                    status: 'concluido',
+                    data_atualizacao: new Date().toISOString()
+                }).eq('id', id);
+                
+                if(error) throw error;
+                
+                alert('Status atualizado com sucesso!');
+                loadDonationsReport(); // Recarrega a tabela
+                
+            } catch (e) {
+                console.error(e);
+                alert('Erro ao atualizar o status da doação.');
+            }
+        }
+
         async function loadDonationsReport() {
             try {
                 const { data, error } = await supabase.from('doacoes').select('*').order('data_criacao', { ascending: false });
@@ -1297,7 +1360,7 @@
                 
                 data.forEach(d => {
                     totalArrecadado += d.valor;
-                    if (d.status === 'pendente') pendentes++;
+                    if (d.status === 'pendente' || d.status === 'encaminhado_infinitepay') pendentes++;
                     else if (['concluido', 'pago'].includes(d.status)) concluidos++;
                 });
                 
@@ -1316,15 +1379,28 @@
                 
                 data.forEach(d => {
                     const row = document.createElement('tr');
-                    let statusClass = d.status === 'pendente' ? 'status-pendente' : 
+                    let statusClass = d.status === 'pendente' || d.status === 'encaminhado_infinitepay' ? 'status-pendente' : 
                                       (d.status === 'concluido' || d.status === 'pago' ? 'status-concluido' : 'status-pago');
                     
+                    // Botão de confirmação se não estiver concluído
+                    let actionButton = '';
+                    if (d.status !== 'concluido' && d.status !== 'pago') {
+                        actionButton = `
+                            <button class="btn-confirm-admin" onclick="updateStatusManual(${d.id})" title="Confirmar Pagamento Manualmente">
+                                ✔ Confirmar Pgto
+                            </button>
+                        `;
+                    }
+
                     row.innerHTML = `
                         <td>${new Date(d.data_criacao).toLocaleDateString('pt-BR')}</td>
                         <td><strong>${d.nome_doador}</strong><br><span style="font-size:0.8rem; color:#64748b;">${d.email_doador}</span></td>
                         <td>${d.produto || '-'}<br><span style="font-size:0.8rem; color:#64748b;">${d.mensagem ? d.mensagem.substring(0,20)+'...' : ''}</span></td>
                         <td><strong>R$ ${d.valor.toFixed(2)}</strong></td>
-                        <td><span class="status-badge ${statusClass}">${d.status}</span></td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${d.status}</span>
+                            ${actionButton}
+                        </td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -1428,13 +1504,11 @@
                     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Hide all content
                     document.querySelectorAll('.admin-tab-content').forEach(c => {
                         c.classList.remove('active');
                         c.style.display = 'none';
                     });
                     
-                    // Show selected
                     const target = document.getElementById(`${this.dataset.tab}Tab`);
                     target.classList.add('active');
                     target.style.display = 'block';
@@ -1443,13 +1517,11 @@
                 });
             });
             
-            // Initial State
             document.getElementById('pixCode').style.display = 'block';
             loadProducts();
             
             document.getElementById('adminLink').addEventListener('click', (e) => {
                 e.preventDefault();
-                // Logic update: Show login section
                 document.getElementById('adminPanel').style.display = 'none';
                 document.getElementById('adminLogin').style.display = 'flex';
                 document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
