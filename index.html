@@ -1,19 +1,22 @@
-[file name]: sucesso.html
+[file name]: index.html
 [file content begin]
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento Confirmado - Igreja Verbo da Vida Zona Leste</title>
+    <title>Doações - Igreja Verbo da Vida Zona Leste</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* Cores extraídas do banner - tons de azul e dourado */
         :root {
-            --primary-color: #1a365d;
-            --secondary-color: #2d5a8c;
-            --accent-color: #d4af37;
+            --primary-color: #1a365d;    /* Azul escuro do banner */
+            --secondary-color: #2d5a8c;  /* Azul médio do banner */
+            --accent-color: #d4af37;     /* Dourado do banner */
             --light-color: #f8f9fa;
             --dark-color: #1a202c;
             --success-color: #38a169;
+            --error-color: #e53e3e;
         }
         
         * {
@@ -24,41 +27,123 @@
         }
         
         body {
+            background-color: #f5f5f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            min-height: 100vh;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 2rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* BANNER COM VÍDEO */
+        .hero {
+            position: relative;
+            height: 70vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
-        }
-        
-        .success-container {
-            background: white;
-            color: var(--dark-color);
-            padding: 3rem;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
-            max-width: 600px;
+            color: white;
+            margin-top: 80px;
+            overflow: hidden;
+        }
+        
+        .hero-video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -2;
         }
         
-        .success-icon {
-            font-size: 4rem;
+        .hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(26, 54, 93, 0.7), rgba(45, 90, 140, 0.7));
+            z-index: -1;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
             margin-bottom: 1.5rem;
-            color: var(--success-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-        
-        p {
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-            color: #666;
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         
         .btn {
@@ -73,133 +158,1478 @@
             font-size: 1.1rem;
             font-weight: bold;
             transition: all 0.3s;
-            margin: 0.5rem;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
         }
         
         .btn:hover {
             background: #b8941f;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
         
         .btn-secondary {
             background: var(--secondary-color);
+            box-shadow: 0 4px 15px rgba(45, 90, 140, 0.3);
         }
         
         .btn-secondary:hover {
             background: #1f4a7a;
+            box-shadow: 0 6px 20px rgba(45, 90, 140, 0.4);
         }
         
-        .transaction-info {
+        .btn-small {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background: var(--error-color);
+            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: #c53030;
+            box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
+        }
+        
+        .btn-infinite {
+            background: #4A00E0;
+            box-shadow: 0 4px 15px rgba(74, 0, 224, 0.3);
+        }
+        
+        .btn-infinite:hover {
+            background: #3a00b0;
+            box-shadow: 0 6px 20px rgba(74, 0, 224, 0.4);
+        }
+        
+        section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            position: relative;
+            font-size: 2.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--accent-color);
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            height: 220px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            background: white;
+            padding: 10px;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+        
+        .product-info {
+            padding: 2rem;
+        }
+        
+        .product-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-details-section {
+            display: none;
+        }
+        
+        .product-details-section.active {
+            display: block;
+        }
+        
+        .product-details-container {
+            display: flex;
+            gap: 3rem;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .product-details-image {
+            flex: 1;
+            max-width: 400px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .product-details-image img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+        
+        .product-details-info {
+            flex: 2;
+            padding: 3rem;
+        }
+        
+        .product-details-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .product-details-description {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .product-details-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+        }
+        
+        .back-button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+            background: #1f4a7a;
+        }
+        
+        .donation-form, .admin-form, .login-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .admin-form {
+            max-width: 800px;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(45, 90, 140, 0.1);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-option {
+            flex: 1;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(45, 90, 140, 0.05);
+        }
+        
+        .payment-option.active {
+            border-color: var(--secondary-color);
+            background: rgba(45, 90, 140, 0.1);
+            box-shadow: 0 4px 15px rgba(45, 90, 140, 0.2);
+        }
+        
+        .payment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .pix-code {
+            display: none;
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 1.5rem;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .pix-code img {
+            max-width: 200px;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+        
+        .card-form {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        
+        .card-form.active {
+            display: block;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .admin-section {
+            display: none;
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .admin-tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .admin-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--accent-color);
+        }
+        
+        .admin-tab-content {
+            display: none;
+        }
+        
+        .admin-tab-content.active {
+            display: block;
+        }
+        
+        .admin-products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .admin-product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .admin-product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        
+        .admin-product-image {
+            height: 180px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .admin-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: white;
+            padding: 10px;
+        }
+        
+        .admin-product-info {
+            padding: 1.5rem;
+        }
+        
+        .admin-product-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .admin-product-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .admin-product-price {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .admin-product-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+        
+        .donations-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+        
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .donations-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .donations-table th,
+        .donations-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .donations-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .donations-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-pendente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-pago {
+            background: #d1edff;
+            color: #004085;
+        }
+        
+        .status-concluido {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+        
+        .alert {
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #c6f6d5;
+            color: #22543d;
+            border-color: #9ae6b4;
+        }
+        
+        .alert-error {
+            background-color: #fed7d7;
+            color: #742a2a;
+            border-color: #feb2b2;
+        }
+        
+        .infinite-container {
             background: #f8f9fa;
             padding: 1.5rem;
             border-radius: 10px;
-            margin: 2rem 0;
-            text-align: left;
+            border: 2px solid #e0e0e0;
+            margin-top: 1.5rem;
         }
         
-        .transaction-info h3 {
-            color: var(--primary-color);
+        .infinite-info {
+            background: #e8f0fe;
+            border: 1px solid #4A00E0;
+            border-radius: 8px;
+            padding: 1rem;
             margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #2d3e50;
         }
         
-        .info-item {
-            margin-bottom: 0.5rem;
+        .payment-processing {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4A00E0;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+        
+        .footer-content {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            align-items: center;
         }
         
-        .info-label {
+        .footer-logo {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
             font-weight: bold;
-            color: var(--primary-color);
+        }
+        
+        .footer-logo span {
+            color: var(--accent-color);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #444;
+            padding-top: 1.5rem;
+            width: 100%;
+        }
+        
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            nav ul li {
+                margin: 0.5rem;
+            }
+            
+            .hero {
+                height: 50vh;
+                margin-top: 120px;
+            }
+            
+            .hero-video {
+                object-position: center top !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .product-details-container {
+                flex-direction: column;
+            }
+            
+            .product-details-image {
+                max-width: 100%;
+            }
+            
+            .payment-methods {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+            
+            .admin-tabs {
+                flex-direction: column;
+            }
+            
+            .products-grid, .admin-products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .donation-form, .admin-form, .login-form {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            section {
+                padding: 3rem 0;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .donation-form {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero {
+                height: 60vh;
+            }
+            
+            .hero-video {
+                object-position: center top !important;
+            }
+            
+            .hero h1 {
+                font-size: 1.7rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .product-info, .admin-product-info {
+                padding: 1.5rem;
+            }
+            
+            .product-title, .admin-product-title {
+                font-size: 1.2rem;
+            }
+            
+            .product-price, .admin-product-price {
+                font-size: 1.3rem;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .hero-video {
+                object-position: center top !important;
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1320px;
+            }
+            
+            .hero {
+                height: 80vh;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="success-container">
-        <div class="success-icon">✅</div>
-        <h1>Pagamento Confirmado!</h1>
-        <p>Obrigado por sua doação! Deus abençoe grandemente sua vida e sua família.</p>
-        <p>Sua contribuição é fundamental para a construção do nosso novo templo e expansão do Reino de Deus.</p>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
+                <nav>
+                    <ul>
+                        <li><a href="#produtos">Produtos</a></li>
+                        <li><a href="#doacao">Faça sua Doação</a></li>
+                        <li><a href="#admin" id="adminLink">Administração</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="hero-video-container">
+            <video class="hero-video" autoplay muted loop playsinline>
+                <source src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/verbo.mp4" type="video/mp4">
+                Seu navegador não suporta vídeos HTML5.
+            </video>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
+            <p>Contribua para a construção do nosso novo templo e ajude a expandir o Reino de Deus</p>
+            <a href="#produtos" class="btn">Ver Produtos</a>
+        </div>
+    </section>
+    
+    <section id="produtos" class="container">
+        <h2 class="section-title">Produtos para Doação</h2>
+        <div class="products-grid" id="productsGrid">
+            <div class="loading">Carregando produtos...</div>
+        </div>
+    </section>
+    
+    <section id="produtoDetalhes" class="container product-details-section">
+        <button class="back-button" onclick="voltarParaProdutos()">← Voltar para Produtos</button>
+        <div class="product-details-container" id="productDetailsContainer"></div>
+    </section>
+    
+    <section id="doacao" class="container">
+        <h2 class="section-title">Faça sua Doação</h2>
+        <div class="donation-form">
+            <form id="donationForm">
+                <div class="form-group">
+                    <label for="nome">Seu Nome *</label>
+                    <input type="text" id="nome" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mail *</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefone">Telefone (com DDD)</label>
+                    <input type="tel" id="telefone" class="form-control" placeholder="11999999999">
+                </div>
+                
+                <div class="form-group">
+                    <label for="produto">Produto Selecionado</label>
+                    <input type="text" id="produto" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="valor">Valor da Doação (R$) *</label>
+                    <input type="number" id="valor" class="form-control" min="1" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mensagem">Mensagem de Apoio</label>
+                    <textarea id="mensagem" class="form-control" placeholder="Deixe uma mensagem de apoio para o projeto..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Forma de Pagamento *</label>
+                    <div class="payment-methods">
+                        <div class="payment-option active" data-method="pix">
+                            <div class="payment-icon">💰</div>
+                            <div>PIX</div>
+                        </div>
+                        <div class="payment-option" data-method="cartao">
+                            <div class="payment-icon">💳</div>
+                            <div>Cartão</div>
+                        </div>
+                    </div>
+                    
+                    <div class="pix-code" id="pixCode">
+                        <p>Escaneie o código PIX abaixo ou copie a chave:</p>
+                        <div style="background:white; padding:15px; display:inline-block; border-radius:10px;">
+                            <img src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/qrcode-pix.png" alt="QR Code PIX" style="width:200px; height:200px;">
+                        </div>
+                        <p>Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
+                        <button type="button" class="btn" style="margin-top:15px;" onclick="confirmPayment()">Confirmar Pagamento</button>
+                    </div>
+                    
+                    <div class="card-form" id="cardForm">
+                        <div class="infinite-info">
+                            💳 <strong>Checkout Profissional InfinitePay</strong><br>
+                            Ambiente seguro e criptografado. Seus dados estão protegidos.
+                        </div>
+                        
+                        <div class="payment-processing" id="paymentProcessing">
+                            <div class="spinner"></div>
+                            <p>Gerando link seguro de pagamento...</p>
+                        </div>
+                        
+                        <button type="button" class="btn btn-infinite" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()" id="infiniteButton">
+                            Pagar com InfinitePay
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+    <section id="adminLogin" class="container admin-section active">
+        <h2 class="section-title">Acesso Administrativo</h2>
+        <div class="login-form">
+            <div id="adminAlert"></div>
+            <div class="form-group">
+                <label for="adminPassword">Senha de Administração</label>
+                <input type="password" id="adminPassword" class="form-control" placeholder="Digite a senha">
+            </div>
+            <button type="button" class="btn" onclick="loginAdmin()">Acessar</button>
+        </div>
+    </section>
+    
+    <section id="adminPanel" class="container admin-section">
+        <div class="admin-header">
+            <h2 class="section-title">Administração</h2>
+            <button class="btn btn-secondary" onclick="logoutAdmin()">Sair</button>
+        </div>
         
-        <div class="transaction-info" id="transactionInfo">
-            <h3>Detalhes da Transação</h3>
-            <div class="info-item">
-                <span class="info-label">ID da Transação:</span>
-                <span id="transactionId">-</span>
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="products">Produtos</button>
+            <button class="admin-tab" data-tab="donations">Doações</button>
+        </div>
+        
+        <div class="admin-tab-content active" id="productsTab">
+            <div class="admin-form">
+                <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Cadastrar Novo Produto</h3>
+                <div id="productAlert"></div>
+                <form id="productForm">
+                    <div class="form-group">
+                        <label for="productName">Nome do Produto *</label>
+                        <input type="text" id="productName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">Descrição *</label>
+                        <textarea id="productDescription" class="form-control" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productPrice">Preço (R$) *</label>
+                        <input type="number" id="productPrice" class="form-control" min="1" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productImage">Imagem do Produto</label>
+                        <input type="file" id="productImage" class="form-control" accept="image/jpg,image/jpeg">
+                        <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão</small>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
+                </form>
             </div>
-            <div class="info-item">
-                <span class="info-label">NSU:</span>
-                <span id="transactionNsu">-</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Data:</span>
-                <span id="transactionDate">-</span>
+            
+            <h3 class="section-title">Produtos Cadastrados</h3>
+            <div class="admin-products-grid" id="adminProductsGrid">
+                <div class="loading">Carregando produtos...</div>
             </div>
         </div>
         
-        <div>
-            <a href="https://claudio1052.github.io/verbozonaleste/" class="btn">Voltar para o Site</a>
-            <a href="#" class="btn btn-secondary" id="receiptLink" target="_blank">Ver Comprovante</a>
+        <div class="admin-tab-content" id="donationsTab">
+            <div class="donations-summary">
+                <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Relatório de Doações</h3>
+                
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Total Arrecadado</h3>
+                        <div class="value" id="totalArrecadado">R$ 0,00</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Doações Realizadas</h3>
+                        <div class="value" id="totalDoacoes">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Doações Pendentes</h3>
+                        <div class="value" id="doacoesPendentes">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Doações Concluídas</h3>
+                        <div class="value" id="doacoesConcluidas">0</div>
+                    </div>
+                </div>
+                
+                <h4 style="margin-bottom: 1rem;">Histórico de Doações</h4>
+                <div class="table-responsive">
+                    <table class="donations-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Doador</th>
+                                <th>Produto</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donationsTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem;">Carregando doações...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
+    
+    <footer id="contato">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
+                <div class="footer-links">
+                    <a href="#">Sobre Nós</a>
+                    <a href="#">Localização</a>
+                    <a href="#">Contato</a>
+                    <a href="#">Política de Privacidade</a>
+                </div>
+                <p>R. Joana D'arc Arruda, 466 - José Pinheiro, Campina Grande - PB, 58407-382</p>
+                <p>claudioalbertomaiasilva6@gmail.com | (83) 98795-7637</p>
+                <div class="copyright">
+                    &copy; 2023 Igreja Verbo da Vida Zona Leste. Todos os direitos reservados.
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        // Processar os parâmetros da URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const transactionId = urlParams.get('transaction_id');
-        const transactionNsu = urlParams.get('transaction_nsu');
-        const orderNsu = urlParams.get('order_nsu');
-        const receiptUrl = urlParams.get('receipt_url');
-        const captureMethod = urlParams.get('capture_method');
+        const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
         
-        // Preencher informações da transação
-        document.getElementById('transactionId').textContent = transactionId || '-';
-        document.getElementById('transactionNsu').textContent = transactionNsu || '-';
-        document.getElementById('transactionDate').textContent = new Date().toLocaleDateString('pt-BR');
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const ADMIN_PASSWORD = "admin123";
         
-        // Configurar link do comprovante
-        const receiptLink = document.getElementById('receiptLink');
-        if (receiptUrl) {
-            receiptLink.href = decodeURIComponent(receiptUrl);
-        } else {
-            receiptLink.style.display = 'none';
-        }
+        // CONFIGURAÇÃO INFINITEPAY - CORREÇÃO APLICADA AQUI
+        const INFINITEPAY_HANDLE = "claudio-alberto-479"; 
+        const REDIRECT_URL = "https://claudio1052.github.io/verbozonaleste/sucesso.html"; // CORREÇÃO: mudado para sucesso.html
+        // Endpoint para criar links de pagamento (conforme documentação)
+        const INFINITEPAY_API_URL = "https://api.infinitepay.io/invoices/public/checkout/links";
+
+        let selectedProduct = null;
         
-        // Se não há parâmetros de transação, ocultar a seção de detalhes
-        if (!transactionId && !transactionNsu) {
-            document.getElementById('transactionInfo').style.display = 'none';
-        }
-        
-        // Atualizar status da doação no Supabase (se necessário)
-        if (orderNsu && orderNsu.startsWith('DOACAO_')) {
-            const donationId = orderNsu.replace('DOACAO_', '');
-            updateDonationStatus(donationId);
-        }
-        
-        async function updateDonationStatus(donationId) {
+        async function testSupabaseConnection() {
             try {
-                // Usando a mesma configuração do Supabase do site principal
-                const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
-                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
-                
-                const { createClient } = window.supabase;
-                const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                
-                await supabase
-                    .from('doacoes')
-                    .update({
-                        status: 'pago',
-                        data_atualizacao: new Date().toISOString(),
-                        transaction_id: transactionId,
-                        transaction_nsu: transactionNsu
-                    })
-                    .eq('id', donationId);
-                    
-                console.log('Status da doação atualizado para pago');
+                const { data, error } = await supabase.from('produtos').select('*').limit(1);
+                if (error) throw error;
+                return true;
             } catch (error) {
-                console.error('Erro ao atualizar status:', error);
+                console.error('Erro Supabase:', error);
+                return false;
             }
         }
+        
+        function showAlert(elementId, message, type = 'success') {
+            const alertDiv = document.getElementById(elementId);
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertDiv.innerHTML = '', 5000);
+        }
+        
+        function showProductDetails(product) {
+            selectedProduct = product;
+            document.getElementById('produtos').style.display = 'none';
+            document.getElementById('produtoDetalhes').classList.add('active');
+            const container = document.getElementById('productDetailsContainer');
+            container.innerHTML = `
+                <div class="product-details-image">
+                    <img src="${product.imagem_url || 'https://via.placeholder.com/300x200.jpg?text=Sem+Imagem'}" alt="${product.nome}">
+                </div>
+                <div class="product-details-info">
+                    <h2 class="product-details-title">${product.nome}</h2>
+                    <p class="product-details-description">${product.descricao}</p>
+                    <div class="product-details-price">R$ ${product.preco.toFixed(2)}</div>
+                    <button class="btn" onclick="selectProductForDonation(${product.id})">Doar Agora</button>
+                </div>
+            `;
+            document.getElementById('produtoDetalhes').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function voltarParaProdutos() {
+            document.getElementById('produtoDetalhes').classList.remove('active');
+            document.getElementById('produtos').style.display = 'block';
+            document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function selectProductForDonation(productId) {
+            if (!selectedProduct || selectedProduct.id !== productId) return;
+            document.getElementById('produto').value = selectedProduct.nome;
+            document.getElementById('valor').value = selectedProduct.preco;
+            document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // ==========================================================================
+        // ✅ INTEGRAÇÃO PROFISSIONAL INFINITEPAY (Baseado no PDF)
+        // ==========================================================================
+        async function processCardPayment() {
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
+            const produto = document.getElementById('produto').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const mensagem = document.getElementById('mensagem').value;
+
+            if (!nome || !email || !valor) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            if (valor < 1) {
+                alert('O valor mínimo para doação é R$ 1,00.');
+                return;
+            }
+
+            try {
+                document.getElementById('paymentProcessing').style.display = 'block';
+                document.getElementById('infiniteButton').disabled = true;
+                document.getElementById('infiniteButton').textContent = 'Gerando Checkout...';
+
+                // 1. Salvar doação no Supabase
+                const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
+                    nome_doador: nome, 
+                    email_doador: email, 
+                    telefone_doador: telefone,
+                    produto: produto, 
+                    valor: valor, 
+                    mensagem: mensagem,
+                    metodo_pagamento: 'cartao_infinitepay',
+                    status: 'pendente',
+                    data_criacao: new Date().toISOString()
+                }]).select();
+
+                if (donationError) throw donationError;
+
+                const orderNsu = `DOACAO_${donationData[0].id}`;
+                const productName = produto || "Doação para Igreja Verbo da Vida";
+                
+                // CONVERSÃO PARA CENTAVOS (Importante: R$ 10,00 = 1000)
+                const priceInCents = Math.round(valor * 100);
+
+                // 2. Montar Payload JSON conforme Documentação Oficial
+                const apiPayload = {
+                    handle: INFINITEPAY_HANDLE,
+                    redirect_url: REDIRECT_URL,
+                    order_nsu: orderNsu,
+                    items: [
+                        {
+                            quantity: 1,
+                            price: priceInCents,
+                            description: productName
+                        }
+                    ],
+                    customer: {
+                        name: nome,
+                        email: email,
+                        phone_number: telefone || ""
+                    }
+                };
+
+                // 3. Tentar gerar link via API (POST)
+                // OBS: Se houver erro de CORS (comum em front-end puro), usamos o fallback
+                try {
+                    console.log("📤 Enviando requisição para API InfinitePay...", apiPayload);
+                    
+                    const response = await fetch(INFINITEPAY_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(apiPayload)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log("✅ Link gerado via API:", data.url);
+                        
+                        await updateDonationStatus(donationData[0].id, data.url);
+                        window.location.href = data.url;
+                        return; // Encerra aqui se deu certo
+                    } else {
+                        console.warn("⚠️ API retornou erro, usando método fallback de URL.");
+                    }
+                } catch (apiError) {
+                    console.warn("⚠️ Erro de conexão com API (Provável CORS), usando fallback:", apiError);
+                }
+
+                // 4. FALLBACK: Geração de Link Manual (Caso a API falhe no navegador)
+                // Mantendo a robustez mas gerando a URL manualmente
+                const items = JSON.stringify([{
+                    name: productName,
+                    price: priceInCents, // Mantendo padrão de centavos
+                    quantity: 1
+                }]);
+
+                let infinitePayUrl = `https://checkout.infinitepay.io/${INFINITEPAY_HANDLE}`;
+                infinitePayUrl += `?items=${encodeURIComponent(items)}`;
+                infinitePayUrl += `&order_nsu=${orderNsu}`;
+                infinitePayUrl += `&redirect_url=${encodeURIComponent(REDIRECT_URL)}`;
+                infinitePayUrl += `&customer_name=${encodeURIComponent(nome)}`;
+                infinitePayUrl += `&customer_email=${encodeURIComponent(email)}`;
+                if (telefone) infinitePayUrl += `&customer_cellphone=${encodeURIComponent(telefone.replace(/\D/g, ''))}`;
+
+                console.log('🔗 Link Fallback gerado:', infinitePayUrl);
+                
+                await updateDonationStatus(donationData[0].id, infinitePayUrl);
+                window.open(infinitePayUrl, '_self'); // _self para manter comportamento de app
+
+            } catch (error) {
+                console.error('❌ Erro Geral:', error);
+                document.getElementById('paymentProcessing').style.display = 'none';
+                document.getElementById('infiniteButton').disabled = false;
+                document.getElementById('infiniteButton').textContent = 'Tentar Novamente';
+                alert('Ocorreu um erro ao processar. Verifique sua conexão.');
+            }
+        }
+
+        async function updateDonationStatus(id, url) {
+            await supabase.from('doacoes').update({
+                status: 'encaminhado_infinitepay',
+                checkout_url: url,
+                data_atualizacao: new Date().toISOString()
+            }).eq('id', id);
+        }
+        
+        // ✅ VERIFICAÇÃO DE RETORNO MELHORADA
+        function checkPaymentReturn() {
+            const urlParams = new URLSearchParams(window.location.search);
+            // Parâmetros oficiais de retorno
+            const receiptUrl = urlParams.get('receipt_url');
+            const transactionId = urlParams.get('transaction_nsu');
+            
+            if (receiptUrl && transactionId) {
+                showAlert('donationForm', '✅ Pagamento confirmado com sucesso! Deus abençoe.', 'success');
+                // Limpa a URL para não reprocessar ao recarregar
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+        
+        async function confirmPayment() {
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
+            const produto = document.getElementById('produto').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const mensagem = document.getElementById('mensagem').value;
+            const metodoPagamento = document.querySelector('.payment-option.active').getAttribute('data-method');
+            
+            if (!nome || !email || !valor) {
+                alert('Preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase.from('doacoes').insert([{
+                    nome_doador: nome, email_doador: email, telefone_doador: telefone,
+                    produto: produto, valor: valor, mensagem: mensagem,
+                    metodo_pagamento: metodoPagamento, status: 'pendente', data_criacao: new Date().toISOString()
+                }]);
+                
+                if (error) throw error;
+                
+                alert(metodoPagamento === 'pix' ? 
+                    `✅ Doação registrada! Realize o PIX para concluir.` : 
+                    `Obrigado! Sua doação foi registrada.`);
+                
+                document.getElementById('donationForm').reset();
+                document.getElementById('produto').value = '';
+                if (document.getElementById('adminPanel').classList.contains('active')) loadDonationsReport();
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao processar doação.');
+            }
+        }
+        
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('adminLogin').classList.remove('active');
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('adminPassword').value = '';
+                loadAdminProducts();
+                loadDonationsReport();
+                showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
+            } else {
+                showAlert('adminAlert', 'Senha incorreta!', 'error');
+            }
+        }
+        
+        function logoutAdmin() {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('adminLogin').classList.add('active');
+        }
+        
+        async function loadDonationsReport() {
+            try {
+                const { data, error } = await supabase.from('doacoes').select('*').order('data_criacao', { ascending: false });
+                if (error) throw error;
+                
+                let totalArrecadado = 0, totalDoacoes = data.length, pendentes = 0, concluidos = 0;
+                
+                data.forEach(d => {
+                    totalArrecadado += d.valor;
+                    if (d.status === 'pendente') pendentes++;
+                    else if (['concluido', 'pago'].includes(d.status)) concluidos++;
+                });
+                
+                document.getElementById('totalArrecadado').textContent = `R$ ${totalArrecadado.toFixed(2)}`;
+                document.getElementById('totalDoacoes').textContent = totalDoacoes;
+                document.getElementById('doacoesPendentes').textContent = pendentes;
+                document.getElementById('doacoesConcluidas').textContent = concluidos;
+                
+                const tbody = document.getElementById('donationsTableBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Nenhuma doação encontrada</td></tr>';
+                    return;
+                }
+                
+                data.forEach(d => {
+                    const row = document.createElement('tr');
+                    let statusClass = d.status === 'pendente' ? 'status-pendente' : 
+                                      (d.status === 'concluido' || d.status === 'pago' ? 'status-concluido' : 'status-pago');
+                    
+                    row.innerHTML = `
+                        <td>${new Date(d.data_criacao).toLocaleDateString('pt-BR')}</td>
+                        <td>${d.nome_doador}<br><small>${d.email_doador}</small></td>
+                        <td>${d.produto || '-'}</td>
+                        <td>R$ ${d.valor.toFixed(2)}</td>
+                        <td><span class="status-badge ${statusClass}">${d.status}</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Erro relatórios:', error);
+            }
+        }
+        
+        async function loadAdminProducts() {
+            const grid = document.getElementById('adminProductsGrid');
+            grid.innerHTML = '<div class="loading">Carregando...</div>';
+            try {
+                const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
+                if (error) throw error;
+                grid.innerHTML = '';
+                if (!data || !data.length) { grid.innerHTML = '<p>Nenhum produto.</p>'; return; }
+                
+                data.forEach(p => {
+                    grid.innerHTML += `
+                        <div class="admin-product-card">
+                            <div class="admin-product-image"><img src="${p.imagem_url || 'https://via.placeholder.com/300'}" alt="${p.nome}"></div>
+                            <div class="admin-product-info">
+                                <h3 class="admin-product-title">${p.nome}</h3>
+                                <div class="admin-product-price">R$ ${p.preco.toFixed(2)}</div>
+                                <button class="btn btn-small btn-danger" onclick="deleteProduct(${p.id})">Excluir</button>
+                            </div>
+                        </div>`;
+                });
+            } catch (e) { grid.innerHTML = '<p>Erro ao carregar.</p>'; }
+        }
+        
+        async function deleteProduct(id) {
+            if (confirm('Excluir produto?')) {
+                await supabase.from('produtos').delete().eq('id', id);
+                loadAdminProducts(); loadProducts();
+            }
+        }
+        
+        async function loadProducts() {
+            const grid = document.getElementById('productsGrid');
+            try {
+                const { data } = await supabase.from('produtos').select('*').order('id', { ascending: false });
+                grid.innerHTML = '';
+                if (!data || !data.length) { grid.innerHTML = '<p>Nenhum produto disponível.</p>'; return; }
+                
+                data.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'product-card';
+                    div.innerHTML = `
+                        <div class="product-image"><img src="${p.imagem_url || 'https://via.placeholder.com/300'}" alt="${p.nome}"></div>
+                        <div class="product-info">
+                            <h3 class="product-title">${p.nome}</h3>
+                            <p class="product-description">${p.descricao}</p>
+                            <div class="product-price">R$ ${p.preco.toFixed(2)}</div>
+                            <button class="btn" onclick='showProductDetails(${JSON.stringify(p)})'>Ver Detalhes</button>
+                        </div>`;
+                    grid.appendChild(div);
+                });
+            } catch (e) { console.error(e); }
+        }
+        
+        async function uploadImage(file) {
+            const fileName = `${Date.now()}.jpg`;
+            const { error } = await supabase.storage.from('imagens2').upload(`produtos/${fileName}`, file);
+            if (error) throw error;
+            const { data } = supabase.storage.from('imagens2').getPublicUrl(`produtos/${fileName}`);
+            return data.publicUrl;
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            checkPaymentReturn();
+            await testSupabaseConnection();
+            
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    const isPix = this.dataset.method === 'pix';
+                    document.getElementById('pixCode').style.display = isPix ? 'block' : 'none';
+                    document.getElementById('cardForm').classList.toggle('active', !isPix);
+                });
+            });
+            
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`${this.dataset.tab}Tab`).classList.add('active');
+                    if (this.dataset.tab === 'donations') loadDonationsReport();
+                });
+            });
+            
+            document.getElementById('pixCode').style.display = 'block';
+            loadProducts();
+            
+            document.getElementById('adminLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.getElementById('productForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const file = document.getElementById('productImage').files[0];
+                let url = null;
+                if (file) url = await uploadImage(file);
+                
+                await supabase.from('produtos').insert([{
+                    nome: document.getElementById('productName').value,
+                    descricao: document.getElementById('productDescription').value,
+                    preco: parseFloat(document.getElementById('productPrice').value),
+                    imagem_url: url,
+                    ativo: true,
+                    data_criacao: new Date().toISOString()
+                }]);
+                
+                showAlert('productAlert', 'Produto salvo!', 'success');
+                document.getElementById('productForm').reset();
+                loadAdminProducts(); loadProducts();
+            });
+        });
     </script>
 </body>
 </html>
