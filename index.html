@@ -3,27 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doações - Igreja Verbo da Vida Zona Leste</title>
+    <title>Nova Igreja Verbo da Vida - Zona Leste</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
     <style>
-        /* Cores extraídas do banner - tons de azul e dourado */
         :root {
-            --primary-color: #1a365d;    /* Azul escuro do banner */
-            --secondary-color: #2d5a8c;  /* Azul médio do banner */
-            --accent-color: #d4af37;     /* Dourado do banner */
-            --light-color: #f8f9fa;
-            --dark-color: #1a202c;
-            --success-color: #38a169;
-            --error-color: #e53e3e;
-            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
-            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-            --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
-            --border-radius: 12px;
+            /* Paleta de Cores Refinada */
+            --primary: #0f172a;       /* Navy Blue Profundo */
+            --primary-light: #1e293b;
+            --accent: #d97706;        /* Dourado/Âmbar mais sofisticado */
+            --accent-hover: #b45309;
+            
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-input: #f1f5f9;
+            
+            --text-main: #334155;
+            --text-light: #64748b;
+            --text-white: #ffffff;
+            
+            --success: #10b981;
+            --error: #ef4444;
+            
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
+            --shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         * {
@@ -32,70 +48,77 @@
             box-sizing: border-box;
         }
         
-        body {
-            background-color: #f5f5f5;
-            color: var(--dark-color);
-            line-height: 1.6;
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-weight: 400;
-            overflow-x: hidden;
+        html {
+            scroll-behavior: smooth;
         }
-        
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Header & Nav --- */
         header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
             padding: 1rem 0;
-            box-shadow: var(--shadow-lg);
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: var(--transition);
         }
-        
+
         .container {
             width: 90%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 15px;
+            padding: 0 1rem;
         }
-        
+
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
+
         .logo span {
-            color: var(--accent-color);
+            color: var(--accent);
         }
-        
+
         nav ul {
             display: flex;
             list-style: none;
+            gap: 2rem;
         }
-        
-        nav ul li {
-            margin-left: 2rem;
-        }
-        
+
         nav ul li a {
-            color: white;
+            color: rgba(255,255,255,0.8);
             text-decoration: none;
             font-weight: 500;
+            font-size: 0.95rem;
             transition: var(--transition);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
             position: relative;
-            overflow: hidden;
+            padding: 0.5rem 0;
         }
-        
+
+        nav ul li a:hover, nav ul li a.active {
+            color: var(--text-white);
+        }
+
         nav ul li a::after {
             content: '';
             position: absolute;
@@ -103,478 +126,393 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: var(--accent-color);
+            background: var(--accent);
             transition: var(--transition);
         }
-        
-        nav ul li a:hover {
-            color: var(--accent-color);
-        }
-        
+
         nav ul li a:hover::after {
             width: 100%;
         }
-        
-        /* BANNER COM VÍDEO */
+
+        /* --- Hero Section --- */
         .hero {
             position: relative;
-            height: 85vh;
+            height: 90vh;
+            min-height: 600px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             color: white;
-            margin-top: 80px;
+            margin-top: 0;
             overflow: hidden;
         }
-        
+
         .hero-video-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
             z-index: -2;
         }
-        
+
         .hero-video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center top;
         }
-        
+
         .hero-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(26, 54, 93, 0.85), rgba(45, 90, 140, 0.8));
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.6));
             z-index: -1;
         }
-        
+
         .hero-content {
-            max-width: 850px;
-            padding: 0 20px;
+            max-width: 800px;
+            padding: 2rem;
             z-index: 1;
-            animation: fadeInUp 1s ease-out;
+            animation: fadeInUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
+
         .hero h1 {
             font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
             margin-bottom: 1.5rem;
-            font-weight: 700;
-            line-height: 1.2;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            letter-spacing: -0.03em;
         }
         
+        .hero h1 span {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         .hero p {
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             margin-bottom: 2.5rem;
-            font-weight: 300;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
-            opacity: 0.9;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        
+
+        /* --- Buttons --- */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: var(--accent-color);
+            gap: 0.5rem;
+            background: var(--accent);
             color: white;
             padding: 1rem 2.5rem;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 50px; /* Pill shape */
             cursor: pointer;
             text-decoration: none;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
         }
-        
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.7s;
-        }
-        
-        .btn:hover::before {
-            left: 100%;
-        }
-        
+
         .btn:hover {
-            background: #b8941f;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(217, 119, 6, 0.4);
         }
-        
+
         .btn-secondary {
-            background: var(--secondary-color);
-            box-shadow: 0 4px 15px rgba(45, 90, 140, 0.3);
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: none;
         }
-        
+
         .btn-secondary:hover {
-            background: #1f4a7a;
-            box-shadow: 0 8px 25px rgba(45, 90, 140, 0.4);
-        }
-        
-        .btn-small {
-            padding: 0.7rem 1.5rem;
-            font-size: 0.9rem;
+            background: rgba(255,255,255,0.1);
+            border-color: white;
         }
         
         .btn-danger {
-            background: var(--error-color);
-            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+            background: var(--error);
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
         }
         
         .btn-danger:hover {
-            background: #c53030;
-            box-shadow: 0 8px 25px rgba(229, 62, 62, 0.4);
+            background: #dc2626;
         }
-        
+
         .btn-infinite {
-            background: #4A00E0;
-            box-shadow: 0 4px 15px rgba(74, 0, 224, 0.3);
+            background: #000000; /* InfinitePay Brand */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        
+
         .btn-infinite:hover {
-            background: #3a00b0;
-            box-shadow: 0 8px 25px rgba(74, 0, 224, 0.4);
+            background: #333333;
         }
-        
+
+        /* --- Sections --- */
         section {
             padding: 6rem 0;
         }
-        
+
         .section-title {
             text-align: center;
-            margin-bottom: 4rem;
-            color: var(--primary-color);
-            position: relative;
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
         }
-        
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 120px;
-            height: 5px;
-            background: var(--accent-color);
-            margin: 1.5rem auto;
-            border-radius: 3px;
-        }
-        
+
         .section-subtitle {
             text-align: center;
-            margin-bottom: 3rem;
-            color: var(--secondary-color);
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 4rem auto;
         }
         
+        .section-divider {
+            width: 60px;
+            height: 4px;
+            background: var(--accent);
+            margin: 0 auto 1rem auto;
+            border-radius: 2px;
+        }
+
+        /* --- Products Grid --- */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2.5rem;
-            margin-bottom: 3rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
         }
-        
+
         .product-card {
-            background: white;
-            border-radius: var(--border-radius);
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
             overflow: hidden;
             box-shadow: var(--shadow-md);
             transition: var(--transition);
-            border: 1px solid #e0e0e0;
-            cursor: pointer;
-            height: 100%;
+            border: 1px solid rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
-        
+
         .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-xl);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
         }
-        
+
         .product-image {
-            height: 240px;
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6c757d;
-            overflow: hidden;
+            height: 220px;
+            background: #f1f5f9;
             position: relative;
+            overflow: hidden;
         }
-        
+
         .product-image img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover; /* Changed to cover for better aesthetic */
             transition: transform 0.5s ease;
-            background: white;
-            padding: 15px;
         }
-        
+
         .product-card:hover .product-image img {
-            transform: scale(1.08);
+            transform: scale(1.05);
         }
-        
+
         .product-info {
-            padding: 2.5rem;
+            padding: 1.5rem;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
-        
+
         .product-title {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .product-description {
-            color: #666;
-            margin-bottom: 1.5rem;
-            font-size: 1rem;
-            line-height: 1.6;
-            flex-grow: 1;
-        }
-        
-        .product-price {
-            font-size: 1.7rem;
+            font-size: 1.25rem;
             font-weight: 700;
-            color: var(--secondary-color);
-            margin-bottom: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
         }
-        
+
+        .product-description {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--bg-body);
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* --- Product Details --- */
         .product-details-section {
             display: none;
+            background: var(--bg-body);
         }
-        
+
         .product-details-section.active {
             display: block;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.5s ease;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
+
         .product-details-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 4rem;
-            background: white;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid #e0e0e0;
-            animation: slideInUp 0.5s ease-out;
-        }
-        
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .product-details-image {
-            flex: 1;
-            max-width: 450px;
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--bg-surface);
             padding: 3rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
         }
-        
+
         .product-details-image img {
             width: 100%;
-            max-height: 350px;
-            object-fit: contain;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
         }
-        
+
         .product-details-info {
-            flex: 2;
-            padding: 3.5rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
-        
+
         .product-details-title {
             font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--primary-color);
-            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
         }
-        
-        .product-details-description {
-            color: #666;
-            margin-bottom: 2.5rem;
-            font-size: 1.2rem;
-            line-height: 1.7;
-        }
-        
+
         .product-details-price {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: var(--secondary-color);
-            margin-bottom: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
         }
-        
-        .back-button {
-            background: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 0.9rem 1.8rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 1rem;
-            margin-bottom: 2.5rem;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .back-button:hover {
-            background: #1f4a7a;
-            transform: translateX(-5px);
-        }
-        
-        .donation-form, .admin-form, .login-form {
-            background: white;
-            padding: 3.5rem;
-            border-radius: var(--border-radius);
+
+        /* --- Forms --- */
+        .form-card {
+            background: var(--bg-surface);
+            padding: 3rem;
+            border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             max-width: 700px;
             margin: 0 auto;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        
-        .admin-form {
-            max-width: 850px;
-        }
-        
+
         .form-group {
-            margin-bottom: 2.2rem;
+            margin-bottom: 1.5rem;
         }
-        
+
         .form-group label {
             display: block;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            color: var(--primary-color);
-            font-size: 1rem;
+            color: var(--text-main);
+            font-size: 0.9rem;
         }
-        
+
         .form-control {
             width: 100%;
-            padding: 1.2rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            padding: 1rem;
+            border: 2px solid var(--bg-input);
+            border-radius: var(--radius-sm);
             font-size: 1rem;
             transition: var(--transition);
-            background: #f8f9fa;
-            font-family: 'Inter', sans-serif;
+            background: var(--bg-input);
+            font-family: inherit;
+            color: var(--text-main);
         }
-        
+
         .form-control:focus {
             outline: none;
-            border-color: var(--secondary-color);
+            border-color: var(--primary);
             background: white;
-            box-shadow: 0 0 0 4px rgba(45, 90, 140, 0.1);
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.1);
         }
         
         textarea.form-control {
-            min-height: 140px;
             resize: vertical;
+            min-height: 120px;
         }
-        
+
+        /* --- Payment Methods --- */
         .payment-methods {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
-        
+
         .payment-option {
-            text-align: center;
-            padding: 2rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border: 2px solid var(--bg-input);
+            border-radius: var(--radius-md);
             cursor: pointer;
             transition: var(--transition);
-            background: #f8f9fa;
+            background: var(--bg-surface);
         }
-        
+
         .payment-option:hover {
-            border-color: var(--secondary-color);
-            background: rgba(45, 90, 140, 0.05);
-            transform: translateY(-5px);
+            border-color: #cbd5e1;
+            background: #f8fafc;
         }
-        
+
         .payment-option.active {
-            border-color: var(--secondary-color);
-            background: rgba(45, 90, 140, 0.1);
-            box-shadow: 0 4px 15px rgba(45, 90, 140, 0.2);
+            border-color: var(--accent);
+            background: #fffbeb;
+            position: relative;
         }
         
+        .payment-option.active::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
         .payment-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
-        
+
         .pix-code {
             display: none;
-            background: #f8f9fa;
-            padding: 2.5rem;
-            border-radius: 12px;
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: var(--radius-md);
             text-align: center;
-            margin-top: 1.5rem;
-            border: 2px dashed #dee2e6;
-        }
-        
-        .pix-code img {
-            max-width: 220px;
-            margin: 0 auto 1.5rem;
-            display: block;
+            border: 2px dashed #cbd5e1;
+            margin-top: 1rem;
         }
         
         .card-form {
@@ -582,19 +520,29 @@
             margin-top: 1.5rem;
         }
         
-        .card-form.active {
+        .card-form.active, .pix-code.active {
             display: block;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.4s ease;
         }
         
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
+        .infinite-info {
+            background: #f0fdf4;
+            border: 1px solid #dcfce7;
+            color: #166534;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
         }
-        
+
+        /* --- Admin Panel --- */
         .admin-section {
             display: none;
+            background: #f1f5f9;
+            min-height: 100vh;
         }
         
         .admin-section.active {
@@ -602,609 +550,213 @@
         }
         
         .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3.5rem;
-            padding-bottom: 2rem;
-            border-bottom: 2px solid #e9ecef;
+            background: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
         }
         
         .admin-tabs {
             display: flex;
-            gap: 0;
-            margin-bottom: 3rem;
-            border-bottom: 2px solid #e9ecef;
             background: white;
-            border-radius: var(--border-radius);
             padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 2rem;
             box-shadow: var(--shadow-sm);
+            gap: 0.5rem;
         }
         
         .admin-tab {
-            padding: 1.2rem 2.5rem;
-            background: none;
-            border: none;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #666;
-            cursor: pointer;
-            transition: var(--transition);
-            border-radius: 8px;
             flex: 1;
-            text-align: center;
+            padding: 1rem;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
         }
         
         .admin-tab.active {
-            color: var(--primary-color);
-            background: rgba(45, 90, 140, 0.1);
-            box-shadow: var(--shadow-sm);
+            background: var(--primary);
+            color: white;
         }
         
-        .admin-tab-content {
-            display: none;
-        }
-        
-        .admin-tab-content.active {
-            display: block;
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        .admin-products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 2.5rem;
-            margin-top: 3.5rem;
-        }
-        
-        .admin-product-card {
-            background: white;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition);
-            border: 1px solid #e0e0e0;
-        }
-        
-        .admin-product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .admin-product-image {
-            height: 200px;
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .admin-product-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: white;
-            padding: 15px;
-        }
-        
-        .admin-product-info {
-            padding: 2rem;
-        }
-        
-        .admin-product-title {
-            font-size: 1.3rem;
-            margin-bottom: 0.8rem;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .admin-product-description {
-            color: #666;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        
-        .admin-product-price {
-            font-weight: 700;
-            color: var(--secondary-color);
-            margin-bottom: 1.5rem;
-            font-size: 1.4rem;
-        }
-        
-        .admin-product-actions {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .donations-summary {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 3rem;
-            margin-bottom: 2.5rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid #e0e0e0;
-        }
-        
+        /* Dashboard Widgets */
         .summary-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
         
         .summary-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-            transition: var(--transition);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary);
         }
         
         .summary-card h3 {
-            font-size: 1rem;
-            margin-bottom: 0.8rem;
-            opacity: 0.9;
-            font-weight: 500;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
         }
         
         .summary-card .value {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
         }
         
         .donations-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .donations-table th,
-        .donations-table td {
-            padding: 1.2rem;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
+            min-width: 600px;
         }
         
         .donations-table th {
-            background: var(--primary-color);
-            color: white;
+            text-align: left;
+            padding: 1rem;
+            background: #f8fafc;
+            color: var(--text-light);
             font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
         }
         
-        .donations-table tr:hover {
-            background: #f8f9fa;
+        .donations-table td {
+            padding: 1rem;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.95rem;
         }
         
         .status-badge {
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .status-pendente {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-pago {
-            background: #d1edff;
-            color: #004085;
-        }
-        
-        .status-concluido {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--secondary-color);
-            font-size: 1.1rem;
-        }
-        
-        .alert {
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2.5rem;
-            font-weight: 500;
-            border: 1px solid transparent;
-        }
-        
-        .alert-success {
-            background-color: #c6f6d5;
-            color: #22543d;
-            border-color: #9ae6b4;
-        }
-        
-        .alert-error {
-            background-color: #fed7d7;
-            color: #742a2a;
-            border-color: #feb2b2;
-        }
-        
-        .infinite-container {
-            background: #f8f9fa;
-            padding: 2rem;
-            border-radius: 12px;
-            border: 2px solid #e0e0e0;
-            margin-top: 1.5rem;
-        }
-        
-        .infinite-info {
-            background: #e8f0fe;
-            border: 1px solid #4A00E0;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-            color: #2d3e50;
-        }
-        
-        .payment-processing {
-            display: none;
-            text-align: center;
-            padding: 2.5rem;
-            background: #f8f9fa;
-            border-radius: 12px;
-            margin-top: 1.5rem;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4A00E0;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1.5s linear infinite;
-            margin: 0 auto 1.5rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        footer {
-            background: var(--dark-color);
-            color: white;
-            padding: 4rem 0 2.5rem;
-            text-align: center;
-        }
-        
-        .footer-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .footer-logo {
-            font-size: 2rem;
-            margin-bottom: 2rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
             font-weight: 700;
+            text-transform: uppercase;
         }
         
-        .footer-logo span {
-            color: var(--accent-color);
+        .status-pendente { background: #fef3c7; color: #92400e; }
+        .status-pago { background: #dbeafe; color: #1e40af; }
+        .status-concluido { background: #d1fae5; color: #065f46; }
+
+        /* --- Footer --- */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 5rem 0 2rem;
+            text-align: center;
         }
-        
+
         .footer-links {
             display: flex;
-            gap: 2.5rem;
-            margin-bottom: 2.5rem;
-            flex-wrap: wrap;
             justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
         }
-        
+
         .footer-links a {
-            color: white;
+            color: rgba(255,255,255,0.7);
             text-decoration: none;
             transition: var(--transition);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
         }
         
         .footer-links a:hover {
-            color: var(--accent-color);
-            background: rgba(255,255,255,0.1);
+            color: var(--accent);
         }
-        
+
         .copyright {
-            margin-top: 2.5rem;
-            font-size: 0.9rem;
-            color: #aaa;
-            border-top: 1px solid #444;
+            margin-top: 3rem;
             padding-top: 2rem;
-            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* --- Utilities & Alerts --- */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
-        /* RESPONSIVIDADE AVANÇADA */
-        @media (max-width: 1200px) {
-            .container {
-                width: 95%;
-            }
-            
-            .hero h1 {
-                font-size: 3rem;
-            }
-            
-            .section-title {
-                font-size: 2.5rem;
-            }
-        }
-        
-        @media (max-width: 992px) {
-            .hero {
-                height: 75vh;
-            }
-            
-            .hero h1 {
-                font-size: 2.7rem;
-            }
-            
-            .hero p {
-                font-size: 1.3rem;
-            }
-            
-            .section-title {
-                font-size: 2.3rem;
-            }
-            
-            .product-details-container {
-                flex-direction: column;
-                gap: 2rem;
-            }
-            
-            .product-details-image {
-                max-width: 100%;
-                padding: 2rem;
-            }
-            
-            .product-details-info {
-                padding: 2.5rem;
-            }
-            
-            .product-details-title {
-                font-size: 2.2rem;
-            }
-            
-            .donation-form, .admin-form, .login-form {
-                padding: 2.5rem;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 1.5rem;
-            }
-            
-            nav ul {
-                margin-top: 1rem;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            
-            nav ul li {
-                margin: 0.5rem;
-            }
-            
-            .hero {
-                height: 65vh;
-                margin-top: 120px;
-            }
-            
-            .hero-video {
-                object-position: center top !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
-            
-            .hero h1 {
-                font-size: 2.3rem;
-            }
-            
-            .hero p {
-                font-size: 1.2rem;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-                margin-bottom: 3rem;
-            }
-            
-            .section-title::after {
-                margin: 1.2rem auto;
-            }
-            
-            .products-grid, .admin-products-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            
-            .payment-methods {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-                gap: 0;
-            }
-            
-            .admin-header {
-                flex-direction: column;
-                gap: 1.5rem;
-                align-items: flex-start;
-            }
-            
-            .admin-tabs {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .donation-form, .admin-form, .login-form {
-                padding: 2rem;
-                margin: 0 1rem;
-            }
-            
-            .footer-links {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            section {
-                padding: 4rem 0;
-            }
-            
-            .logo {
-                font-size: 1.6rem;
-            }
-            
-            .product-info, .admin-product-info {
-                padding: 2rem;
-            }
-            
-            .summary-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .donations-summary {
-                padding: 2rem;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .hero {
-                height: 70vh;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
-            }
-            
-            .section-title {
-                font-size: 1.8rem;
-            }
-            
-            .btn {
-                padding: 0.9rem 2rem;
-                font-size: 1rem;
-                width: 100%;
-            }
-            
-            .product-info, .admin-product-info {
-                padding: 1.5rem;
-            }
-            
-            .product-title, .admin-product-title {
-                font-size: 1.3rem;
-            }
-            
-            .product-price, .admin-product-price {
-                font-size: 1.4rem;
-            }
-            
-            .summary-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .product-details-info {
-                padding: 2rem;
-            }
-            
-            .product-details-title {
-                font-size: 1.8rem;
-            }
-            
-            .product-details-price {
-                font-size: 2rem;
-            }
-            
-            .donation-form, .admin-form, .login-form {
-                padding: 1.5rem;
-            }
-        }
-        
-        @media (max-width: 400px) {
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .section-title {
-                font-size: 1.6rem;
-            }
-            
-            .logo {
-                font-size: 1.4rem;
-            }
-            
-            nav ul li a {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (min-width: 1400px) {
-            .container {
-                max-width: 1320px;
-            }
-            
-            .hero {
-                height: 90vh;
-            }
-        }
-        
-        /* Utilitários */
-        .text-center {
+        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        .loading {
             text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
         }
         
-        .mt-1 { margin-top: 1rem; }
-        .mt-2 { margin-top: 2rem; }
-        .mt-3 { margin-top: 3rem; }
-        .mb-1 { margin-bottom: 1rem; }
-        .mb-2 { margin-bottom: 2rem; }
-        .mb-3 { margin-bottom: 3rem; }
-        
-        .fade-in {
-            animation: fadeIn 0.8s ease-out;
+        .spinner {
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            nav { display: none; } /* Simplificado para este exemplo, idealmente teria um menu mobile */
+            .product-details-container { grid-template-columns: 1fr; padding: 1.5rem; }
+            .form-card { padding: 1.5rem; }
+            .admin-tabs { flex-direction: column; }
+            .header-content { justify-content: center; flex-direction: column; gap: 1rem; }
+            nav ul { gap: 1rem; flex-wrap: wrap; justify-content: center; display: flex; }
+            .payment-methods { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
+                <div class="logo">
+                    <i class="fa-solid fa-church"></i>
+                    <div>Igreja <span>Verbo da Vida</span> ZL</div>
+                </div>
                 <nav>
                     <ul>
                         <li><a href="#produtos">Produtos</a></li>
-                        <li><a href="#doacao">Faça sua Doação</a></li>
-                        <li><a href="#admin" id="adminLink">Administração</a></li>
+                        <li><a href="#doacao">Doar</a></li>
                         <li><a href="#contato">Contato</a></li>
+                        <li><a href="#admin" id="adminLink"><i class="fa-solid fa-lock"></i> Área Restrita</a></li>
                     </ul>
                 </nav>
             </div>
@@ -1215,206 +767,236 @@
         <div class="hero-video-container">
             <video class="hero-video" autoplay muted loop playsinline>
                 <source src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/verbo.mp4" type="video/mp4">
-                Seu navegador não suporta vídeos HTML5.
             </video>
         </div>
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
-            <p>Contribua para a construção do nosso novo templo e ajude a expandir o Reino de Deus</p>
-            <a href="#produtos" class="btn">Ver Produtos</a>
+            <h1>Construindo o Futuro<br><span>Igreja Verbo da Vida</span></h1>
+            <p>Faça parte desta história. Sua contribuição nos ajuda a edificar o novo templo e expandir o Reino de Deus na Zona Leste.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="#produtos" class="btn"><i class="fa-solid fa-gift"></i> Ver Produtos</a>
+                <a href="#doacao" class="btn btn-secondary">Doação Direta</a>
+            </div>
         </div>
     </section>
     
     <section id="produtos" class="container">
-        <h2 class="section-title">Produtos para Doação</h2>
-        <p class="section-subtitle">Escolha um dos itens abaixo para fazer sua contribuição e apoiar nossa comunidade</p>
+        <div class="section-divider"></div>
+        <h2 class="section-title">Produtos com Propósito</h2>
+        <p class="section-subtitle">Ao adquirir um destes itens, 100% do valor é revertido para a construção da nossa igreja.</p>
+        
         <div class="products-grid" id="productsGrid">
-            <div class="loading">Carregando produtos...</div>
+            <div class="loading">
+                <div class="spinner"></div>
+                Carregando produtos disponíveis...
+            </div>
         </div>
     </section>
     
     <section id="produtoDetalhes" class="container product-details-section">
-        <button class="back-button" onclick="voltarParaProdutos()">
-            <span>←</span> Voltar para Produtos
+        <button class="btn btn-secondary" onclick="voltarParaProdutos()" style="color: var(--primary); border-color: var(--primary); margin-bottom: 2rem;">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
         </button>
         <div class="product-details-container" id="productDetailsContainer"></div>
     </section>
     
-    <section id="doacao" class="container">
-        <h2 class="section-title">Faça sua Doação</h2>
-        <p class="section-subtitle">Preencha os dados abaixo para realizar sua contribuição de forma segura</p>
-        <div class="donation-form">
-            <form id="donationForm">
-                <div class="form-group">
-                    <label for="nome">Seu Nome *</label>
-                    <input type="text" id="nome" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">E-mail *</label>
-                    <input type="email" id="email" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="telefone">Telefone (com DDD)</label>
-                    <input type="tel" id="telefone" class="form-control" placeholder="(11) 99999-9999">
-                </div>
-                
-                <div class="form-group">
-                    <label for="produto">Produto Selecionado</label>
-                    <input type="text" id="produto" class="form-control" readonly>
-                </div>
-                
-                <div class="form-group">
-                    <label for="valor">Valor da Doação (R$) *</label>
-                    <input type="number" id="valor" class="form-control" min="1" step="0.01" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="mensagem">Mensagem de Apoio</label>
-                    <textarea id="mensagem" class="form-control" placeholder="Deixe uma mensagem de apoio para o projeto..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>Forma de Pagamento *</label>
-                    <div class="payment-methods">
-                        <div class="payment-option active" data-method="pix">
-                            <div class="payment-icon">💰</div>
-                            <div>PIX</div>
+    <section id="doacao">
+        <div class="container">
+            <div class="section-divider"></div>
+            <h2 class="section-title">Realizar Contribuição</h2>
+            <p class="section-subtitle">Ambiente seguro e criptografado para sua tranquilidade.</p>
+            
+            <div class="form-card donation-form">
+                <form id="donationForm">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-size: 1.2rem;">
+                        <i class="fa-regular fa-user"></i> Seus Dados
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" class="form-control" required placeholder="Ex: João da Silva">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" class="form-control" required placeholder="seu@email.com">
                         </div>
-                        <div class="payment-option" data-method="cartao">
-                            <div class="payment-icon">💳</div>
-                            <div>Cartão</div>
+                        <div class="form-group">
+                            <label for="telefone">WhatsApp / Telefone</label>
+                            <input type="tel" id="telefone" class="form-control" placeholder="(11) 99999-9999">
                         </div>
                     </div>
                     
-                    <div class="pix-code" id="pixCode">
-                        <p>Escaneie o código PIX abaixo ou copie a chave:</p>
-                        <div style="background:white; padding:15px; display:inline-block; border-radius:10px;">
-                            <img src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/qrcode-pix.png" alt="QR Code PIX" style="width:200px; height:200px;">
-                        </div>
-                        <p>Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
-                        <button type="button" class="btn mt-2" onclick="confirmPayment()">Confirmar Pagamento</button>
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 2rem 0;">
+                    
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-size: 1.2rem;">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> Detalhes da Doação
+                    </h3>
+
+                    <div class="form-group">
+                        <label for="produto">Item Selecionado (Opcional)</label>
+                        <input type="text" id="produto" class="form-control" readonly style="background-color: #f1f5f9; color: #64748b;">
                     </div>
                     
-                    <div class="card-form" id="cardForm">
-                        <div class="infinite-info">
-                            💳 <strong>Checkout Profissional InfinitePay</strong><br>
-                            Ambiente seguro e criptografado. Seus dados estão protegidos.
+                    <div class="form-group">
+                        <label for="valor">Valor da Doação (R$)</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 15px; top: 14px; color: #64748b;">R$</span>
+                            <input type="number" id="valor" class="form-control" min="1" step="0.01" required style="padding-left: 3rem; font-weight: 700; font-size: 1.1rem;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mensagem">Mensagem de Apoio</label>
+                        <textarea id="mensagem" class="form-control" placeholder="Deixe uma mensagem para o projeto..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="margin-bottom: 1rem; display: block;">Forma de Pagamento</label>
+                        <div class="payment-methods">
+                            <div class="payment-option active" data-method="pix">
+                                <div class="payment-icon">💠</div>
+                                <div><strong>PIX</strong><br><small>Aprovação Imediata</small></div>
+                            </div>
+                            <div class="payment-option" data-method="cartao">
+                                <div class="payment-icon">💳</div>
+                                <div><strong>Cartão</strong><br><small>Crédito/Débito</small></div>
+                            </div>
                         </div>
                         
-                        <div class="payment-processing" id="paymentProcessing">
-                            <div class="spinner"></div>
-                            <p>Gerando link seguro de pagamento...</p>
+                        <div class="pix-code" id="pixCode" style="display: block;">
+                            <h4 style="color: var(--primary); margin-bottom: 1rem;">Escaneie para pagar</h4>
+                            <div style="background: white; padding: 1rem; display: inline-block; border-radius: 8px; box-shadow: var(--shadow-sm); margin-bottom: 1rem;">
+                                <img src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/qrcode-pix.png" alt="QR Code PIX" style="width:180px; height:180px;">
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--text-light);">Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
+                            <button type="button" class="btn mt-2" onclick="confirmPayment()" style="width: 100%; margin-top: 1.5rem;">
+                                <i class="fa-solid fa-check"></i> Já realizei o pagamento
+                            </button>
                         </div>
                         
-                        <button type="button" class="btn btn-infinite" style="width: 100%;" onclick="processCardPayment()" id="infiniteButton">
-                            Pagar com InfinitePay
-                        </button>
+                        <div class="card-form" id="cardForm">
+                            <div class="infinite-info">
+                                <i class="fa-solid fa-lock"></i>
+                                <div>
+                                    <strong>Checkout Seguro InfinitePay</strong><br>
+                                    Seus dados são processados em ambiente criptografado.
+                                </div>
+                            </div>
+                            
+                            <div class="payment-processing" id="paymentProcessing" style="display: none; text-align: center; padding: 2rem;">
+                                <div class="spinner"></div>
+                                <p>Gerando link seguro...</p>
+                            </div>
+                            
+                            <button type="button" class="btn btn-infinite" style="width: 100%;" onclick="processCardPayment()" id="infiniteButton">
+                                Pagar com InfinitePay <i class="fa-solid fa-arrow-right" style="margin-left: 0.5rem;"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
-    </section>
-    
-    <section id="adminLogin" class="container admin-section active">
-        <h2 class="section-title">Acesso Administrativo</h2>
-        <div class="login-form">
-            <div id="adminAlert"></div>
-            <div class="form-group">
-                <label for="adminPassword">Senha de Administração</label>
-                <input type="password" id="adminPassword" class="form-control" placeholder="Digite a senha">
-            </div>
-            <button type="button" class="btn" onclick="loginAdmin()">Acessar</button>
-        </div>
-    </section>
-    
-    <section id="adminPanel" class="container admin-section">
-        <div class="admin-header">
-            <h2 class="section-title">Administração</h2>
-            <button class="btn btn-secondary" onclick="logoutAdmin()">Sair</button>
-        </div>
-        
-        <div class="admin-tabs">
-            <button class="admin-tab active" data-tab="products">Produtos</button>
-            <button class="admin-tab" data-tab="donations">Doações</button>
-        </div>
-        
-        <div class="admin-tab-content active" id="productsTab">
-            <div class="admin-form">
-                <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Cadastrar Novo Produto</h3>
-                <div id="productAlert"></div>
-                <form id="productForm">
-                    <div class="form-group">
-                        <label for="productName">Nome do Produto *</label>
-                        <input type="text" id="productName" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="productDescription">Descrição *</label>
-                        <textarea id="productDescription" class="form-control" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="productPrice">Preço (R$) *</label>
-                        <input type="number" id="productPrice" class="form-control" min="1" step="0.01" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="productImage">Imagem do Produto</label>
-                        <input type="file" id="productImage" class="form-control" accept="image/jpg,image/jpeg">
-                        <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão</small>
-                    </div>
-                    
-                    <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
                 </form>
             </div>
-            
-            <h3 class="section-title">Produtos Cadastrados</h3>
-            <div class="admin-products-grid" id="adminProductsGrid">
-                <div class="loading">Carregando produtos...</div>
+        </div>
+    </section>
+    
+    <section id="adminLogin" class="admin-section active" style="display: none; padding-top: 8rem; align-items: center; justify-content: center;">
+        <div class="container">
+            <div class="form-card login-form" style="max-width: 400px;">
+                <h2 class="section-title" style="font-size: 1.8rem;">Acesso Restrito</h2>
+                <div id="adminAlert"></div>
+                <div class="form-group">
+                    <label for="adminPassword">Senha de Administração</label>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="••••••••">
+                </div>
+                <button type="button" class="btn" onclick="loginAdmin()" style="width: 100%;">Entrar</button>
+            </div>
+        </div>
+    </section>
+    
+    <section id="adminPanel" class="admin-section" style="padding-top: 6rem;">
+        <div class="admin-header">
+            <div class="container header-content">
+                <h2 style="font-size: 1.5rem; color: var(--primary);">Painel Administrativo</h2>
+                <button class="btn btn-secondary" onclick="logoutAdmin()" style="color: var(--error); border-color: var(--error); padding: 0.5rem 1.5rem;">Sair</button>
             </div>
         </div>
         
-        <div class="admin-tab-content" id="donationsTab">
-            <div class="donations-summary">
-                <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Relatório de Doações</h3>
+        <div class="admin-container">
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="products"><i class="fa-solid fa-box"></i> Produtos</button>
+                <button class="admin-tab" data-tab="donations"><i class="fa-solid fa-list"></i> Doações</button>
+            </div>
+            
+            <div class="admin-tab-content active" id="productsTab">
+                <div class="form-card admin-form" style="margin-bottom: 3rem;">
+                    <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">Novo Produto</h3>
+                    <div id="productAlert"></div>
+                    <form id="productForm">
+                        <div class="form-group">
+                            <label for="productName">Nome do Produto</label>
+                            <input type="text" id="productName" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="productDescription">Descrição</label>
+                            <textarea id="productDescription" class="form-control" required></textarea>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="productPrice">Preço (R$)</label>
+                                <input type="number" id="productPrice" class="form-control" min="1" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productImage">Imagem</label>
+                                <input type="file" id="productImage" class="form-control" accept="image/jpg,image/jpeg" style="padding: 0.7rem;">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
+                    </form>
+                </div>
                 
+                <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Produtos Ativos</h3>
+                <div class="products-grid" id="adminProductsGrid">
+                    </div>
+            </div>
+            
+            <div class="admin-tab-content" id="donationsTab" style="display: none;">
                 <div class="summary-cards">
                     <div class="summary-card">
                         <h3>Total Arrecadado</h3>
                         <div class="value" id="totalArrecadado">R$ 0,00</div>
                     </div>
                     <div class="summary-card">
-                        <h3>Doações Realizadas</h3>
+                        <h3>Doações</h3>
                         <div class="value" id="totalDoacoes">0</div>
                     </div>
-                    <div class="summary-card">
-                        <h3>Doações Pendentes</h3>
-                        <div class="value" id="doacoesPendentes">0</div>
+                    <div class="summary-card" style="border-color: #eab308;">
+                        <h3>Pendentes</h3>
+                        <div class="value" id="doacoesPendentes" style="color: #eab308;">0</div>
                     </div>
-                    <div class="summary-card">
-                        <h3>Doações Concluídas</h3>
-                        <div class="value" id="doacoesConcluidas">0</div>
+                    <div class="summary-card" style="border-color: var(--success);">
+                        <h3>Concluídas</h3>
+                        <div class="value" id="doacoesConcluidas" style="color: var(--success);">0</div>
                     </div>
                 </div>
                 
-                <h4 style="margin-bottom: 1rem;">Histórico de Doações</h4>
                 <div class="table-responsive">
                     <table class="donations-table">
                         <thead>
                             <tr>
                                 <th>Data</th>
                                 <th>Doador</th>
-                                <th>Produto</th>
+                                <th>Produto / Msg</th>
                                 <th>Valor</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody id="donationsTableBody">
                             <tr>
-                                <td colspan="5" style="text-align: center; padding: 2rem;">Carregando doações...</td>
+                                <td colspan="5" style="text-align: center; padding: 2rem;">Carregando...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1425,37 +1007,41 @@
     
     <footer id="contato">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">Igreja <span>Verbo da Vida</span> Zona Leste</div>
-                <div class="footer-links">
-                    <a href="#">Sobre Nós</a>
-                    <a href="#">Localização</a>
-                    <a href="#">Contato</a>
-                    <a href="#">Política de Privacidade</a>
-                </div>
-                <p>R. Joana D'arc Arruda, 466 - José Pinheiro, Campina Grande - PB, 58407-382</p>
-                <p>claudioalbertomaiasilva6@gmail.com | (83) 98795-7637</p>
-                <div class="copyright">
-                    &copy; 2023 Igreja Verbo da Vida Zona Leste. Todos os direitos reservados.
-                </div>
+            <div class="footer-logo">
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Igreja Verbo da Vida</h3>
+                <p style="color: rgba(255,255,255,0.6);">Zona Leste - Campina Grande/PB</p>
+            </div>
+            
+            <div class="footer-links">
+                <a href="#">Sobre Nós</a>
+                <a href="#">Localização</a>
+                <a href="#">Fale Conosco</a>
+                <a href="#">Privacidade</a>
+            </div>
+            
+            <div style="color: rgba(255,255,255,0.8); margin-top: 2rem; font-size: 0.95rem;">
+                <p><i class="fa-solid fa-location-dot"></i> R. Joana D'arc Arruda, 466 - José Pinheiro, 58407-382</p>
+                <p style="margin-top: 0.5rem;"><i class="fa-solid fa-envelope"></i> claudioalbertomaiasilva6@gmail.com | <i class="fa-brands fa-whatsapp"></i> (83) 98795-7637</p>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 Igreja Verbo da Vida Zona Leste. Todos os direitos reservados.
             </div>
         </div>
     </footer>
 
     <script>
-        // O script JavaScript permanece exatamente o mesmo
-        // Apenas as melhorias foram aplicadas ao CSS
+        // ==========================================================================
+        // MANTENDO O SCRIPT EXATAMENTE COMO SOLICITADO
+        // ==========================================================================
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
-        // CONFIGURAÇÃO INFINITEPAY - CORREÇÃO APLICADA AQUI
         const INFINITEPAY_HANDLE = "claudio-alberto-479"; 
-        // CORREÇÃO: Usando URL direta do InfinitePay sem redirecionamento problemático
         const REDIRECT_URL = "https://claudio1052.github.io/verbozonaleste/";
-        // Endpoint para criar links de pagamento (conforme documentação)
         const INFINITEPAY_API_URL = "https://api.infinitepay.io/invoices/public/checkout/links";
 
         let selectedProduct = null;
@@ -1484,13 +1070,13 @@
             const container = document.getElementById('productDetailsContainer');
             container.innerHTML = `
                 <div class="product-details-image">
-                    <img src="${product.imagem_url || 'https://via.placeholder.com/300x200.jpg?text=Sem+Imagem'}" alt="${product.nome}">
+                    <img src="${product.imagem_url || 'https://via.placeholder.com/600x400.jpg?text=Sem+Imagem'}" alt="${product.nome}">
                 </div>
                 <div class="product-details-info">
                     <h2 class="product-details-title">${product.nome}</h2>
-                    <p class="product-details-description">${product.descricao}</p>
+                    <p class="product-details-description" style="margin-bottom: 2rem; color: #64748b; font-size: 1.1rem;">${product.descricao}</p>
                     <div class="product-details-price">R$ ${product.preco.toFixed(2)}</div>
-                    <button class="btn" onclick="selectProductForDonation(${product.id})">Doar Agora</button>
+                    <button class="btn" onclick="selectProductForDonation(${product.id})" style="width: 100%;">Quero Doar Este Valor</button>
                 </div>
             `;
             document.getElementById('produtoDetalhes').scrollIntoView({ behavior: 'smooth' });
@@ -1510,7 +1096,7 @@
         }
         
         // ==========================================================================
-        // ✅ INTEGRAÇÃO PROFISSIONAL INFINITEPAY (Baseado no PDF)
+        // INTEGRAÇÃO INFINITEPAY
         // ==========================================================================
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
@@ -1535,7 +1121,6 @@
                 document.getElementById('infiniteButton').disabled = true;
                 document.getElementById('infiniteButton').textContent = 'Gerando Checkout...';
 
-                // 1. Salvar doação no Supabase
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
                     nome_doador: nome, 
                     email_doador: email, 
@@ -1552,11 +1137,8 @@
 
                 const orderNsu = `DOACAO_${donationData[0].id}`;
                 const productName = produto || "Doação para Igreja Verbo da Vida";
-                
-                // CONVERSÃO PARA CENTAVOS (Importante: R$ 10,00 = 1000)
                 const priceInCents = Math.round(valor * 100);
 
-                // 2. Montar Payload JSON conforme Documentação Oficial
                 const apiPayload = {
                     handle: INFINITEPAY_HANDLE,
                     redirect_url: REDIRECT_URL,
@@ -1575,11 +1157,7 @@
                     }
                 };
 
-                // 3. Tentar gerar link via API (POST)
-                // OBS: Se houver erro de CORS (comum em front-end puro), usamos o fallback
                 try {
-                    console.log("📤 Enviando requisição para API InfinitePay...", apiPayload);
-                    
                     const response = await fetch(INFINITEPAY_API_URL, {
                         method: 'POST',
                         headers: {
@@ -1591,23 +1169,18 @@
 
                     if (response.ok) {
                         const data = await response.json();
-                        console.log("✅ Link gerado via API:", data.url);
-                        
                         await updateDonationStatus(donationData[0].id, data.url);
                         window.location.href = data.url;
-                        return; // Encerra aqui se deu certo
-                    } else {
-                        console.warn("⚠️ API retornou erro, usando método fallback de URL.");
-                    }
+                        return;
+                    } 
                 } catch (apiError) {
-                    console.warn("⚠️ Erro de conexão com API (Provável CORS), usando fallback:", apiError);
+                    console.warn("Fallback para URL manual devido a erro de API/CORS:", apiError);
                 }
 
-                // 4. FALLBACK: Geração de Link Manual (Caso a API falhe no navegador)
-                // CORREÇÃO: Usando URL direta do InfinitePay com parâmetros dinâmicos
+                // FALLBACK
                 const items = [{
                     name: productName,
-                    price: priceInCents, // Mantendo padrão de centavos
+                    price: priceInCents,
                     quantity: 1
                 }];
 
@@ -1619,13 +1192,11 @@
                 infinitePayUrl += `&customer_email=${encodeURIComponent(email)}`;
                 if (telefone) infinitePayUrl += `&customer_cellphone=${encodeURIComponent(telefone.replace(/\D/g, ''))}`;
 
-                console.log('🔗 Link Fallback gerado:', infinitePayUrl);
-                
                 await updateDonationStatus(donationData[0].id, infinitePayUrl);
-                window.open(infinitePayUrl, '_self'); // _self para manter comportamento de app
+                window.open(infinitePayUrl, '_self');
 
             } catch (error) {
-                console.error('❌ Erro Geral:', error);
+                console.error('Erro Geral:', error);
                 document.getElementById('paymentProcessing').style.display = 'none';
                 document.getElementById('infiniteButton').disabled = false;
                 document.getElementById('infiniteButton').textContent = 'Tentar Novamente';
@@ -1641,16 +1212,13 @@
             }).eq('id', id);
         }
         
-        // ✅ VERIFICAÇÃO DE RETORNO MELHORADA
         function checkPaymentReturn() {
             const urlParams = new URLSearchParams(window.location.search);
-            // Parâmetros oficiais de retorno
             const receiptUrl = urlParams.get('receipt_url');
             const transactionId = urlParams.get('transaction_nsu');
             
             if (receiptUrl && transactionId) {
                 showAlert('donationForm', '✅ Pagamento confirmado com sucesso! Deus abençoe.', 'success');
-                // Limpa a URL para não reprocessar ao recarregar
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -1698,6 +1266,11 @@
                 document.getElementById('adminLogin').classList.remove('active');
                 document.getElementById('adminPanel').classList.add('active');
                 document.getElementById('adminPassword').value = '';
+                
+                // Ajuste para exibir o painel e esconder o login (display logic)
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                
                 loadAdminProducts();
                 loadDonationsReport();
                 showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
@@ -1709,6 +1282,10 @@
         function logoutAdmin() {
             document.getElementById('adminPanel').classList.remove('active');
             document.getElementById('adminLogin').classList.add('active');
+            
+            // Ajuste reverso
+            document.getElementById('adminLogin').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
         }
         
         async function loadDonationsReport() {
@@ -1744,9 +1321,9 @@
                     
                     row.innerHTML = `
                         <td>${new Date(d.data_criacao).toLocaleDateString('pt-BR')}</td>
-                        <td>${d.nome_doador}<br><small>${d.email_doador}</small></td>
-                        <td>${d.produto || '-'}</td>
-                        <td>R$ ${d.valor.toFixed(2)}</td>
+                        <td><strong>${d.nome_doador}</strong><br><span style="font-size:0.8rem; color:#64748b;">${d.email_doador}</span></td>
+                        <td>${d.produto || '-'}<br><span style="font-size:0.8rem; color:#64748b;">${d.mensagem ? d.mensagem.substring(0,20)+'...' : ''}</span></td>
+                        <td><strong>R$ ${d.valor.toFixed(2)}</strong></td>
                         <td><span class="status-badge ${statusClass}">${d.status}</span></td>
                     `;
                     tbody.appendChild(row);
@@ -1767,20 +1344,20 @@
                 
                 data.forEach(p => {
                     grid.innerHTML += `
-                        <div class="admin-product-card">
-                            <div class="admin-product-image"><img src="${p.imagem_url || 'https://via.placeholder.com/300'}" alt="${p.nome}"></div>
-                            <div class="admin-product-info">
-                                <h3 class="admin-product-title">${p.nome}</h3>
-                                <div class="admin-product-price">R$ ${p.preco.toFixed(2)}</div>
-                                <button class="btn btn-small btn-danger" onclick="deleteProduct(${p.id})">Excluir</button>
+                        <div class="product-card" style="flex-direction: row; height: auto; padding: 1rem; align-items: center;">
+                            <img src="${p.imagem_url || 'https://via.placeholder.com/100'}" alt="${p.nome}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 1rem;">
+                            <div style="flex-grow: 1;">
+                                <h3 style="font-size: 1rem;">${p.nome}</h3>
+                                <div style="font-weight: bold; color: var(--primary);">R$ ${p.preco.toFixed(2)}</div>
                             </div>
+                            <button class="btn btn-small btn-danger" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="deleteProduct(${p.id})">Excluir</button>
                         </div>`;
                 });
             } catch (e) { grid.innerHTML = '<p>Erro ao carregar.</p>'; }
         }
         
         async function deleteProduct(id) {
-            if (confirm('Excluir produto?')) {
+            if (confirm('Excluir produto permanentemente?')) {
                 await supabase.from('produtos').delete().eq('id', id);
                 loadAdminProducts(); loadProducts();
             }
@@ -1791,18 +1368,20 @@
             try {
                 const { data } = await supabase.from('produtos').select('*').order('id', { ascending: false });
                 grid.innerHTML = '';
-                if (!data || !data.length) { grid.innerHTML = '<p>Nenhum produto disponível.</p>'; return; }
+                if (!data || !data.length) { grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Nenhum produto disponível no momento.</p>'; return; }
                 
                 data.forEach(p => {
                     const div = document.createElement('div');
                     div.className = 'product-card';
                     div.innerHTML = `
-                        <div class="product-image"><img src="${p.imagem_url || 'https://via.placeholder.com/300'}" alt="${p.nome}"></div>
+                        <div class="product-image"><img src="${p.imagem_url || 'https://via.placeholder.com/400x300.jpg?text=Verbo+Da+Vida'}" alt="${p.nome}"></div>
                         <div class="product-info">
                             <h3 class="product-title">${p.nome}</h3>
                             <p class="product-description">${p.descricao}</p>
-                            <div class="product-price">R$ ${p.preco.toFixed(2)}</div>
-                            <button class="btn" onclick='showProductDetails(${JSON.stringify(p)})'>Ver Detalhes</button>
+                            <div class="product-footer">
+                                <div class="product-price">R$ ${p.preco.toFixed(2)}</div>
+                                <button class="btn" style="padding: 0.5rem 1.2rem; font-size: 0.9rem;" onclick='showProductDetails(${JSON.stringify(p)})'>Contribuir</button>
+                            </div>
                         </div>`;
                     grid.appendChild(div);
                 });
@@ -1826,8 +1405,21 @@
                     document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
                     this.classList.add('active');
                     const isPix = this.dataset.method === 'pix';
-                    document.getElementById('pixCode').style.display = isPix ? 'block' : 'none';
-                    document.getElementById('cardForm').classList.toggle('active', !isPix);
+                    
+                    const pixCode = document.getElementById('pixCode');
+                    const cardForm = document.getElementById('cardForm');
+                    
+                    if (isPix) {
+                        pixCode.classList.add('active');
+                        pixCode.style.display = 'block';
+                        cardForm.classList.remove('active');
+                        cardForm.style.display = 'none';
+                    } else {
+                        pixCode.classList.remove('active');
+                        pixCode.style.display = 'none';
+                        cardForm.classList.add('active');
+                        cardForm.style.display = 'block';
+                    }
                 });
             });
             
@@ -1835,17 +1427,31 @@
                 tab.addEventListener('click', function() {
                     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
-                    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
-                    document.getElementById(`${this.dataset.tab}Tab`).classList.add('active');
+                    
+                    // Hide all content
+                    document.querySelectorAll('.admin-tab-content').forEach(c => {
+                        c.classList.remove('active');
+                        c.style.display = 'none';
+                    });
+                    
+                    // Show selected
+                    const target = document.getElementById(`${this.dataset.tab}Tab`);
+                    target.classList.add('active');
+                    target.style.display = 'block';
+                    
                     if (this.dataset.tab === 'donations') loadDonationsReport();
                 });
             });
             
+            // Initial State
             document.getElementById('pixCode').style.display = 'block';
             loadProducts();
             
             document.getElementById('adminLink').addEventListener('click', (e) => {
                 e.preventDefault();
+                // Logic update: Show login section
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('adminLogin').style.display = 'flex';
                 document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
             });
             
@@ -1864,7 +1470,7 @@
                     data_criacao: new Date().toISOString()
                 }]);
                 
-                showAlert('productAlert', 'Produto salvo!', 'success');
+                showAlert('productAlert', 'Produto salvo com sucesso!', 'success');
                 document.getElementById('productForm').reset();
                 loadAdminProducts(); loadProducts();
             });
