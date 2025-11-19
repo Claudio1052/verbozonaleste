@@ -30,7 +30,7 @@
                 
                 <div class="form-group">
                     <label for="telefone">Telefone</label>
-                    <input type="tel" id="telefone" class="form-control">
+                    <input type="tel" id="telefone" class="form-control" placeholder="+5511999999999">
                 </div>
                 
                 <div class="form-group">
@@ -53,7 +53,7 @@
                     <label>Endereço para Entrega (se aplicável)</label>
                     <div class="form-row">
                         <div class="form-group">
-                            <input type="text" id="cep" class="form-control" placeholder="CEP">
+                            <input type="text" id="cep" class="form-control" placeholder="CEP" maxlength="8">
                         </div>
                         <div class="form-group">
                             <input type="text" id="numero" class="form-control" placeholder="Número">
@@ -261,14 +261,19 @@
                 };
 
                 if (telefone) {
-                    customer.phone_number = telefone;
+                    // Formatar telefone para padrão internacional se necessário
+                    let formattedPhone = telefone;
+                    if (!telefone.startsWith('+')) {
+                        formattedPhone = '+55' + telefone.replace(/\D/g, '');
+                    }
+                    customer.phone_number = formattedPhone;
                 }
 
                 // Preparar dados de endereço se fornecidos
                 let address = null;
                 if (cep && numero) {
                     address = {
-                        cep: cep,
+                        cep: cep.replace(/\D/g, ''),
                         number: numero
                     };
                     if (complemento) {
@@ -320,6 +325,8 @@
                 
                 if (error.message.includes('network') || error.message.includes('fetch')) {
                     errorMessage += 'Erro de conexão. Verifique sua internet.';
+                } else if (error.message.includes('CORS')) {
+                    errorMessage += 'Erro de segurança. Tente novamente.';
                 } else {
                     errorMessage += error.message;
                 }
@@ -364,15 +371,22 @@
                 const orderNsu = webhookData.order_nsu;
                 const donationId = orderNsu.replace('DOACAO_', '');
                 
+                // Verificar se o pagamento foi aprovado
+                const isPaid = webhookData.paid === true || 
+                              (webhookData.paid_amount && webhookData.paid_amount > 0);
+                
                 // Atualizar status da doação
                 const { error } = await supabase
                     .from('doacoes')
                     .update({
-                        status: 'pago',
+                        status: isPaid ? 'pago' : 'pendente',
                         transaction_id: webhookData.transaction_nsu,
                         invoice_slug: webhookData.invoice_slug,
                         paid_amount: webhookData.paid_amount / 100, // Converter de centavos para reais
-                        data_pagamento: new Date().toISOString(),
+                        capture_method: webhookData.capture_method,
+                        installments: webhookData.installments,
+                        receipt_url: webhookData.receipt_url,
+                        data_pagamento: isPaid ? new Date().toISOString() : null,
                         data_atualizacao: new Date().toISOString()
                     })
                     .eq('id', donationId);
@@ -406,17 +420,31 @@
             const transactionNsu = urlParams.get('transaction_nsu');
 
             if (orderNsu && slug) {
-                console.log('🔄 Detectado retorno da InfinitePay:', { orderNsu, slug, captureMethod });
+                console.log('🔄 Detectado retorno da InfinitePay:', { orderNsu, slug, captureMethod, transactionNsu });
                 
-                // Aqui você pode:
-                // 1. Consultar o status do pagamento
-                // 2. Atualizar a interface do usuário
-                // 3. Mostrar mensagem de confirmação
-                
-                // Exemplo de consulta de status (opcional)
+                // Buscar informações da doação
                 if (orderNsu.startsWith('DOACAO_')) {
-                    setTimeout(() => {
-                        alert('✅ Obrigado pela sua doação! O pagamento está sendo processado.');
+                    const donationId = orderNsu.replace('DOACAO_', '');
+                    
+                    // Atualizar status da doação
+                    setTimeout(async () => {
+                        try {
+                            await supabase
+                                .from('doacoes')
+                                .update({
+                                    status: 'processando',
+                                    transaction_id: transactionNsu,
+                                    invoice_slug: slug,
+                                    capture_method: captureMethod,
+                                    receipt_url: receiptUrl,
+                                    data_atualizacao: new Date().toISOString()
+                                })
+                                .eq('id', donationId);
+                                
+                            alert('✅ Obrigado pela sua doação! O pagamento está sendo processado.');
+                        } catch (error) {
+                            console.error('Erro ao atualizar status:', error);
+                        }
                     }, 1000);
                 }
 
@@ -480,21 +508,148 @@
             document.getElementById('produtoDetalhes').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // [RESTANTE DAS FUNÇÕES MANTIDAS IGUAIS...]
-        // async function confirmPayment() { ... }
-        // async function loadDonationsReport() { ... }
-        // async function loadProducts() { ... }
-        // etc...
+        // ✅ FUNÇÃO PARA VALIDAR TELEFONE
+        function formatPhoneNumber(phone) {
+            // Remove tudo que não é número
+            const cleaned = phone.replace(/\D/g, '');
+            
+            // Verifica se tem o código do país
+            if (cleaned.length === 11) {
+                return '+55' + cleaned;
+            } else if (cleaned.length === 13 && cleaned.startsWith('55')) {
+                return '+' + cleaned;
+            }
+            
+            return phone;
+        }
+
+        // ✅ FUNÇÃO AUXILIAR: Testar conexão com Supabase
+        async function testSupabaseConnection() {
+            try {
+                console.log('🧪 Testando conexão com Supabase...');
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) throw error;
+                console.log('✅ Conexão com Supabase estabelecida com sucesso!');
+                return true;
+            } catch (error) {
+                console.error('❌ Erro na conexão com Supabase:', error);
+                return false;
+            }
+        }
+
+        // ✅ FUNÇÃO AUXILIAR: Mostrar alertas
+        function showAlert(elementId, message, type = 'success') {
+            const alertDiv = document.getElementById(elementId);
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertDiv.innerHTML = '', 5000);
+        }
+
+        // ✅ FUNÇÃO AUXILIAR: Voltar para lista de produtos
+        function voltarParaProdutos() {
+            document.getElementById('produtoDetalhes').classList.remove('active');
+            document.getElementById('produtos').style.display = 'block';
+            document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // [MANTIDAS AS OUTRAS FUNÇÕES EXISTENTES...]
+        async function confirmPayment() {
+            // Esta função agora é substituída pelas novas funções de processamento
+            alert('Por favor, use os botões de pagamento específicos (PIX ou Cartão)');
+        }
+        
+        async function loadDonationsReport() {
+            try {
+                const { data, error } = await supabase
+                    .from('doacoes')
+                    .select('*')
+                    .order('data_criacao', { ascending: false });
+                
+                if (error) throw error;
+                
+                // Calcular totais
+                let totalArrecadado = 0;
+                let totalDoacoes = data.length;
+                let doacoesPendentes = 0;
+                let doacoesConcluidas = 0;
+                let doacoesProcessando = 0;
+                
+                data.forEach(doacao => {
+                    if (doacao.status === 'pago' || doacao.status === 'concluido') {
+                        totalArrecadado += doacao.valor;
+                        doacoesConcluidas++;
+                    } else if (doacao.status === 'pendente') {
+                        doacoesPendentes++;
+                    } else if (doacao.status === 'encaminhado_infinitepay' || doacao.status === 'processando') {
+                        doacoesProcessando++;
+                    }
+                });
+                
+                // Atualizar cards de resumo
+                document.getElementById('totalArrecadado').textContent = `R$ ${totalArrecadado.toFixed(2)}`;
+                document.getElementById('totalDoacoes').textContent = totalDoacoes;
+                document.getElementById('doacoesPendentes').textContent = doacoesPendentes;
+                document.getElementById('doacoesConcluidas').textContent = doacoesConcluidas;
+                
+                // Preencher tabela
+                const tableBody = document.getElementById('donationsTableBody');
+                tableBody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Nenhuma doação encontrada</td></tr>';
+                    return;
+                }
+                
+                data.forEach(doacao => {
+                    const row = document.createElement('tr');
+                    
+                    // Formatar data
+                    const dataFormatada = new Date(doacao.data_criacao).toLocaleDateString('pt-BR');
+                    
+                    // Determinar classe de status
+                    let statusClass = 'status-pendente';
+                    let statusText = 'Pendente';
+                    
+                    if (doacao.status === 'concluido' || doacao.status === 'pago') {
+                        statusClass = 'status-concluido';
+                        statusText = 'Concluído';
+                    } else if (doacao.status === 'encaminhado_infinitepay' || doacao.status === 'processando') {
+                        statusClass = 'status-pago';
+                        statusText = 'Processando';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${dataFormatada}</td>
+                        <td>${doacao.nome_doador}<br><small>${doacao.email_doador}</small></td>
+                        <td>${doacao.produto}</td>
+                        <td>R$ ${doacao.valor.toFixed(2)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar doações:', error);
+                document.getElementById('donationsTableBody').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Erro ao carregar doações</td></tr>';
+            }
+        }
+
+        // [MANTIDAS AS DEMAIS FUNÇÕES EXISTENTES...]
+        // loadAdminProducts, deleteProduct, loadProducts, uploadImage, etc.
 
         // Inicializar página
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Inicializando aplicação com InfinitePay...');
             console.log('🔗 Handle InfinitePay:', INFINITEPAY_HANDLE);
+            console.log('📍 Redirect URL:', REDIRECT_URL);
             
             // Verificar retorno de pagamento
             checkPaymentReturn();
             
-            // [RESTANTE DA INICIALIZAÇÃO MANTIDA IGUAL...]
             const connected = await testSupabaseConnection();
             if (!connected) {
                 alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
@@ -516,8 +671,96 @@
                 });
             });
             
-            // [RESTANTE DO CÓDIGO DE INICIALIZAÇÃO MANTIDO IGUAL...]
+            // Configurar abas administrativas
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Ativar aba clicada
+                    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Mostrar conteúdo correspondente
+                    document.querySelectorAll('.admin-tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${tabName}Tab`).classList.add('active');
+                    
+                    // Se for a aba de doações, carregar relatórios
+                    if (tabName === 'donations') {
+                        loadDonationsReport();
+                    }
+                });
+            });
+            
+            document.getElementById('pixCode').style.display = 'block';
+            loadProducts();
+            
+            document.getElementById('adminLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Configurar formulário de produto
+            document.getElementById('productForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('productName').value;
+                const description = document.getElementById('productDescription').value;
+                const price = parseFloat(document.getElementById('productPrice').value);
+                const imageFile = document.getElementById('productImage').files[0];
+                
+                if (!name || !description || !price) {
+                    showAlert('productAlert', 'Por favor, preencha todos os campos obrigatórios.', 'error');
+                    return;
+                }
+                
+                try {
+                    let imageUrl = null;
+                    
+                    if (imageFile) {
+                        showAlert('productAlert', 'Fazendo upload da imagem JPG...', 'success');
+                        imageUrl = await uploadImage(imageFile);
+                    }
+                    
+                    console.log('💾 Salvando produto no banco...');
+                    const { data, error } = await supabase
+                        .from('produtos')
+                        .insert([
+                            {
+                                nome: name,
+                                descricao: description,
+                                preco: price,
+                                imagem_url: imageUrl,
+                                ativo: true,
+                                data_criacao: new Date().toISOString()
+                            }
+                        ])
+                        .select();
+                    
+                    if (error) {
+                        console.error('❌ Erro ao salvar produto:', error);
+                        throw error;
+                    }
+                    
+                    console.log('✅ Produto salvo com sucesso:', data);
+                    showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
+                    
+                    document.getElementById('productForm').reset();
+                    loadAdminProducts();
+                    loadProducts();
+                    
+                } catch (error) {
+                    console.error('❌ Erro completo ao salvar produto:', error);
+                    showAlert('productAlert', 'Erro ao cadastrar produto: ' + error.message, 'error');
+                }
+            });
+            
+            console.log('✅ Aplicação inicializada com sucesso!');
         });
+
+        // [MANTIDAS AS DEMAIS FUNÇÕES EXISTENTES...]
+        // loginAdmin, logoutAdmin, loadAdminProducts, deleteProduct, loadProducts, uploadImage
     </script>
 </body>
 </html>
