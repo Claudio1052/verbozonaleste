@@ -1215,7 +1215,8 @@
         
         // CONFIGURAÇÃO INFINITEPAY - CORREÇÃO APLICADA AQUI
         const INFINITEPAY_HANDLE = "claudio-alberto-479"; 
-        const REDIRECT_URL = "https://claudio1052.github.io/verbozonaleste/sucesso.html"; // CORREÇÃO: mudado para sucesso.html
+        // CORREÇÃO: Usando URL direta do InfinitePay sem redirecionamento problemático
+        const REDIRECT_URL = "https://claudio1052.github.io/verbozonaleste/";
         // Endpoint para criar links de pagamento (conforme documentação)
         const INFINITEPAY_API_URL = "https://api.infinitepay.io/invoices/public/checkout/links";
 
@@ -1365,15 +1366,15 @@
                 }
 
                 // 4. FALLBACK: Geração de Link Manual (Caso a API falhe no navegador)
-                // Mantendo a robustez mas gerando a URL manualmente
-                const items = JSON.stringify([{
+                // CORREÇÃO: Usando URL direta do InfinitePay com parâmetros dinâmicos
+                const items = [{
                     name: productName,
                     price: priceInCents, // Mantendo padrão de centavos
                     quantity: 1
-                }]);
+                }];
 
                 let infinitePayUrl = `https://checkout.infinitepay.io/${INFINITEPAY_HANDLE}`;
-                infinitePayUrl += `?items=${encodeURIComponent(items)}`;
+                infinitePayUrl += `?items=${encodeURIComponent(JSON.stringify(items))}`;
                 infinitePayUrl += `&order_nsu=${orderNsu}`;
                 infinitePayUrl += `&redirect_url=${encodeURIComponent(REDIRECT_URL)}`;
                 infinitePayUrl += `&customer_name=${encodeURIComponent(nome)}`;
