@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doações - Igreja Verbo da Vida Zona Leste</title>
+    <title>Igreja Verbo da Vida Zona Leste</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Cores extraídas do banner - tons de azul e dourado */
@@ -86,8 +86,10 @@
             background: rgba(255,255,255,0.1);
         }
         
+        /* CORREÇÃO DO BANNER - Ajuste para imagem não cortada */
         .hero {
-            background: linear-gradient(rgba(26, 54, 93, 0.7), rgba(45, 90, 140, 0.7)), url('https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/Fe.png') no-repeat center center/cover;
+            background: linear-gradient(rgba(26, 54, 93, 0.7), rgba(45, 90, 140, 0.7)), url('https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/Fe.png') no-repeat center center;
+            background-size: cover; /* Garante que a imagem cubra toda a área */
             height: 70vh;
             display: flex;
             align-items: center;
@@ -667,6 +669,7 @@
             box-shadow: 0 4px 15px rgba(45, 90, 140, 0.2);
         }
         
+        /* CORREÇÕES PARA MOBILE - MELHORIAS RESPONSIVAS */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -684,9 +687,12 @@
                 margin: 0.5rem;
             }
             
+            /* CORREÇÃO DO BANNER PARA MOBILE */
             .hero {
                 height: 50vh;
                 margin-top: 120px;
+                background-size: cover; /* Garante que a imagem cubra toda a área */
+                background-position: center; /* Centraliza a imagem */
             }
             
             .hero h1 {
@@ -738,6 +744,64 @@
             .payment-type-selector {
                 flex-direction: column;
             }
+            
+            /* MELHORIA: Ajuste de espaçamento para seções em mobile */
+            section {
+                padding: 3rem 0;
+            }
+            
+            /* MELHORIA: Ajuste do tamanho do logo em mobile */
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            /* MELHORIA: Ajuste do formulário de doação em mobile */
+            .donation-form {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* MELHORIA: Ajustes para telas muito pequenas (smartphones pequenos) */
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.7rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .product-info, .admin-product-info {
+                padding: 1.5rem;
+            }
+            
+            .product-title, .admin-product-title {
+                font-size: 1.2rem;
+            }
+            
+            .product-price, .admin-product-price {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* MELHORIA: Ajustes para telas muito grandes */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1320px;
+            }
+            
+            .hero {
+                height: 80vh;
+            }
         }
     </style>
 </head>
@@ -760,8 +824,8 @@
     
     <section class="hero">
         <div class="hero-content">
-            <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
-            <p>Contribua para a construção do nosso novo templo e ajude a expandir o Reino de Deus</p>
+            <h1></h1>
+            <p>Contribua para a nossa nova casa e ajude a expandir o Reino de Deus</p>
             <a href="#doacao" class="btn">Fazer Doação</a>
         </div>
     </section>
