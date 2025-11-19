@@ -86,7 +86,7 @@
             background: rgba(255,255,255,0.1);
         }
         
-        /* BANNER COM VÍDEO - Substituição da imagem por vídeo profissional */
+        /* BANNER COM VÍDEO - CORREÇÃO PARA NÃO CORTAR A PARTE SUPERIOR */
         .hero {
             position: relative;
             height: 70vh;
@@ -107,6 +107,24 @@
             height: 100%;
             object-fit: cover;
             z-index: -2;
+        }
+        
+        /* CORREÇÃO: Ajuste para garantir que o vídeo não seja cortado */
+        .hero-video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -2;
+        }
+        
+        .hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top; /* Garante que o topo do vídeo seja visível */
         }
         
         .hero-overlay {
@@ -842,11 +860,13 @@
     </header>
     
     <section class="hero">
-        <!-- VÍDEO PROFISSIONAL NO BANNER -->
-        <video class="hero-video" autoplay muted loop playsinline>
-            <source src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/verbo.mp4" type="video/mp4">
-            Seu navegador não suporta vídeos HTML5.
-        </video>
+        <!-- VÍDEO PROFISSIONAL NO BANNER - CORREÇÃO PARA NÃO CORTAR O TOPO -->
+        <div class="hero-video-container">
+            <video class="hero-video" autoplay muted loop playsinline>
+                <source src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/verbo.mp4" type="video/mp4">
+                Seu navegador não suporta vídeos HTML5.
+            </video>
+        </div>
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
