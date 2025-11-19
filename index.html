@@ -236,6 +236,7 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             border: 1px solid #e0e0e0;
+            cursor: pointer;
         }
         
         .product-card:hover {
@@ -290,6 +291,82 @@
             font-weight: bold;
             color: var(--secondary-color);
             margin-bottom: 1.5rem;
+        }
+        
+        /* NOVA SEÇÃO: DETALHES DO PRODUTO */
+        .product-details-section {
+            display: none;
+        }
+        
+        .product-details-section.active {
+            display: block;
+        }
+        
+        .product-details-container {
+            display: flex;
+            gap: 3rem;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .product-details-image {
+            flex: 1;
+            max-width: 400px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .product-details-image img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+        
+        .product-details-info {
+            flex: 2;
+            padding: 3rem;
+        }
+        
+        .product-details-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .product-details-description {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .product-details-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+        }
+        
+        .back-button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+            background: #1f4a7a;
         }
         
         .donation-form, .admin-form, .login-form {
@@ -424,6 +501,38 @@
             border-bottom: 2px solid #e9ecef;
         }
         
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .admin-tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .admin-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--accent-color);
+        }
+        
+        .admin-tab-content {
+            display: none;
+        }
+        
+        .admin-tab-content.active {
+            display: block;
+        }
+        
         .admin-products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -490,6 +599,90 @@
         .admin-product-actions {
             display: flex;
             gap: 0.8rem;
+        }
+        
+        /* NOVO: ESTILOS PARA RELATÓRIOS DE DOAÇÕES */
+        .donations-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+        
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .donations-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .donations-table th,
+        .donations-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .donations-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .donations-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-pendente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-pago {
+            background: #d1edff;
+            color: #004085;
+        }
+        
+        .status-concluido {
+            background: #d4edda;
+            color: #155724;
         }
         
         .loading {
@@ -614,89 +807,6 @@
             width: 100%;
         }
         
-        /* NOVOS ESTILOS ADICIONADOS */
-        .installment-selector {
-            margin-top: 1rem;
-            display: none;
-        }
-        
-        .installment-selector.active {
-            display: block;
-        }
-        
-        .installment-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        
-        .installment-option {
-            padding: 0.8rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f8f9fa;
-        }
-        
-        .installment-option:hover {
-            border-color: var(--secondary-color);
-            background: rgba(45, 90, 140, 0.05);
-        }
-        
-        .installment-option.selected {
-            border-color: var(--secondary-color);
-            background: rgba(45, 90, 140, 0.1);
-            box-shadow: 0 4px 15px rgba(45, 90, 140, 0.2);
-        }
-        
-        .installment-quantity {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: var(--primary-color);
-        }
-        
-        .installment-value {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.3rem;
-        }
-        
-        .installment-no-interest {
-            color: var(--success-color);
-            font-weight: bold;
-        }
-        
-        .payment-type-selector {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .payment-type-option {
-            flex: 1;
-            text-align: center;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f8f9fa;
-        }
-        
-        .payment-type-option:hover {
-            border-color: var(--secondary-color);
-            background: rgba(45, 90, 140, 0.05);
-        }
-        
-        .payment-type-option.active {
-            border-color: var(--secondary-color);
-            background: rgba(45, 90, 140, 0.1);
-            box-shadow: 0 4px 15px rgba(45, 90, 140, 0.2);
-        }
-        
         /* CORREÇÕES PARA MOBILE - MELHORIAS RESPONSIVAS */
         @media (max-width: 768px) {
             .header-content {
@@ -740,6 +850,14 @@
                 font-size: 2rem;
             }
             
+            .product-details-container {
+                flex-direction: column;
+            }
+            
+            .product-details-image {
+                max-width: 100%;
+            }
+            
             .payment-methods {
                 flex-direction: column;
             }
@@ -753,6 +871,10 @@
                 flex-direction: column;
                 gap: 1.5rem;
                 align-items: flex-start;
+            }
+            
+            .admin-tabs {
+                flex-direction: column;
             }
             
             .products-grid, .admin-products-grid {
@@ -833,6 +955,10 @@
             .product-price, .admin-product-price {
                 font-size: 1.3rem;
             }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
         }
         
         /* CORREÇÃO ADICIONAL: Garantir que o vídeo sempre mostre o topo */
@@ -883,10 +1009,11 @@
         <div class="hero-content">
             <h1>Apoie a Nova Igreja Verbo da Vida Zona Leste</h1>
             <p>Contribua para a construção do nosso novo templo e ajude a expandir o Reino de Deus</p>
-            <a href="#doacao" class="btn">Fazer Doação</a>
+            <a href="#produtos" class="btn">Ver Produtos</a>
         </div>
     </section>
     
+    <!-- SEÇÃO DE PRODUTOS -->
     <section id="produtos" class="container">
         <h2 class="section-title">Produtos para Doação</h2>
         <div class="products-grid" id="productsGrid">
@@ -894,6 +1021,15 @@
         </div>
     </section>
     
+    <!-- NOVA SEÇÃO: DETALHES DO PRODUTO -->
+    <section id="produtoDetalhes" class="container product-details-section">
+        <button class="back-button" onclick="voltarParaProdutos()">← Voltar para Produtos</button>
+        <div class="product-details-container" id="productDetailsContainer">
+            <!-- Conteúdo será preenchido via JavaScript -->
+        </div>
+    </section>
+    
+    <!-- SEÇÃO DE DOAÇÃO (AGORA VINCULADA AO PRODUTO SELECIONADO) -->
     <section id="doacao" class="container">
         <h2 class="section-title">Faça sua Doação</h2>
         <div class="donation-form">
@@ -989,42 +1125,96 @@
     
     <section id="adminPanel" class="container admin-section">
         <div class="admin-header">
-            <h2 class="section-title">Administração de Produtos</h2>
+            <h2 class="section-title">Administração</h2>
             <button class="btn btn-secondary" onclick="logoutAdmin()">Sair</button>
         </div>
         
-        <div class="admin-form">
-            <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Cadastrar Novo Produto</h3>
-            <div id="productAlert"></div>
-            <form id="productForm">
-                <div class="form-group">
-                    <label for="productName">Nome do Produto *</label>
-                    <input type="text" id="productName" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="productDescription">Descrição *</label>
-                    <textarea id="productDescription" class="form-control" required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="productPrice">Preço (R$) *</label>
-                    <input type="number" id="productPrice" class="form-control" min="1" step="0.01" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="productImage">Imagem do Produto</label>
-                    <input type="file" id="productImage" class="form-control" accept="image/jpg,image/jpeg">
-                    <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão (apenas JPG)</small>
-                </div>
-                
-                <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
-            </form>
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="products">Produtos</button>
+            <button class="admin-tab" data-tab="donations">Doações</button>
         </div>
         
-        <h3 class="section-title">Produtos Cadastrados</h3>
-        <div class="admin-products-grid" id="adminProductsGrid">
-            <div class="loading">Carregando produtos...</div>
+        <!-- ABA DE PRODUTOS -->
+        <div class="admin-tab-content active" id="productsTab">
+            <div class="admin-form">
+                <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Cadastrar Novo Produto</h3>
+                <div id="productAlert"></div>
+                <form id="productForm">
+                    <div class="form-group">
+                        <label for="productName">Nome do Produto *</label>
+                        <input type="text" id="productName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">Descrição *</label>
+                        <textarea id="productDescription" class="form-control" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productPrice">Preço (R$) *</label>
+                        <input type="number" id="productPrice" class="form-control" min="1" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productImage">Imagem do Produto</label>
+                        <input type="file" id="productImage" class="form-control" accept="image/jpg,image/jpeg">
+                        <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão (apenas JPG)</small>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
+                </form>
+            </div>
+            
+            <h3 class="section-title">Produtos Cadastrados</h3>
+            <div class="admin-products-grid" id="adminProductsGrid">
+                <div class="loading">Carregando produtos...</div>
+            </div>
+        </div>
+        
+        <!-- NOVA ABA: RELATÓRIOS DE DOAÇÕES -->
+        <div class="admin-tab-content" id="donationsTab">
+            <div class="donations-summary">
+                <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Relatório de Doações</h3>
+                
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Total Arrecadado</h3>
+                        <div class="value" id="totalArrecadado">R$ 0,00</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Doações Realizadas</h3>
+                        <div class="value" id="totalDoacoes">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Doações Pendentes</h3>
+                        <div class="value" id="doacoesPendentes">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Doações Concluídas</h3>
+                        <div class="value" id="doacoesConcluidas">0</div>
+                    </div>
+                </div>
+                
+                <h4 style="margin-bottom: 1rem;">Histórico de Doações</h4>
+                <div class="table-responsive">
+                    <table class="donations-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Doador</th>
+                                <th>Produto</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donationsTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem;">Carregando doações...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </section>
     
@@ -1059,6 +1249,9 @@
         const INFINITEPAY_HANDLE = "claudio-alberto-479"; // Seu handle na InfinitePay
         const REDIRECT_URL = "https://claudio1052.github.io/verbozonaleste/sucesso"; // URL de redirecionamento após pagamento
         
+        // Variável global para produto selecionado
+        let selectedProduct = null;
+        
         // Testar conexão com Supabase
         async function testSupabaseConnection() {
             try {
@@ -1083,9 +1276,51 @@
             setTimeout(() => alertDiv.innerHTML = '', 5000);
         }
         
-        function selectProduct(nome, valor) {
-            document.getElementById('produto').value = nome;
-            document.getElementById('valor').value = valor;
+        // ✅ NOVA FUNÇÃO: Exibir detalhes do produto
+        function showProductDetails(product) {
+            selectedProduct = product;
+            
+            // Esconder seção de produtos e mostrar detalhes
+            document.getElementById('produtos').style.display = 'none';
+            document.getElementById('produtoDetalhes').classList.add('active');
+            
+            // Preencher detalhes do produto
+            const container = document.getElementById('productDetailsContainer');
+            container.innerHTML = `
+                <div class="product-details-image">
+                    <img src="${product.imagem_url || 'https://via.placeholder.com/300x200.jpg?text=Sem+Imagem'}" alt="${product.nome}">
+                </div>
+                <div class="product-details-info">
+                    <h2 class="product-details-title">${product.nome}</h2>
+                    <p class="product-details-description">${product.descricao}</p>
+                    <div class="product-details-price">R$ ${product.preco.toFixed(2)}</div>
+                    <button class="btn" onclick="selectProductForDonation(${product.id})">Doar Agora</button>
+                </div>
+            `;
+            
+            // Rolar para a seção de detalhes
+            document.getElementById('produtoDetalhes').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // ✅ NOVA FUNÇÃO: Voltar para lista de produtos
+        function voltarParaProdutos() {
+            document.getElementById('produtoDetalhes').classList.remove('active');
+            document.getElementById('produtos').style.display = 'block';
+            document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // ✅ FUNÇÃO ATUALIZADA: Selecionar produto para doação
+        function selectProductForDonation(productId) {
+            if (!selectedProduct || selectedProduct.id !== productId) {
+                console.error('Produto não encontrado');
+                return;
+            }
+            
+            // Preencher formulário com dados do produto
+            document.getElementById('produto').value = selectedProduct.nome;
+            document.getElementById('valor').value = selectedProduct.preco;
+            
+            // Rolar para seção de doação
             document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
         }
         
@@ -1264,6 +1499,12 @@
                 
                 document.getElementById('donationForm').reset();
                 document.getElementById('produto').value = '';
+                
+                // Atualizar relatórios se estiver no painel admin
+                if (document.getElementById('adminPanel').classList.contains('active')) {
+                    loadDonationsReport();
+                }
+                
             } catch (error) {
                 console.error('Erro ao salvar doação:', error);
                 alert('Erro ao processar doação. Tente novamente.');
@@ -1277,6 +1518,7 @@
                 document.getElementById('adminPanel').classList.add('active');
                 document.getElementById('adminPassword').value = '';
                 loadAdminProducts();
+                loadDonationsReport(); // Carregar relatórios ao acessar admin
                 showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
             } else {
                 showAlert('adminAlert', 'Senha incorreta!', 'error');
@@ -1286,6 +1528,81 @@
         function logoutAdmin() {
             document.getElementById('adminPanel').classList.remove('active');
             document.getElementById('adminLogin').classList.add('active');
+        }
+        
+        // ✅ NOVA FUNÇÃO: Carregar relatórios de doações
+        async function loadDonationsReport() {
+            try {
+                const { data, error } = await supabase
+                    .from('doacoes')
+                    .select('*')
+                    .order('data_criacao', { ascending: false });
+                
+                if (error) throw error;
+                
+                // Calcular totais
+                let totalArrecadado = 0;
+                let totalDoacoes = data.length;
+                let doacoesPendentes = 0;
+                let doacoesConcluidas = 0;
+                
+                data.forEach(doacao => {
+                    totalArrecadado += doacao.valor;
+                    if (doacao.status === 'pendente') {
+                        doacoesPendentes++;
+                    } else if (doacao.status === 'concluido' || doacao.status === 'pago') {
+                        doacoesConcluidas++;
+                    }
+                });
+                
+                // Atualizar cards de resumo
+                document.getElementById('totalArrecadado').textContent = `R$ ${totalArrecadado.toFixed(2)}`;
+                document.getElementById('totalDoacoes').textContent = totalDoacoes;
+                document.getElementById('doacoesPendentes').textContent = doacoesPendentes;
+                document.getElementById('doacoesConcluidas').textContent = doacoesConcluidas;
+                
+                // Preencher tabela
+                const tableBody = document.getElementById('donationsTableBody');
+                tableBody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Nenhuma doação encontrada</td></tr>';
+                    return;
+                }
+                
+                data.forEach(doacao => {
+                    const row = document.createElement('tr');
+                    
+                    // Formatar data
+                    const dataFormatada = new Date(doacao.data_criacao).toLocaleDateString('pt-BR');
+                    
+                    // Determinar classe de status
+                    let statusClass = 'status-pendente';
+                    let statusText = 'Pendente';
+                    
+                    if (doacao.status === 'concluido' || doacao.status === 'pago') {
+                        statusClass = 'status-concluido';
+                        statusText = 'Concluído';
+                    } else if (doacao.status === 'encaminhado_infinitepay') {
+                        statusClass = 'status-pago';
+                        statusText = 'Processando';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${dataFormatada}</td>
+                        <td>${doacao.nome_doador}<br><small>${doacao.email_doador}</small></td>
+                        <td>${doacao.produto}</td>
+                        <td>R$ ${doacao.valor.toFixed(2)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar doações:', error);
+                document.getElementById('donationsTableBody').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Erro ao carregar doações</td></tr>';
+            }
         }
         
         async function loadAdminProducts() {
@@ -1350,7 +1667,6 @@
                     return;
                 }
                 data.forEach(product => {
-                    const safeName = product.nome.replace(/'/g, "\\'");
                     const productCard = document.createElement('div');
                     productCard.className = 'product-card';
                     productCard.innerHTML = `
@@ -1361,7 +1677,7 @@
                             <h3 class="product-title">${product.nome}</h3>
                             <p class="product-description">${product.descricao}</p>
                             <div class="product-price">R$ ${product.preco.toFixed(2)}</div>
-                            <button class="btn" onclick="selectProduct('${safeName}', ${product.preco})">Selecionar</button>
+                            <button class="btn" onclick="showProductDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})">Ver Detalhes</button>
                         </div>
                     `;
                     productsGrid.appendChild(productCard);
@@ -1426,6 +1742,28 @@
                     } else {
                         document.getElementById('pixCode').style.display = 'none';
                         document.getElementById('cardForm').classList.add('active');
+                    }
+                });
+            });
+            
+            // Configurar abas administrativas
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Ativar aba clicada
+                    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Mostrar conteúdo correspondente
+                    document.querySelectorAll('.admin-tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${tabName}Tab`).classList.add('active');
+                    
+                    // Se for a aba de doações, carregar relatórios
+                    if (tabName === 'donations') {
+                        loadDonationsReport();
                     }
                 });
             });
