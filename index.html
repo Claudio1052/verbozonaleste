@@ -86,7 +86,7 @@
             background: rgba(255,255,255,0.1);
         }
         
-        /* BANNER COM VÍDEO - CORREÇÃO PARA NÃO CORTAR A PARTE SUPERIOR */
+        /* BANNER COM VÍDEO */
         .hero {
             position: relative;
             height: 70vh;
@@ -113,7 +113,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center top; /* Garante que o topo do vídeo seja visível */
+            object-position: center top;
         }
         
         .hero-overlay {
@@ -293,7 +293,6 @@
             margin-bottom: 1.5rem;
         }
         
-        /* NOVA SEÇÃO: DETALHES DO PRODUTO */
         .product-details-section {
             display: none;
         }
@@ -601,7 +600,6 @@
             gap: 0.8rem;
         }
         
-        /* NOVO: ESTILOS PARA RELATÓRIOS DE DOAÇÕES */
         .donations-summary {
             background: white;
             border-radius: 12px;
@@ -807,7 +805,7 @@
             width: 100%;
         }
         
-        /* CORREÇÕES PARA MOBILE - MELHORIAS RESPONSIVAS */
+        /* RESPONSIVIDADE */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -825,14 +823,12 @@
                 margin: 0.5rem;
             }
             
-            /* CORREÇÃO DO BANNER PARA MOBILE - VÍDEO NÃO CORTADO */
             .hero {
                 height: 50vh;
                 margin-top: 120px;
             }
             
             .hero-video {
-                /* CORREÇÃO ESPECÍFICA PARA MOBILE */
                 object-position: center top !important;
                 width: 100% !important;
                 height: 100% !important;
@@ -891,39 +887,25 @@
                 gap: 1rem;
             }
             
-            /* Estilos responsivos para novos elementos */
-            .installment-options {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            }
-            
-            .payment-type-selector {
-                flex-direction: column;
-            }
-            
-            /* MELHORIA: Ajuste de espaçamento para seções em mobile */
             section {
                 padding: 3rem 0;
             }
             
-            /* MELHORIA: Ajuste do tamanho do logo em mobile */
             .logo {
                 font-size: 1.5rem;
             }
             
-            /* MELHORIA: Ajuste do formulário de doação em mobile */
             .donation-form {
                 padding: 1.5rem;
             }
         }
         
-        /* MELHORIA: Ajustes para telas muito pequenas (smartphones pequenos) */
         @media (max-width: 480px) {
             .hero {
-                height: 60vh; /* Aumentei um pouco a altura para mobile */
+                height: 60vh;
             }
             
             .hero-video {
-                /* CORREÇÃO ESPECÍFICA PARA SMARTPHONES PEQUENOS */
                 object-position: center top !important;
             }
             
@@ -961,14 +943,12 @@
             }
         }
         
-        /* CORREÇÃO ADICIONAL: Garantir que o vídeo sempre mostre o topo */
         @media (max-width: 1024px) {
             .hero-video {
                 object-position: center top !important;
             }
         }
         
-        /* MELHORIA: Ajustes para telas muito grandes */
         @media (min-width: 1400px) {
             .container {
                 max-width: 1320px;
@@ -998,7 +978,6 @@
     </header>
     
     <section class="hero">
-        <!-- VÍDEO PROFISSIONAL NO BANNER - CORREÇÃO PARA NÃO CORTAR O TOPO -->
         <div class="hero-video-container">
             <video class="hero-video" autoplay muted loop playsinline>
                 <source src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/verbo.mp4" type="video/mp4">
@@ -1013,7 +992,6 @@
         </div>
     </section>
     
-    <!-- SEÇÃO DE PRODUTOS -->
     <section id="produtos" class="container">
         <h2 class="section-title">Produtos para Doação</h2>
         <div class="products-grid" id="productsGrid">
@@ -1021,15 +999,11 @@
         </div>
     </section>
     
-    <!-- NOVA SEÇÃO: DETALHES DO PRODUTO -->
     <section id="produtoDetalhes" class="container product-details-section">
         <button class="back-button" onclick="voltarParaProdutos()">← Voltar para Produtos</button>
-        <div class="product-details-container" id="productDetailsContainer">
-            <!-- Conteúdo será preenchido via JavaScript -->
-        </div>
+        <div class="product-details-container" id="productDetailsContainer"></div>
     </section>
     
-    <!-- SEÇÃO DE DOAÇÃO (AGORA VINCULADA AO PRODUTO SELECIONADO) -->
     <section id="doacao" class="container">
         <h2 class="section-title">Faça sua Doação</h2>
         <div class="donation-form">
@@ -1045,8 +1019,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="telefone">Telefone</label>
-                    <input type="tel" id="telefone" class="form-control">
+                    <label for="telefone">Telefone (com DDD)</label>
+                    <input type="tel" id="telefone" class="form-control" placeholder="11999999999">
                 </div>
                 
                 <div class="form-group">
@@ -1080,7 +1054,6 @@
                     <div class="pix-code" id="pixCode">
                         <p>Escaneie o código PIX abaixo ou copie a chave:</p>
                         <div style="background:white; padding:15px; display:inline-block; border-radius:10px;">
-                            <!-- QR CODE REAL DO PIX -->
                             <img src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/qrcode-pix.png" alt="QR Code PIX" style="width:200px; height:200px;">
                         </div>
                         <p>Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
@@ -1089,21 +1062,17 @@
                     
                     <div class="card-form" id="cardForm">
                         <div class="infinite-info">
-                            💳 <strong>Pagamento Seguro com InfinitePay</strong><br>
-                            Sua doação será processada de forma segura através da InfinitePay.
-                        </div>
-                        
-                        <div class="infinite-container">
-                            <p>Você será redirecionado para o ambiente seguro da InfinitePay para finalizar seu pagamento.</p>
+                            💳 <strong>Checkout Profissional InfinitePay</strong><br>
+                            Ambiente seguro e criptografado. Seus dados estão protegidos.
                         </div>
                         
                         <div class="payment-processing" id="paymentProcessing">
                             <div class="spinner"></div>
-                            <p>Processando pagamento com InfinitePay...</p>
+                            <p>Gerando link seguro de pagamento...</p>
                         </div>
                         
                         <button type="button" class="btn btn-infinite" style="width: 100%; margin-top: 1rem;" onclick="processCardPayment()" id="infiniteButton">
-                            Ir para InfinitePay
+                            Pagar com InfinitePay
                         </button>
                     </div>
                 </div>
@@ -1134,7 +1103,6 @@
             <button class="admin-tab" data-tab="donations">Doações</button>
         </div>
         
-        <!-- ABA DE PRODUTOS -->
         <div class="admin-tab-content active" id="productsTab">
             <div class="admin-form">
                 <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Cadastrar Novo Produto</h3>
@@ -1158,7 +1126,7 @@
                     <div class="form-group">
                         <label for="productImage">Imagem do Produto</label>
                         <input type="file" id="productImage" class="form-control" accept="image/jpg,image/jpeg">
-                        <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão (apenas JPG)</small>
+                        <small style="color: #666; font-size: 0.9rem;">Se não selecionar uma imagem, será usada uma imagem padrão</small>
                     </div>
                     
                     <button type="submit" class="btn" style="width: 100%;">Salvar Produto</button>
@@ -1171,7 +1139,6 @@
             </div>
         </div>
         
-        <!-- NOVA ABA: RELATÓRIOS DE DOAÇÕES -->
         <div class="admin-tab-content" id="donationsTab">
             <div class="donations-summary">
                 <h3 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Relatório de Doações</h3>
@@ -1238,34 +1205,27 @@
     </footer>
 
     <script>
-        // Configuração do Supabase
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
-        // ========== CONFIGURAÇÃO ATUALIZADA PARA INFINITEPAY ==========
-        const INFINITEPAY_HANDLE = "claudio-alberto-479"; // Seu handle na InfinitePay
-        const REDIRECT_URL = "https://claudio1052.github.io/verbozonaleste/sucesso"; // URL de redirecionamento após pagamento
-        
-        // Variável global para produto selecionado
+        // CONFIGURAÇÃO INFINITEPAY
+        const INFINITEPAY_HANDLE = "claudio-alberto-479"; 
+        const REDIRECT_URL = "https://claudio1052.github.io/verbozonaleste/sucesso";
+        // Endpoint para criar links de pagamento (conforme documentação)
+        const INFINITEPAY_API_URL = "https://api.infinitepay.io/invoices/public/checkout/links";
+
         let selectedProduct = null;
         
-        // Testar conexão com Supabase
         async function testSupabaseConnection() {
             try {
-                console.log('🧪 Testando conexão com Supabase...');
-                const { data, error } = await supabase
-                    .from('produtos')
-                    .select('*')
-                    .limit(1);
-                
+                const { data, error } = await supabase.from('produtos').select('*').limit(1);
                 if (error) throw error;
-                console.log('✅ Conexão com Supabase estabelecida com sucesso!');
                 return true;
             } catch (error) {
-                console.error('❌ Erro na conexão com Supabase:', error);
+                console.error('Erro Supabase:', error);
                 return false;
             }
         }
@@ -1276,15 +1236,10 @@
             setTimeout(() => alertDiv.innerHTML = '', 5000);
         }
         
-        // ✅ NOVA FUNÇÃO: Exibir detalhes do produto
         function showProductDetails(product) {
             selectedProduct = product;
-            
-            // Esconder seção de produtos e mostrar detalhes
             document.getElementById('produtos').style.display = 'none';
             document.getElementById('produtoDetalhes').classList.add('active');
-            
-            // Preencher detalhes do produto
             const container = document.getElementById('productDetailsContainer');
             container.innerHTML = `
                 <div class="product-details-image">
@@ -1297,34 +1252,25 @@
                     <button class="btn" onclick="selectProductForDonation(${product.id})">Doar Agora</button>
                 </div>
             `;
-            
-            // Rolar para a seção de detalhes
             document.getElementById('produtoDetalhes').scrollIntoView({ behavior: 'smooth' });
         }
         
-        // ✅ NOVA FUNÇÃO: Voltar para lista de produtos
         function voltarParaProdutos() {
             document.getElementById('produtoDetalhes').classList.remove('active');
             document.getElementById('produtos').style.display = 'block';
             document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
         }
         
-        // ✅ FUNÇÃO ATUALIZADA: Selecionar produto para doação
         function selectProductForDonation(productId) {
-            if (!selectedProduct || selectedProduct.id !== productId) {
-                console.error('Produto não encontrado');
-                return;
-            }
-            
-            // Preencher formulário com dados do produto
+            if (!selectedProduct || selectedProduct.id !== productId) return;
             document.getElementById('produto').value = selectedProduct.nome;
             document.getElementById('valor').value = selectedProduct.preco;
-            
-            // Rolar para seção de doação
             document.getElementById('doacao').scrollIntoView({ behavior: 'smooth' });
         }
         
-        // ✅ MÉTODO ATUALIZADO PARA INFINITEPAY - INTEGRAÇÃO VIA LINK
+        // ==========================================================================
+        // ✅ INTEGRAÇÃO PROFISSIONAL INFINITEPAY (Baseado no PDF)
+        // ==========================================================================
         async function processCardPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
@@ -1333,7 +1279,6 @@
             const valor = parseFloat(document.getElementById('valor').value);
             const mensagem = document.getElementById('mensagem').value;
 
-            // Validar campos obrigatórios
             if (!nome || !email || !valor) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
@@ -1345,14 +1290,11 @@
             }
 
             try {
-                // Mostrar indicador de processamento
                 document.getElementById('paymentProcessing').style.display = 'block';
                 document.getElementById('infiniteButton').disabled = true;
-                document.getElementById('infiniteButton').textContent = 'Processando...';
+                document.getElementById('infiniteButton').textContent = 'Gerando Checkout...';
 
-                console.log('💳 Iniciando processamento com InfinitePay...');
-                
-                // 1. Primeiro, salvar a doação no banco de dados com status "pendente"
+                // 1. Salvar doação no Supabase
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
                     nome_doador: nome, 
                     email_doador: email, 
@@ -1367,103 +1309,107 @@
 
                 if (donationError) throw donationError;
 
-                console.log('✅ Doação salva no banco:', donationData[0].id);
-
-                // 2. Criar o link de checkout da InfinitePay
                 const orderNsu = `DOACAO_${donationData[0].id}`;
-                
-                // Preparar os dados do produto
                 const productName = produto || "Doação para Igreja Verbo da Vida";
                 
-                // Criar o array de itens no formato JSON
-                const items = JSON.stringify([
-                    {
-                        name: productName,
-                        price: Math.round(valor * 100), // Em centavos
-                        quantity: 1
-                    }
-                ]);
-                
-                // Codificar os parâmetros para URL
-                const encodedItems = encodeURIComponent(items);
-                const encodedRedirectUrl = encodeURIComponent(REDIRECT_URL);
-                const encodedCustomerName = encodeURIComponent(nome);
-                const encodedCustomerEmail = encodeURIComponent(email);
-                
-                // Construir o link da InfinitePay
-                let infinitePayUrl = `https://checkout.infinitepay.io/${INFINITEPAY_HANDLE}?items=${encodedItems}&order_nsu=${orderNsu}&redirect_url=${encodedRedirectUrl}`;
-                
-                // Adicionar informações do cliente se disponíveis
-                if (nome) {
-                    infinitePayUrl += `&customer_name=${encodedCustomerName}`;
-                }
-                
-                if (email) {
-                    infinitePayUrl += `&customer_email=${encodedCustomerEmail}`;
-                }
-                
-                if (telefone) {
-                    const cleanedPhone = telefone.replace(/\D/g, '');
-                    infinitePayUrl += `&customer_cellphone=${cleanedPhone}`;
-                }
-                
-                console.log('🔗 Link InfinitePay gerado:', infinitePayUrl);
-                
-                // 3. Atualizar status da doação
-                await supabase
-                    .from('doacoes')
-                    .update({
-                        status: 'encaminhado_infinitepay',
-                        checkout_url: infinitePayUrl,
-                        data_atualizacao: new Date().toISOString()
-                    })
-                    .eq('id', donationData[0].id);
+                // CONVERSÃO PARA CENTAVOS (Importante: R$ 10,00 = 1000)
+                const priceInCents = Math.round(valor * 100);
 
-                // 4. Redirecionar para o checkout da InfinitePay
-                window.open(infinitePayUrl, '_blank');
+                // 2. Montar Payload JSON conforme Documentação Oficial
+                const apiPayload = {
+                    handle: INFINITEPAY_HANDLE,
+                    redirect_url: REDIRECT_URL,
+                    order_nsu: orderNsu,
+                    items: [
+                        {
+                            quantity: 1,
+                            price: priceInCents,
+                            description: productName
+                        }
+                    ],
+                    customer: {
+                        name: nome,
+                        email: email,
+                        phone_number: telefone || ""
+                    }
+                };
+
+                // 3. Tentar gerar link via API (POST)
+                // OBS: Se houver erro de CORS (comum em front-end puro), usamos o fallback
+                try {
+                    console.log("📤 Enviando requisição para API InfinitePay...", apiPayload);
+                    
+                    const response = await fetch(INFINITEPAY_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(apiPayload)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log("✅ Link gerado via API:", data.url);
+                        
+                        await updateDonationStatus(donationData[0].id, data.url);
+                        window.location.href = data.url;
+                        return; // Encerra aqui se deu certo
+                    } else {
+                        console.warn("⚠️ API retornou erro, usando método fallback de URL.");
+                    }
+                } catch (apiError) {
+                    console.warn("⚠️ Erro de conexão com API (Provável CORS), usando fallback:", apiError);
+                }
+
+                // 4. FALLBACK: Geração de Link Manual (Caso a API falhe no navegador)
+                // Mantendo a robustez mas gerando a URL manualmente
+                const items = JSON.stringify([{
+                    name: productName,
+                    price: priceInCents, // Mantendo padrão de centavos
+                    quantity: 1
+                }]);
+
+                let infinitePayUrl = `https://checkout.infinitepay.io/${INFINITEPAY_HANDLE}`;
+                infinitePayUrl += `?items=${encodeURIComponent(items)}`;
+                infinitePayUrl += `&order_nsu=${orderNsu}`;
+                infinitePayUrl += `&redirect_url=${encodeURIComponent(REDIRECT_URL)}`;
+                infinitePayUrl += `&customer_name=${encodeURIComponent(nome)}`;
+                infinitePayUrl += `&customer_email=${encodeURIComponent(email)}`;
+                if (telefone) infinitePayUrl += `&customer_cellphone=${encodeURIComponent(telefone.replace(/\D/g, ''))}`;
+
+                console.log('🔗 Link Fallback gerado:', infinitePayUrl);
                 
-                alert('✅ Redirecionando para InfinitePay! Complete o pagamento na nova janela.');
-                
-                // Resetar botão
-                document.getElementById('paymentProcessing').style.display = 'none';
-                document.getElementById('infiniteButton').disabled = false;
-                document.getElementById('infiniteButton').textContent = 'Ir para InfinitePay';
+                await updateDonationStatus(donationData[0].id, infinitePayUrl);
+                window.open(infinitePayUrl, '_self'); // _self para manter comportamento de app
 
             } catch (error) {
-                console.error('❌ Erro no processamento:', error);
-                
-                // Esconder indicador de processamento
+                console.error('❌ Erro Geral:', error);
                 document.getElementById('paymentProcessing').style.display = 'none';
                 document.getElementById('infiniteButton').disabled = false;
-                document.getElementById('infiniteButton').textContent = 'Ir para InfinitePay';
-                
-                // Mensagem de erro detalhada
-                let errorMessage = 'Erro ao processar pagamento com InfinitePay:\n';
-                
-                if (error.message.includes('network') || error.message.includes('fetch')) {
-                    errorMessage += 'Erro de conexão. Verifique sua internet.';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                alert(errorMessage);
+                document.getElementById('infiniteButton').textContent = 'Tentar Novamente';
+                alert('Ocorreu um erro ao processar. Verifique sua conexão.');
             }
         }
+
+        async function updateDonationStatus(id, url) {
+            await supabase.from('doacoes').update({
+                status: 'encaminhado_infinitepay',
+                checkout_url: url,
+                data_atualizacao: new Date().toISOString()
+            }).eq('id', id);
+        }
         
-        // ✅ VERIFICAR PARÂMETROS DE RETORNO DA INFINITEPAY
+        // ✅ VERIFICAÇÃO DE RETORNO MELHORADA
         function checkPaymentReturn() {
             const urlParams = new URLSearchParams(window.location.search);
+            // Parâmetros oficiais de retorno
             const receiptUrl = urlParams.get('receipt_url');
-            const transactionId = urlParams.get('transaction_id');
-            const orderNsu = urlParams.get('order_nsu');
+            const transactionId = urlParams.get('transaction_nsu');
             
             if (receiptUrl && transactionId) {
-                alert('✅ Pagamento processado com sucesso! Obrigado pela sua doação.');
-                
-                // Aqui você pode atualizar o status da doação no banco de dados
-                // usando os parâmetros recebidos
-                
-                // Limpar parâmetros da URL
+                showAlert('donationForm', '✅ Pagamento confirmado com sucesso! Deus abençoe.', 'success');
+                // Limpa a URL para não reprocessar ao recarregar
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -1478,36 +1424,30 @@
             const metodoPagamento = document.querySelector('.payment-option.active').getAttribute('data-method');
             
             if (!nome || !email || !valor) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
+                alert('Preencha todos os campos obrigatórios.');
                 return;
             }
             
             try {
-                const { data, error } = await supabase.from('doacoes').insert([{
+                const { error } = await supabase.from('doacoes').insert([{
                     nome_doador: nome, email_doador: email, telefone_doador: telefone,
                     produto: produto, valor: valor, mensagem: mensagem,
                     metodo_pagamento: metodoPagamento, status: 'pendente', data_criacao: new Date().toISOString()
-                }]).select();
+                }]);
                 
                 if (error) throw error;
                 
-                if (metodoPagamento === 'pix') {
-                    alert(`✅ Doação registrada com sucesso!\n\nObrigado, ${nome}!\nSua doação de R$ ${valor.toFixed(2)} para "${produto}" foi registrada.\n\nUse o PIX abaixo para realizar o pagamento.`);
-                } else {
-                    alert(`Obrigado, ${nome}! Sua doação de R$ ${valor.toFixed(2)} para "${produto}" foi registrada.`);
-                }
+                alert(metodoPagamento === 'pix' ? 
+                    `✅ Doação registrada! Realize o PIX para concluir.` : 
+                    `Obrigado! Sua doação foi registrada.`);
                 
                 document.getElementById('donationForm').reset();
                 document.getElementById('produto').value = '';
-                
-                // Atualizar relatórios se estiver no painel admin
-                if (document.getElementById('adminPanel').classList.contains('active')) {
-                    loadDonationsReport();
-                }
+                if (document.getElementById('adminPanel').classList.contains('active')) loadDonationsReport();
                 
             } catch (error) {
-                console.error('Erro ao salvar doação:', error);
-                alert('Erro ao processar doação. Tente novamente.');
+                console.error('Erro:', error);
+                alert('Erro ao processar doação.');
             }
         }
         
@@ -1518,7 +1458,7 @@
                 document.getElementById('adminPanel').classList.add('active');
                 document.getElementById('adminPassword').value = '';
                 loadAdminProducts();
-                loadDonationsReport(); // Carregar relatórios ao acessar admin
+                loadDonationsReport();
                 showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
             } else {
                 showAlert('adminAlert', 'Senha incorreta!', 'error');
@@ -1530,308 +1470,163 @@
             document.getElementById('adminLogin').classList.add('active');
         }
         
-        // ✅ NOVA FUNÇÃO: Carregar relatórios de doações
         async function loadDonationsReport() {
             try {
-                const { data, error } = await supabase
-                    .from('doacoes')
-                    .select('*')
-                    .order('data_criacao', { ascending: false });
-                
+                const { data, error } = await supabase.from('doacoes').select('*').order('data_criacao', { ascending: false });
                 if (error) throw error;
                 
-                // Calcular totais
-                let totalArrecadado = 0;
-                let totalDoacoes = data.length;
-                let doacoesPendentes = 0;
-                let doacoesConcluidas = 0;
+                let totalArrecadado = 0, totalDoacoes = data.length, pendentes = 0, concluidos = 0;
                 
-                data.forEach(doacao => {
-                    totalArrecadado += doacao.valor;
-                    if (doacao.status === 'pendente') {
-                        doacoesPendentes++;
-                    } else if (doacao.status === 'concluido' || doacao.status === 'pago') {
-                        doacoesConcluidas++;
-                    }
+                data.forEach(d => {
+                    totalArrecadado += d.valor;
+                    if (d.status === 'pendente') pendentes++;
+                    else if (['concluido', 'pago'].includes(d.status)) concluidos++;
                 });
                 
-                // Atualizar cards de resumo
                 document.getElementById('totalArrecadado').textContent = `R$ ${totalArrecadado.toFixed(2)}`;
                 document.getElementById('totalDoacoes').textContent = totalDoacoes;
-                document.getElementById('doacoesPendentes').textContent = doacoesPendentes;
-                document.getElementById('doacoesConcluidas').textContent = doacoesConcluidas;
+                document.getElementById('doacoesPendentes').textContent = pendentes;
+                document.getElementById('doacoesConcluidas').textContent = concluidos;
                 
-                // Preencher tabela
-                const tableBody = document.getElementById('donationsTableBody');
-                tableBody.innerHTML = '';
+                const tbody = document.getElementById('donationsTableBody');
+                tbody.innerHTML = '';
                 
                 if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Nenhuma doação encontrada</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Nenhuma doação encontrada</td></tr>';
                     return;
                 }
                 
-                data.forEach(doacao => {
+                data.forEach(d => {
                     const row = document.createElement('tr');
-                    
-                    // Formatar data
-                    const dataFormatada = new Date(doacao.data_criacao).toLocaleDateString('pt-BR');
-                    
-                    // Determinar classe de status
-                    let statusClass = 'status-pendente';
-                    let statusText = 'Pendente';
-                    
-                    if (doacao.status === 'concluido' || doacao.status === 'pago') {
-                        statusClass = 'status-concluido';
-                        statusText = 'Concluído';
-                    } else if (doacao.status === 'encaminhado_infinitepay') {
-                        statusClass = 'status-pago';
-                        statusText = 'Processando';
-                    }
+                    let statusClass = d.status === 'pendente' ? 'status-pendente' : 
+                                      (d.status === 'concluido' || d.status === 'pago' ? 'status-concluido' : 'status-pago');
                     
                     row.innerHTML = `
-                        <td>${dataFormatada}</td>
-                        <td>${doacao.nome_doador}<br><small>${doacao.email_doador}</small></td>
-                        <td>${doacao.produto}</td>
-                        <td>R$ ${doacao.valor.toFixed(2)}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${new Date(d.data_criacao).toLocaleDateString('pt-BR')}</td>
+                        <td>${d.nome_doador}<br><small>${d.email_doador}</small></td>
+                        <td>${d.produto || '-'}</td>
+                        <td>R$ ${d.valor.toFixed(2)}</td>
+                        <td><span class="status-badge ${statusClass}">${d.status}</span></td>
                     `;
-                    
-                    tableBody.appendChild(row);
+                    tbody.appendChild(row);
                 });
-                
             } catch (error) {
-                console.error('Erro ao carregar doações:', error);
-                document.getElementById('donationsTableBody').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Erro ao carregar doações</td></tr>';
+                console.error('Erro relatórios:', error);
             }
         }
         
         async function loadAdminProducts() {
-            const adminGrid = document.getElementById('adminProductsGrid');
-            adminGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            const grid = document.getElementById('adminProductsGrid');
+            grid.innerHTML = '<div class="loading">Carregando...</div>';
             try {
                 const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
                 if (error) throw error;
-                adminGrid.innerHTML = '';
-                if (!data || data.length === 0) {
-                    adminGrid.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
-                    return;
-                }
-                data.forEach((product) => {
-                    const productCard = document.createElement('div');
-                    productCard.className = 'admin-product-card';
-                    productCard.innerHTML = `
-                        <div class="admin-product-image">
-                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x150.jpg?text=Sem+Imagem'}" alt="${product.nome}">
-                        </div>
-                        <div class="admin-product-info">
-                            <h3 class="admin-product-title">${product.nome}</h3>
-                            <p class="admin-product-description">${product.descricao}</p>
-                            <div class="admin-product-price">R$ ${product.preco.toFixed(2)}</div>
-                            <div class="admin-product-actions">
-                                <button class="btn btn-small btn-danger" onclick="deleteProduct(${product.id})">Excluir</button>
+                grid.innerHTML = '';
+                if (!data || !data.length) { grid.innerHTML = '<p>Nenhum produto.</p>'; return; }
+                
+                data.forEach(p => {
+                    grid.innerHTML += `
+                        <div class="admin-product-card">
+                            <div class="admin-product-image"><img src="${p.imagem_url || 'https://via.placeholder.com/300'}" alt="${p.nome}"></div>
+                            <div class="admin-product-info">
+                                <h3 class="admin-product-title">${p.nome}</h3>
+                                <div class="admin-product-price">R$ ${p.preco.toFixed(2)}</div>
+                                <button class="btn btn-small btn-danger" onclick="deleteProduct(${p.id})">Excluir</button>
                             </div>
-                        </div>
-                    `;
-                    adminGrid.appendChild(productCard);
+                        </div>`;
                 });
-            } catch (error) {
-                console.error('Erro ao carregar produtos:', error);
-                adminGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
-            }
+            } catch (e) { grid.innerHTML = '<p>Erro ao carregar.</p>'; }
         }
         
-        async function deleteProduct(productId) {
-            if (confirm('Tem certeza que deseja excluir este produto?')) {
-                try {
-                    const { error } = await supabase.from('produtos').delete().eq('id', productId);
-                    if (error) throw error;
-                    alert('Produto excluído com sucesso!');
-                    loadAdminProducts();
-                    loadProducts();
-                } catch (error) {
-                    console.error('Erro ao excluir produto:', error);
-                    alert('Erro ao excluir produto.');
-                }
+        async function deleteProduct(id) {
+            if (confirm('Excluir produto?')) {
+                await supabase.from('produtos').delete().eq('id', id);
+                loadAdminProducts(); loadProducts();
             }
         }
         
         async function loadProducts() {
-            const productsGrid = document.getElementById('productsGrid');
-            productsGrid.innerHTML = '<div class="loading">Carregando produtos...</div>';
+            const grid = document.getElementById('productsGrid');
             try {
-                const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
-                if (error) throw error;
-                productsGrid.innerHTML = '';
-                if (!data || data.length === 0) {
-                    productsGrid.innerHTML = '<p>Nenhum produto disponível para doação no momento.</p>';
-                    return;
-                }
-                data.forEach(product => {
-                    const productCard = document.createElement('div');
-                    productCard.className = 'product-card';
-                    productCard.innerHTML = `
-                        <div class="product-image">
-                            <img src="${product.imagem_url || 'https://via.placeholder.com/300x200.jpg?text=Sem+Imagem'}" alt="${product.nome}">
-                        </div>
+                const { data } = await supabase.from('produtos').select('*').order('id', { ascending: false });
+                grid.innerHTML = '';
+                if (!data || !data.length) { grid.innerHTML = '<p>Nenhum produto disponível.</p>'; return; }
+                
+                data.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'product-card';
+                    div.innerHTML = `
+                        <div class="product-image"><img src="${p.imagem_url || 'https://via.placeholder.com/300'}" alt="${p.nome}"></div>
                         <div class="product-info">
-                            <h3 class="product-title">${product.nome}</h3>
-                            <p class="product-description">${product.descricao}</p>
-                            <div class="product-price">R$ ${product.preco.toFixed(2)}</div>
-                            <button class="btn" onclick="showProductDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})">Ver Detalhes</button>
-                        </div>
-                    `;
-                    productsGrid.appendChild(productCard);
+                            <h3 class="product-title">${p.nome}</h3>
+                            <p class="product-description">${p.descricao}</p>
+                            <div class="product-price">R$ ${p.preco.toFixed(2)}</div>
+                            <button class="btn" onclick='showProductDetails(${JSON.stringify(p)})'>Ver Detalhes</button>
+                        </div>`;
+                    grid.appendChild(div);
                 });
-            } catch (error) {
-                console.error('Erro ao carregar produtos:', error);
-                productsGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
-            }
+            } catch (e) { console.error(e); }
         }
         
         async function uploadImage(file) {
-            try {
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.jpg`;
-                const filePath = `produtos/${fileName}`;
-                
-                console.log('📤 Fazendo upload da imagem JPG:', file.name);
-                
-                const { data, error } = await supabase.storage
-                    .from('imagens2')
-                    .upload(filePath, file, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
-                
-                if (error) throw error;
-                
-                const { data: { publicUrl } } = supabase.storage
-                    .from('imagens2')
-                    .getPublicUrl(filePath);
-                
-                console.log('✅ Upload realizado com sucesso:', publicUrl);
-                return publicUrl;
-                
-            } catch (error) {
-                console.error('❌ Erro ao fazer upload da imagem:', error);
-                throw error;
-            }
+            const fileName = `${Date.now()}.jpg`;
+            const { error } = await supabase.storage.from('imagens2').upload(`produtos/${fileName}`, file);
+            if (error) throw error;
+            const { data } = supabase.storage.from('imagens2').getPublicUrl(`produtos/${fileName}`);
+            return data.publicUrl;
         }
         
-        // Inicializar página
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 Inicializando aplicação...');
-            console.log('🔗 Handle InfinitePay configurado:', INFINITEPAY_HANDLE);
-            
-            // Verificar retorno de pagamento
+        document.addEventListener('DOMContentLoaded', async () => {
             checkPaymentReturn();
+            await testSupabaseConnection();
             
-            const connected = await testSupabaseConnection();
-            if (!connected) {
-                alert('⚠️ Erro na conexão com o banco de dados. Verifique o console para mais detalhes.');
-            }
-            
-            // Configurar alternância entre métodos de pagamento
-            document.querySelectorAll('.payment-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
                     this.classList.add('active');
-                    const method = this.getAttribute('data-method');
-                    if (method === 'pix') {
-                        document.getElementById('pixCode').style.display = 'block';
-                        document.getElementById('cardForm').classList.remove('active');
-                    } else {
-                        document.getElementById('pixCode').style.display = 'none';
-                        document.getElementById('cardForm').classList.add('active');
-                    }
+                    const isPix = this.dataset.method === 'pix';
+                    document.getElementById('pixCode').style.display = isPix ? 'block' : 'none';
+                    document.getElementById('cardForm').classList.toggle('active', !isPix);
                 });
             });
             
-            // Configurar abas administrativas
             document.querySelectorAll('.admin-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    
-                    // Ativar aba clicada
                     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    // Mostrar conteúdo correspondente
-                    document.querySelectorAll('.admin-tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    document.getElementById(`${tabName}Tab`).classList.add('active');
-                    
-                    // Se for a aba de doações, carregar relatórios
-                    if (tabName === 'donations') {
-                        loadDonationsReport();
-                    }
+                    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`${this.dataset.tab}Tab`).classList.add('active');
+                    if (this.dataset.tab === 'donations') loadDonationsReport();
                 });
             });
             
             document.getElementById('pixCode').style.display = 'block';
             loadProducts();
             
-            document.getElementById('adminLink').addEventListener('click', function(e) {
+            document.getElementById('adminLink').addEventListener('click', (e) => {
                 e.preventDefault();
                 document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
             });
             
-            // Configurar formulário de produto
-            document.getElementById('productForm').addEventListener('submit', async function(e) {
+            document.getElementById('productForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const file = document.getElementById('productImage').files[0];
+                let url = null;
+                if (file) url = await uploadImage(file);
                 
-                const name = document.getElementById('productName').value;
-                const description = document.getElementById('productDescription').value;
-                const price = parseFloat(document.getElementById('productPrice').value);
-                const imageFile = document.getElementById('productImage').files[0];
+                await supabase.from('produtos').insert([{
+                    nome: document.getElementById('productName').value,
+                    descricao: document.getElementById('productDescription').value,
+                    preco: parseFloat(document.getElementById('productPrice').value),
+                    imagem_url: url,
+                    ativo: true,
+                    data_criacao: new Date().toISOString()
+                }]);
                 
-                if (!name || !description || !price) {
-                    showAlert('productAlert', 'Por favor, preencha todos os campos obrigatórios.', 'error');
-                    return;
-                }
-                
-                try {
-                    let imageUrl = null;
-                    
-                    if (imageFile) {
-                        showAlert('productAlert', 'Fazendo upload da imagem JPG...', 'success');
-                        imageUrl = await uploadImage(imageFile);
-                    }
-                    
-                    console.log('💾 Salvando produto no banco...');
-                    const { data, error } = await supabase
-                        .from('produtos')
-                        .insert([
-                            {
-                                nome: name,
-                                descricao: description,
-                                preco: price,
-                                imagem_url: imageUrl,
-                                ativo: true,
-                                data_criacao: new Date().toISOString()
-                            }
-                        ])
-                        .select();
-                    
-                    if (error) {
-                        console.error('❌ Erro ao salvar produto:', error);
-                        throw error;
-                    }
-                    
-                    console.log('✅ Produto salvo com sucesso:', data);
-                    showAlert('productAlert', 'Produto cadastrado com sucesso!', 'success');
-                    
-                    document.getElementById('productForm').reset();
-                    loadAdminProducts();
-                    loadProducts();
-                    
-                } catch (error) {
-                    console.error('❌ Erro completo ao salvar produto:', error);
-                    showAlert('productAlert', 'Erro ao cadastrar produto: ' + error.message, 'error');
-                }
+                showAlert('productAlert', 'Produto salvo!', 'success');
+                document.getElementById('productForm').reset();
+                loadAdminProducts(); loadProducts();
             });
-            
-            console.log('✅ Aplicação inicializada com sucesso!');
         });
     </script>
 </body>
