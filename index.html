@@ -134,6 +134,76 @@
             width: 100%;
         }
 
+        /* Menu Hamburger para Mobile */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(12px);
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            z-index: 999;
+        }
+
+        .mobile-menu.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .mobile-menu ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .mobile-menu ul li {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mobile-menu ul li:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-menu ul li a {
+            display: block;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .mobile-menu ul li a:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-white);
+            padding-left: 2rem;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* --- Hero Section --- */
         .hero {
             position: relative;
@@ -337,13 +407,19 @@
             background: #f1f5f9;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .product-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* Alterado de 'cover' para 'contain' para evitar cortes */
             transition: transform 0.5s ease;
+            padding: 1rem; /* Adicionado espaçamento para imagens menores */
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .product-card:hover .product-image img {
@@ -408,10 +484,19 @@
             box-shadow: var(--shadow-lg);
         }
 
+        .product-details-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .product-details-image img {
             width: 100%;
+            max-width: 100%;
+            height: auto;
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-md);
+            object-fit: contain; /* Alterado para evitar cortes */
         }
 
         .product-details-info {
@@ -750,7 +835,11 @@
         /* --- Responsividade --- */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
-            nav { display: none; } /* Simplificado para este exemplo */
+            
+            /* Menu para mobile */
+            nav { display: none; }
+            .menu-toggle { display: block; }
+            
             .product-details-container { 
                 grid-template-columns: 1fr; 
                 padding: 1.5rem; 
@@ -758,8 +847,7 @@
             }
             .form-card { padding: 1.5rem; }
             .admin-tabs { flex-direction: column; }
-            .header-content { justify-content: center; flex-direction: column; gap: 1rem; }
-            nav ul { gap: 1rem; flex-wrap: wrap; justify-content: center; display: flex; }
+            .header-content { justify-content: space-between; }
             .payment-methods { grid-template-columns: 1fr; }
             .donations-table { display: block; overflow-x: auto; }
             section { padding: 3rem 0; } /* Mais ajuste para mobile */
@@ -768,6 +856,15 @@
             .hero-content { padding: 1rem; } /* Menos padding em mobile */
             .product-details-title { font-size: 1.8rem; } /* Título menor em mobile */
             .product-details-price { font-size: 1.5rem; } /* Preço menor em mobile */
+            
+            /* Ajustes para imagens em mobile */
+            .product-image {
+                height: 200px;
+            }
+            
+            .product-image img {
+                padding: 0.5rem;
+            }
         }
         
         @media (max-width: 480px) {
@@ -777,6 +874,16 @@
             .product-details-container { padding: 1rem; }
             .form-card { padding: 1rem; }
             .footer-links { gap: 1rem; }
+            
+            /* Ajustes para imagens em telas muito pequenas */
+            .product-image {
+                height: 180px;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -789,6 +896,7 @@
                     <i class="fa-solid fa-church"></i>
                     <div>Igreja <span>Verbo da Vida</span> ZL</div>
                 </div>
+                
                 <nav>
                     <ul>
                         <li><a href="#produtos">Produtos</a></li>
@@ -797,7 +905,21 @@
                         <li><a href="#admin" id="adminLink"><i class="fa-solid fa-lock"></i> Área Restrita</a></li>
                     </ul>
                 </nav>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
+        </div>
+        
+        <!-- Menu Mobile -->
+        <div class="mobile-menu" id="mobileMenu">
+            <ul>
+                <li><a href="#produtos">Produtos</a></li>
+                <li><a href="#doacao">Doar</a></li>
+                <li><a href="#contato">Contato</a></li>
+                <li><a href="#admin" id="adminLinkMobile"><i class="fa-solid fa-lock"></i> Área Restrita</a></li>
+            </ul>
         </div>
     </header>
     
@@ -1070,6 +1192,29 @@
         const INFINITEPAY_API_URL = "https://api.infinitepay.io/invoices/public/checkout/links";
 
         let selectedProduct = null;
+        
+        // Função para alternar o menu mobile
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('active');
+            
+            // Alterar ícone do botão
+            const menuToggle = document.getElementById('menuToggle');
+            if (mobileMenu.classList.contains('active')) {
+                menuToggle.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            } else {
+                menuToggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
+            }
+        }
+        
+        // Fechar menu ao clicar em um link
+        function closeMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.remove('active');
+            
+            const menuToggle = document.getElementById('menuToggle');
+            menuToggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
+        }
         
         async function testSupabaseConnection() {
             try {
@@ -1354,7 +1499,7 @@
                 data.forEach(p => {
                     grid.innerHTML += `
                         <div class="product-card" style="flex-direction: row; height: auto; padding: 1rem; align-items: center;">
-                            <img src="${p.imagem_url || 'https://via.placeholder.com/100'}" alt="${p.nome}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 1rem;">
+                            <img src="${p.imagem_url || 'https://via.placeholder.com/100'}" alt="${p.nome}" style="width: 80px; height: 80px; object-fit: contain; border-radius: 8px; margin-right: 1rem;">
                             <div style="flex-grow: 1;">
                                 <h3 style="font-size: 1rem;">${p.nome}</h3>
                                 <div style="font-weight: bold; color: var(--primary);">R$ ${p.preco.toFixed(2)}</div>
@@ -1435,6 +1580,25 @@
             checkPaymentReturn();
             await testSupabaseConnection();
             
+            // Configurar menu mobile
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileLinks = document.querySelectorAll('.mobile-menu a');
+            
+            menuToggle.addEventListener('click', toggleMobileMenu);
+            
+            // Fechar menu ao clicar em um link
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', closeMobileMenu);
+            });
+            
+            // Fechar menu ao clicar fora dele
+            document.addEventListener('click', (e) => {
+                if (!mobileMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                    closeMobileMenu();
+                }
+            });
+            
             document.querySelectorAll('.admin-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
                     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -1456,6 +1620,13 @@
             loadProducts();
             
             document.getElementById('adminLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('adminLogin').style.display = 'flex';
+                document.getElementById('adminLogin').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.getElementById('adminLinkMobile').addEventListener('click', (e) => {
                 e.preventDefault();
                 document.getElementById('adminPanel').style.display = 'none';
                 document.getElementById('adminLogin').style.display = 'flex';
