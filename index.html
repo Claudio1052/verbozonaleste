@@ -280,7 +280,7 @@
 
         /* --- Sections --- */
         section {
-            padding: 6rem 0;
+            padding: 4rem 0; /* Reduzido para melhor visualização mobile */
         }
 
         .section-title {
@@ -297,7 +297,7 @@
             color: var(--text-light);
             font-size: 1.1rem;
             max-width: 600px;
-            margin: 0 auto 4rem auto;
+            margin: 0 auto 3rem auto; /* Reduzido para mobile */
         }
         
         .section-divider {
@@ -436,7 +436,7 @@
         /* --- Forms --- */
         .form-card {
             background: var(--bg-surface);
-            padding: 3rem;
+            padding: 2rem; /* Reduzido para mobile */
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             max-width: 700px;
@@ -493,7 +493,7 @@
         /* --- Payment Methods --- */
         .payment-methods {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 1rem;
             margin-bottom: 2rem;
         }
@@ -536,24 +536,9 @@
             margin-bottom: 0.5rem;
         }
 
-        .pix-code {
-            display: none;
-            background: #f8fafc;
-            padding: 2rem;
-            border-radius: var(--radius-md);
-            text-align: center;
-            border: 2px dashed #cbd5e1;
-            margin-top: 1rem;
-        }
-        
         .card-form {
-            display: none;
-            margin-top: 1.5rem;
-        }
-        
-        .card-form.active, .pix-code.active {
             display: block;
-            animation: fadeIn 0.4s ease;
+            margin-top: 1.5rem;
         }
         
         .infinite-info {
@@ -698,7 +683,7 @@
         footer {
             background: var(--primary);
             color: white;
-            padding: 5rem 0 2rem;
+            padding: 4rem 0 2rem; /* Reduzido para mobile */
             text-align: center;
         }
 
@@ -766,13 +751,32 @@
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
             nav { display: none; } /* Simplificado para este exemplo */
-            .product-details-container { grid-template-columns: 1fr; padding: 1.5rem; }
+            .product-details-container { 
+                grid-template-columns: 1fr; 
+                padding: 1.5rem; 
+                gap: 2rem; /* Reduzido para mobile */
+            }
             .form-card { padding: 1.5rem; }
             .admin-tabs { flex-direction: column; }
             .header-content { justify-content: center; flex-direction: column; gap: 1rem; }
             nav ul { gap: 1rem; flex-wrap: wrap; justify-content: center; display: flex; }
             .payment-methods { grid-template-columns: 1fr; }
             .donations-table { display: block; overflow-x: auto; }
+            section { padding: 3rem 0; } /* Mais ajuste para mobile */
+            .section-title { font-size: 2rem; } /* Título menor em mobile */
+            .section-subtitle { margin-bottom: 2rem; } /* Menos espaço em mobile */
+            .hero-content { padding: 1rem; } /* Menos padding em mobile */
+            .product-details-title { font-size: 1.8rem; } /* Título menor em mobile */
+            .product-details-price { font-size: 1.5rem; } /* Preço menor em mobile */
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .section-title { font-size: 1.8rem; }
+            .product-details-container { padding: 1rem; }
+            .form-card { padding: 1rem; }
+            .footer-links { gap: 1rem; }
         }
     </style>
 </head>
@@ -892,25 +896,10 @@
                     <div class="form-group">
                         <label style="margin-bottom: 1rem; display: block;">Forma de Pagamento</label>
                         <div class="payment-methods">
-                            <div class="payment-option active" data-method="pix">
-                                <div class="payment-icon">💠</div>
-                                <div><strong>PIX</strong><br><small>Aprovação Imediata</small></div>
-                            </div>
-                            <div class="payment-option" data-method="cartao">
+                            <div class="payment-option active" data-method="infinitepay">
                                 <div class="payment-icon">💳</div>
-                                <div><strong>Cartão</strong><br><small>Crédito/Débito</small></div>
+                                <div><strong>InfinitePay</strong><br><small>PIX, Cartão ou Boleto</small></div>
                             </div>
-                        </div>
-                        
-                        <div class="pix-code" id="pixCode" style="display: block;">
-                            <h4 style="color: var(--primary); margin-bottom: 1rem;">Escaneie para pagar</h4>
-                            <div style="background: white; padding: 1rem; display: inline-block; border-radius: 8px; box-shadow: var(--shadow-sm); margin-bottom: 1rem;">
-                                <img src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/qrcode-pix.png" alt="QR Code PIX" style="width:180px; height:180px;">
-                            </div>
-                            <p style="font-size: 0.9rem; color: var(--text-light);">Chave PIX: <strong>igreja.verbo.vida.zl@email.com</strong></p>
-                            <button type="button" class="btn mt-2" onclick="confirmPayment()" style="width: 100%; margin-top: 1.5rem;">
-                                <i class="fa-solid fa-check"></i> Já realizei o pagamento
-                            </button>
                         </div>
                         
                         <div class="card-form" id="cardForm">
@@ -918,7 +907,7 @@
                                 <i class="fa-solid fa-lock"></i>
                                 <div>
                                     <strong>Checkout Seguro InfinitePay</strong><br>
-                                    Seus dados são processados em ambiente criptografado.
+                                    Seus dados são processados em ambiente criptografado. Aceita PIX, cartão de crédito/débito e boleto.
                                 </div>
                             </div>
                             
@@ -1272,82 +1261,6 @@
             }
         }
         
-        async function confirmPayment() {
-            const nome = document.getElementById('nome').value;
-            const email = document.getElementById('email').value;
-            const telefone = document.getElementById('telefone').value;
-            const produto = document.getElementById('produto').value;
-            const valor = parseFloat(document.getElementById('valor').value);
-            const mensagem = document.getElementById('mensagem').value;
-            const metodoPagamento = document.querySelector('.payment-option.active').getAttribute('data-method');
-            
-            // VALIDAÇÃO RIGOROSA: PRODUTO OBRIGATÓRIO
-            if (!produto || produto.trim() === "") {
-                showAlert('donationAlert', 'ERRO: Selecione um PRODUTO na lista acima.', 'error');
-                document.getElementById('produtoErro').style.display = 'block';
-                document.getElementById('produtos').scrollIntoView({behavior: 'smooth'});
-                return;
-            } else {
-                document.getElementById('produtoErro').style.display = 'none';
-            }
-
-            if (!nome || !email || !valor) {
-                showAlert('donationAlert', 'Preencha todos os campos obrigatórios (*).', 'error');
-                return;
-            }
-            
-            try {
-                const { error } = await supabase.from('doacoes').insert([{
-                    nome_doador: nome, email_doador: email, telefone_doador: telefone,
-                    produto: produto, valor: valor, mensagem: mensagem,
-                    metodo_pagamento: metodoPagamento, status: 'pendente', data_criacao: new Date().toISOString()
-                }]);
-                
-                if (error) throw error;
-                
-                showAlert('donationAlert', metodoPagamento === 'pix' ? 
-                    `✅ Doação registrada! Realize o PIX para concluir.` : 
-                    `Obrigado! Sua doação foi registrada.`, 'success');
-                
-                document.getElementById('donationForm').reset();
-                // Resetar campo produto e destravar valor (para novo uso)
-                document.getElementById('produto').value = '';
-                document.getElementById('valor').readOnly = true; // Manter travado até selecionar novo
-                
-                if (document.getElementById('adminPanel').classList.contains('active')) loadDonationsReport();
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                showAlert('donationAlert', 'Erro ao processar doação.', 'error');
-            }
-        }
-        
-        function loginAdmin() {
-            const password = document.getElementById('adminPassword').value;
-            if (password === ADMIN_PASSWORD) {
-                document.getElementById('adminLogin').classList.remove('active');
-                document.getElementById('adminPanel').classList.add('active');
-                document.getElementById('adminPassword').value = '';
-                
-                document.getElementById('adminLogin').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'block';
-                
-                loadAdminProducts();
-                loadDonationsReport();
-                showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
-            } else {
-                showAlert('adminAlert', 'Senha incorreta!', 'error');
-            }
-        }
-        
-        function logoutAdmin() {
-            document.getElementById('adminPanel').classList.remove('active');
-            document.getElementById('adminLogin').classList.add('active');
-            
-            document.getElementById('adminLogin').style.display = 'flex';
-            document.getElementById('adminPanel').style.display = 'none';
-        }
-        
         // ==========================================================================
         // ADMIN - ATUALIZAÇÃO DE STATUS MANUAL
         // ==========================================================================
@@ -1493,32 +1406,35 @@
             return data.publicUrl;
         }
         
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('adminLogin').classList.remove('active');
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('adminPassword').value = '';
+                
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                
+                loadAdminProducts();
+                loadDonationsReport();
+                showAlert('adminAlert', 'Login realizado com sucesso!', 'success');
+            } else {
+                showAlert('adminAlert', 'Senha incorreta!', 'error');
+            }
+        }
+        
+        function logoutAdmin() {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('adminLogin').classList.add('active');
+            
+            document.getElementById('adminLogin').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+        
         document.addEventListener('DOMContentLoaded', async () => {
             checkPaymentReturn();
             await testSupabaseConnection();
-            
-            document.querySelectorAll('.payment-option').forEach(opt => {
-                opt.addEventListener('click', function() {
-                    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
-                    this.classList.add('active');
-                    const isPix = this.dataset.method === 'pix';
-                    
-                    const pixCode = document.getElementById('pixCode');
-                    const cardForm = document.getElementById('cardForm');
-                    
-                    if (isPix) {
-                        pixCode.classList.add('active');
-                        pixCode.style.display = 'block';
-                        cardForm.classList.remove('active');
-                        cardForm.style.display = 'none';
-                    } else {
-                        pixCode.classList.remove('active');
-                        pixCode.style.display = 'none';
-                        cardForm.classList.add('active');
-                        cardForm.style.display = 'block';
-                    }
-                });
-            });
             
             document.querySelectorAll('.admin-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -1538,7 +1454,6 @@
                 });
             });
             
-            document.getElementById('pixCode').style.display = 'block';
             loadProducts();
             
             document.getElementById('adminLink').addEventListener('click', (e) => {
