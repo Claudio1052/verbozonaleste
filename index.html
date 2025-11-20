@@ -99,6 +99,12 @@
             color: var(--accent);
         }
 
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
         nav ul {
             display: flex;
             list-style: none;
@@ -865,6 +871,12 @@
             .product-image img {
                 padding: 0.5rem;
             }
+            
+            /* Ajuste para logo em mobile */
+            .logo-img {
+                width: 35px;
+                height: 35px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -884,6 +896,12 @@
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
+            
+            /* Ajuste para logo em telas muito pequenas */
+            .logo-img {
+                width: 30px;
+                height: 30px;
+            }
         }
     </style>
 </head>
@@ -893,7 +911,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <i class="fa-solid fa-church"></i>
+                    <img src="https://nekbbkenxcukoortusge.supabase.co/storage/v1/object/public/imagens2/produtos/logo.png" alt="Igreja Verbo da Vida" class="logo-img">
                     <div>Igreja <span>Verbo da Vida</span> ZL</div>
                 </div>
                 
