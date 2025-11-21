@@ -15,12 +15,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
+        /* Estilos mantidos iguais */
         :root {
             /* Paleta de Cores Refinada */
             --primary: #0f172a;       /* Navy Blue Profundo */
             --primary-light: #1e293b;
-            --accent: #009ee3;        /* Azul Mercado Pago */
-            --accent-hover: #0078b5;
+            --accent: #d97706;        /* Dourado/Âmbar sofisticado */
+            --accent-hover: #b45309;
             
             --bg-body: #f8fafc;
             --bg-surface: #ffffff;
@@ -268,7 +269,7 @@
         }
         
         .hero h1 span {
-            background: linear-gradient(135deg, #009ee3 0%, #0078b5 100%);
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -298,13 +299,13 @@
             font-size: 1rem;
             font-weight: 600;
             transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(0, 158, 227, 0.3);
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
         }
 
         .btn:hover {
             background: var(--accent-hover);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 158, 227, 0.4);
+            box-shadow: 0 8px 20px rgba(217, 119, 6, 0.4);
         }
 
         .btn-secondary {
@@ -333,7 +334,7 @@
         }
 
         .btn-mercado-pago:hover {
-            background: #0078b5;
+            background: #007eb5;
         }
         
         .btn-confirm-admin {
@@ -612,7 +613,7 @@
 
         .payment-option.active {
             border-color: var(--accent);
-            background: #eff9ff;
+            background: #fffbeb;
             position: relative;
         }
         
@@ -636,9 +637,9 @@
         }
         
         .mercado-pago-info {
-            background: #eff9ff;
-            border: 1px solid #c2e7ff;
-            color: #0066a6;
+            background: #f0f9ff;
+            border: 1px solid #e0f2fe;
+            color: #0369a1;
             padding: 1rem;
             border-radius: var(--radius-sm);
             margin-bottom: 1.5rem;
@@ -1040,7 +1041,7 @@
                         <div class="payment-methods">
                             <div class="payment-option active" data-method="mercadopago">
                                 <div class="payment-icon">💳</div>
-                                <div><strong>Efetue o Pagamento</strong><br><small>PIX, Cartão ou Boleto</small></div>
+                                <div><strong>Efetue o Pagamento</strong><br><small>PIX ou Cartão</small></div>
                             </div>
                         </div>
                         
@@ -1049,7 +1050,7 @@
                                 <i class="fa-solid fa-lock"></i>
                                 <div>
                                     <strong>Checkout Seguro Mercado Pago</strong><br>
-                                    Seus dados são processados em ambiente criptografado. Aceita PIX, cartão de crédito e boleto.
+                                    Seus dados são processados em ambiente criptografado. Aceita PIX e cartão de crédito.
                                 </div>
                             </div>
                             
@@ -1058,7 +1059,7 @@
                                 <p>Gerando link seguro...</p>
                             </div>
                             
-                            <button type="button" class="btn btn-mercado-pago" style="width: 100%;" onclick="processCardPayment()" id="mercadopagoButton">
+                            <button type="button" class="btn btn-mercado-pago" style="width: 100%;" onclick="processMercadoPagoPayment()" id="mercadoPagoButton">
                                 Pagar <i class="fa-solid fa-arrow-right" style="margin-left: 0.5rem;"></i>
                             </button>
                         </div>
@@ -1200,7 +1201,7 @@
 
     <script>
         // ==========================================================================
-        // SCRIPT COMPLETO COM INTEGRAÇÃO MERCADO PAGO CORRIGIDA
+        // SCRIPT COMPLETO COM INTEGRAÇÃO MERCADO PAGO
         // ==========================================================================
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
@@ -1208,14 +1209,12 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_PASSWORD = "admin123";
         
-        // NOVAS CREDENCIAIS DO MERCADO PAGO (do print)
-        const MERCADOPAGO_PUBLIC_KEY = "APP_USR-7deae1le-fef7-4003-b988-e20e048459c8";
-        const ACCESS_TOKEN = "APP_USR-1166796932470658-013015-7c5a2f9c8d5c4b2b8f8c5a5b3c7d3e4a-270554505";
-        const CLIENT_ID = "1166796932470658";
-        const CLIENT_SECRET = "7wWL7L5c9t8sDMGPE6JVqIKRpgCSIRcr";
+        // Credenciais do Mercado Pago
+        const MERCADO_PAGO_PUBLIC_KEY = "APP_USR-7deae1fe-fef7-4003-b988-e20e048459c8";
+        const MERCADO_PAGO_ACCESS_TOKEN = "APP_USR-1166796932470658-112112-9210f9e4920cb2190c26683e4cb74871-270554505";
         
-        // Inicializar Mercado Pago
-        const mp = new MercadoPago(MERCADOPAGO_PUBLIC_KEY, {
+        // Inicializar Mercado Pago SDK
+        const mp = new MercadoPago(MERCADO_PAGO_PUBLIC_KEY, {
             locale: 'pt-BR'
         });
 
@@ -1302,9 +1301,9 @@
         }
         
         // ==========================================================================
-        // INTEGRAÇÃO MERCADO PAGO - SOLUÇÃO SIMPLIFICADA
+        // INTEGRAÇÃO MERCADO PAGO - COM VALIDAÇÃO DE ITEM OBRIGATÓRIO
         // ==========================================================================
-        async function processCardPayment() {
+        async function processMercadoPagoPayment() {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
             const telefone = document.getElementById('telefone').value;
@@ -1328,10 +1327,10 @@
 
             try {
                 document.getElementById('paymentProcessing').style.display = 'block';
-                document.getElementById('mercadopagoButton').disabled = true;
-                document.getElementById('mercadopagoButton').textContent = 'Gerando Checkout...';
+                document.getElementById('mercadoPagoButton').disabled = true;
+                document.getElementById('mercadoPagoButton').textContent = 'Gerando Checkout...';
 
-                // Salvar a doação no banco de dados
+                // Registrar a doação no banco de dados
                 const { data: donationData, error: donationError } = await supabase.from('doacoes').insert([{
                     nome_doador: nome, 
                     email_doador: email, 
@@ -1346,44 +1345,65 @@
 
                 if (donationError) throw donationError;
 
-                // SOLUÇÃO SIMPLIFICADA: Redirecionar para URL direta do Mercado Pago
-                const productTitle = encodeURIComponent(produto || "Doação para Igreja Verbo da Vida");
-                const price = valor.toFixed(2);
+                // Criar preferência de pagamento no Mercado Pago
+                const preferenceData = {
+                    items: [
+                        {
+                            title: produto || "Doação para Igreja Verbo da Vida",
+                            quantity: 1,
+                            currency_id: "BRL",
+                            unit_price: valor
+                        }
+                    ],
+                    payer: {
+                        name: nome,
+                        email: email,
+                        phone: {
+                            number: telefone || ""
+                        }
+                    },
+                    back_urls: {
+                        success: window.location.href,
+                        failure: window.location.href,
+                        pending: window.location.href
+                    },
+                    auto_return: "approved",
+                    notification_url: "https://webhook.site/YOUR_WEBHOOK_URL" // Opcional: para receber notificações de pagamento
+                };
+
+                // Fazer requisição para criar a preferência
+                const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`
+                    },
+                    body: JSON.stringify(preferenceData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao criar preferência de pagamento');
+                }
+
+                const preference = await response.json();
                 
-                // URL direta para o checkout do Mercado Pago
-                const checkoutUrl = `https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=create_preference_first`;
-                
-                // Como não podemos criar a preferência diretamente do frontend,
-                // vamos usar uma abordagem alternativa
-                showAlert('donationAlert', 
-                    'Para finalizar a doação, entre em contato conosco pelo WhatsApp (83) 98800-6714 para gerar o link de pagamento.', 
-                    'success');
-                
-                // Atualizar status da doação
+                // Atualizar a doação com o ID da preferência
                 await supabase.from('doacoes').update({
-                    status: 'aguardando_link',
+                    checkout_url: preference.init_point,
+                    preference_id: preference.id,
                     data_atualizacao: new Date().toISOString()
                 }).eq('id', donationData[0].id);
 
-                // Reset do botão
-                document.getElementById('paymentProcessing').style.display = 'none';
-                document.getElementById('mercadopagoButton').disabled = false;
-                document.getElementById('mercadopagoButton').textContent = 'Pagar';
+                // Redirecionar para o checkout do Mercado Pago
+                window.location.href = preference.init_point;
 
             } catch (error) {
-                console.error('Erro Geral:', error);
+                console.error('Erro no processamento do pagamento:', error);
                 document.getElementById('paymentProcessing').style.display = 'none';
-                document.getElementById('mercadopagoButton').disabled = false;
-                document.getElementById('mercadopagoButton').textContent = 'Tentar Novamente';
-                showAlert('donationAlert', 'Ocorreu um erro ao processar. Entre em contato conosco pelo WhatsApp (83) 98800-6714.', 'error');
+                document.getElementById('mercadoPagoButton').disabled = false;
+                document.getElementById('mercadoPagoButton').textContent = 'Tentar Novamente';
+                showAlert('donationAlert', 'Ocorreu um erro ao processar o pagamento. Verifique sua conexão.', 'error');
             }
-        }
-
-        // Função alternativa usando o Brick do Mercado Pago (mais complexa)
-        async function initializeMercadoPagoBrick() {
-            // Esta função seria usada para integrar o Brick do Mercado Pago
-            // Mas requer configuração mais complexa no backend
-            console.log('Inicializando Mercado Pago Brick...');
         }
         
         function checkPaymentReturn() {
@@ -1394,8 +1414,11 @@
             if (collectionStatus === 'approved' && paymentId) {
                 showAlert('donationAlert', '✅ Pagamento confirmado com sucesso! Deus abençoe.', 'success');
                 window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (collectionStatus === 'pending') {
+                showAlert('donationAlert', '⚠️ Pagamento pendente. Aguardando confirmação.', 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
             } else if (collectionStatus === 'rejected') {
-                showAlert('donationAlert', '❌ Pagamento não aprovado. Tente novamente ou use outro método.', 'error');
+                showAlert('donationAlert', '❌ Pagamento rejeitado. Tente novamente.', 'error');
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
