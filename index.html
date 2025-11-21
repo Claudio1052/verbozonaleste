@@ -1201,7 +1201,7 @@
 
     <script>
         // ==========================================================================
-        // SCRIPT COMPLETO COM INTEGRAÇÃO MERCADO PAGO
+        // SCRIPT COMPLETO COM INTEGRAÇÃO MERCADO PAGO CORRIGIDA
         // ==========================================================================
         const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
@@ -1359,7 +1359,7 @@
                         name: nome,
                         email: email,
                         phone: {
-                            number: telefone || ""
+                            number: telefone ? telefone.replace(/\D/g, '') : ""
                         }
                     },
                     back_urls: {
@@ -1368,7 +1368,8 @@
                         pending: window.location.href
                     },
                     auto_return: "approved",
-                    notification_url: "https://webhook.site/YOUR_WEBHOOK_URL" // Opcional: para receber notificações de pagamento
+                    external_reference: `doacao_${donationData[0].id}`,
+                    statement_descriptor: "Igreja Verbo da Vida"
                 };
 
                 // Fazer requisição para criar a preferência
@@ -1382,7 +1383,9 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erro ao criar preferência de pagamento');
+                    const errorData = await response.json();
+                    console.error('Erro API Mercado Pago:', errorData);
+                    throw new Error(`Erro ao criar preferência: ${errorData.message || response.status}`);
                 }
 
                 const preference = await response.json();
@@ -1401,8 +1404,8 @@
                 console.error('Erro no processamento do pagamento:', error);
                 document.getElementById('paymentProcessing').style.display = 'none';
                 document.getElementById('mercadoPagoButton').disabled = false;
-                document.getElementById('mercadoPagoButton').textContent = 'Tentar Novamente';
-                showAlert('donationAlert', 'Ocorreu um erro ao processar o pagamento. Verifique sua conexão.', 'error');
+                document.getElementById('mercadoPagoButton').innerHTML = 'Tentar Novamente <i class="fa-solid fa-arrow-right" style="margin-left: 0.5rem;"></i>';
+                showAlert('donationAlert', `Ocorreu um erro ao processar o pagamento: ${error.message}`, 'error');
             }
         }
         
@@ -1410,16 +1413,34 @@
             const urlParams = new URLSearchParams(window.location.search);
             const collectionStatus = urlParams.get('collection_status');
             const paymentId = urlParams.get('payment_id');
+            const externalReference = urlParams.get('external_reference');
             
             if (collectionStatus === 'approved' && paymentId) {
                 showAlert('donationAlert', '✅ Pagamento confirmado com sucesso! Deus abençoe.', 'success');
+                // Limpar parâmetros da URL
                 window.history.replaceState({}, document.title, window.location.pathname);
+                
+                // Opcional: Atualizar status no banco de dados
+                if (externalReference) {
+                    updateDonationStatus(externalReference.replace('doacao_', ''), 'concluido');
+                }
             } else if (collectionStatus === 'pending') {
                 showAlert('donationAlert', '⚠️ Pagamento pendente. Aguardando confirmação.', 'error');
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else if (collectionStatus === 'rejected') {
                 showAlert('donationAlert', '❌ Pagamento rejeitado. Tente novamente.', 'error');
                 window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+        
+        async function updateDonationStatus(donationId, status) {
+            try {
+                await supabase.from('doacoes').update({
+                    status: status,
+                    data_atualizacao: new Date().toISOString()
+                }).eq('id', donationId);
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
             }
         }
         
