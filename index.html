@@ -1153,24 +1153,44 @@
 
     <script>
         // ==========================================================================
-        // SCRIPT CORRIGIDO - SEGUINDO A DOCUMENTAÇÃO OFICIAL DO MERCADO PAGO
+        // SCRIPT COMPLETO COM CONFIGURAÇÃO EXTERNA
         // ==========================================================================
-        const SUPABASE_URL = 'https://nekbbkenxcukoortusge.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5la2Jia2VueGN1a29vcnR1c2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzOTU5MDIsImV4cCI6MjA3ODk3MTkwMn0.D72914Vyz1du1ZDKoNDdwT7YI-D8WPgZe38LbBV2bfc';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const ADMIN_PASSWORD = "admin123";
-        
-        // Credenciais do Mercado Pago - CONFORME DOCUMENTAÇÃO
-        const MERCADO_PAGO_PUBLIC_KEY = "APP_USR-dd5527f2-6517-4500-9523-853f7c24f75";
-        const MERCADO_PAGO_ACCESS_TOKEN = "APP_USR-7942402403468023-112215-a0799e629a61e1568f394d40728fed58-674529245";
-        
-        // Inicializar Mercado Pago SDK
-        const mp = new MercadoPago(MERCADO_PAGO_PUBLIC_KEY, {
-            locale: 'pt-BR'
-        });
-
+        // Variáveis globais que serão preenchidas após carregar a configuração
+        let supabase;
+        let mp;
+        let ADMIN_PASSWORD;
+        let config; // Variável global para armazenar a configuração
         let selectedProduct = null;
+        
+        // Função para carregar configuração do arquivo externo
+        async function loadConfig() {
+            try {
+                const response = await fetch('./config.json');
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar configuração');
+                }
+                config = await response.json();
+                
+                // Inicializar Supabase
+                supabase = window.supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+                
+                // Inicializar Mercado Pago
+                mp = new MercadoPago(config.MERCADO_PAGO_PUBLIC_KEY, {
+                    locale: 'pt-BR'
+                });
+                
+                // Definir senha de admin
+                ADMIN_PASSWORD = config.ADMIN_PASSWORD;
+                
+                console.log('Configuração carregada com sucesso');
+                return true;
+            } catch (error) {
+                console.error('Erro ao carregar configuração:', error);
+                showAlert('donationAlert', 'Erro de configuração do sistema. Entre em contato com o administrador.', 'error');
+                return false;
+            }
+        }
         
         // Função para alternar o menu mobile
         function toggleMobileMenu() {
@@ -1344,7 +1364,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`
+                        'Authorization': `Bearer ${config.MERCADO_PAGO_ACCESS_TOKEN}`
                     },
                     body: JSON.stringify(preferenceData)
                 });
@@ -1602,6 +1622,14 @@
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
+            // Carregar configuração primeiro
+            const configLoaded = await loadConfig();
+            
+            if (!configLoaded) {
+                showAlert('donationAlert', 'Erro ao carregar configuração do sistema. Entre em contato com o administrador.', 'error');
+                return;
+            }
+            
             checkPaymentReturn();
             await testSupabaseConnection();
             
@@ -1681,5 +1709,3 @@
     </script>
 </body>
 </html>
-
-
